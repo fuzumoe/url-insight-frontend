@@ -19,6 +19,26 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
+### `npm run test:unit`
+
+Runs unit tests once without watching for changes.
+
+### `npm run test:unit:watch`
+
+Runs unit tests in interactive watch mode.
+
+### `npm run test:e2e`
+
+Runs end-to-end tests using Cypress in headless mode.
+
+### `npm run test:e2e:open`
+
+Opens Cypress Test Runner for interactive e2e testing.
+
+### `npm run test:e2e:ci`
+
+Runs e2e tests in CI mode - starts the development server and runs Cypress tests against it.
+
 ### `npm run build`
 
 Builds the app for production to the `build` folder.\
@@ -128,6 +148,50 @@ npm run commitlint:last
 ```
 
 For detailed guidelines, see [COMMIT_GUIDELINES.md](./COMMIT_GUIDELINES.md).
+
+## Testing
+
+This project includes both unit and end-to-end (e2e) testing infrastructure:
+
+### Unit Testing
+
+- **Framework**: Jest + React Testing Library
+- **Location**: Test files are located alongside source files or in `src/__tests__/`
+- **Test Utils**: Custom render utilities in `src/test-utils/` with testing providers
+
+**Running Unit Tests:**
+```bash
+npm run test:unit        # Run once
+npm run test:unit:watch  # Run in watch mode
+npm test                 # Interactive watch mode (default)
+```
+
+### End-to-End Testing
+
+- **Framework**: Cypress
+- **Location**: Tests are in `cypress/e2e/`
+- **Configuration**: `cypress.config.ts`
+
+**Running E2E Tests:**
+```bash
+npm run test:e2e         # Run headless
+npm run test:e2e:open    # Open Cypress UI
+npm run test:e2e:ci      # CI mode (starts server + runs tests)
+```
+
+### Test Structure
+
+```
+src/
+├── __tests__/           # Unit tests
+├── test-utils/          # Testing utilities
+└── components/
+    └── __tests__/       # Component tests
+cypress/
+├── e2e/                # E2E tests
+├── fixtures/           # Test data
+└── support/            # Support files
+```
 
 ## Credits
 

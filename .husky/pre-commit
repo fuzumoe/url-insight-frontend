@@ -11,4 +11,9 @@ npx lint-staged
 echo "🧪 Running unit tests..."
 npm run test:unit
 
+
+# Run e2e tests (WARNING: This will be slow!)
+echo "🌐 Running e2e tests..."
+npm run test:e2e:ci
+
 echo "✅ All pre-commit checks passed!"
