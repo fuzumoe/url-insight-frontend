@@ -90,6 +90,49 @@ The Prettier configuration uses:
 - Trailing commas where valid
 - 80 character line width
 
+## Commit Message Guidelines
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/) specification with automated validation through commitlint and Husky hooks.
+
+### Pre-commit Hooks
+
+The following hooks are automatically run:
+
+- **pre-commit**: Runs lint-staged (ESLint + Prettier) and tests
+- **commit-msg**: Validates commit message format 
+
+### Commit Message Format
+
+```
+<type>(<scope>): <subject>
+```
+
+**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+**Examples**:
+```bash
+feat: add user authentication
+fix: resolve navigation menu bug
+docs: update API documentation
+test: add unit tests for payment service
+```
+
+### Testing Commit Messages
+
+```bash
+# Test a commit message
+echo "feat: add new feature" | npm run commitlint
+
+# Check last commit
+npm run commitlint:last
+```
+
+For detailed guidelines, see [COMMIT_GUIDELINES.md](./COMMIT_GUIDELINES.md).
+
+## Credits
+
+Emojis used in this project are sourced from [Emojipedia](https://emojipedia.org/).
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
