@@ -32,7 +32,8 @@ pnpm-debug.log*
 *.tsbuildinfo
 
 # Editor settings
-.vscode/
+.vscode/ #  commented out to show how to set up editor-specific settings for vscode
+ 
 .idea/
 *.suo
 *.ntvs*

@@ -39,6 +39,57 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
+## Code Quality Setup
+
+This project uses ESLint for linting and Prettier for code formatting.
+
+### Code Quality Scripts
+
+- `npm run lint` - Run ESLint on all TypeScript/JavaScript files
+- `npm run lint:fix` - Run ESLint with automatic fixes
+- `npm run format` - Format all files with Prettier
+- `npm run format:check` - Check if files are formatted correctly
+
+### Pre-commit Hooks
+
+The project uses Husky and lint-staged to automatically run linting and formatting before each commit:
+
+- ESLint will check and fix linting issues
+- Prettier will format the code
+- Only staged files will be processed
+
+### Configuration Files
+
+- `.eslintrc.js` - ESLint configuration
+- `.prettierrc` - Prettier configuration
+- `.prettierignore` - Files to ignore during formatting
+- `.vscode/settings.json` - VS Code settings for consistent formatting
+
+### VS Code Extensions
+
+For the best development experience, install these VS Code extensions:
+
+- ESLint (`dbaeumer.vscode-eslint`)
+- Prettier - Code formatter (`esbenp.prettier-vscode`)
+
+### Rules Overview
+
+The ESLint configuration includes:
+
+- TypeScript recommended rules
+- React recommended rules
+- React Hooks rules
+- Prettier integration
+- Custom rules for unused variables, console warnings, etc.
+
+The Prettier configuration uses:
+
+- Single quotes
+- Semicolons
+- 2-space indentation
+- Trailing commas where valid
+- 80 character line width
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
