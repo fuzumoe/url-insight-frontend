@@ -7,6 +7,8 @@ echo "🔍 Running pre-commit checks..."
 echo "📝 Running lint-staged..."
 npx lint-staged
 
-
+# Run unit tests only (not e2e tests)
+echo "🧪 Running unit tests..."
+npm run test:unit
 
 echo "✅ All pre-commit checks passed!"
