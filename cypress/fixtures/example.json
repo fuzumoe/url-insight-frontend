@@ -1,0 +1,21 @@
+{
+    "example": {
+        "name": "Test User",
+        "email": "test@example.com"
+    },
+    "testUrls": [
+        "https://example.com",
+        "https://google.com",
+        "https://github.com"
+    ],
+    "mockApiResponse": {
+        "status": "success",
+        "data": {
+            "url": "https://example.com",
+            "title": "Example Domain",
+            "description": "This domain is for use in illustrative examples",
+            "status": 200,
+            "loadTime": 250
+        }
+    }
+}
