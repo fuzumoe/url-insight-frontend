@@ -1,0 +1,13 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Validating commit message..."
+
+# Run commitlint
+if npx --no-install commitlint --edit "$1"; then
+    echo "✅ Commit message is valid!"
+else
+    echo "❌ Commit message validation failed!"
+    echo "📖 Please check COMMIT_GUIDELINES.md for examples"
+    exit 1
+fi

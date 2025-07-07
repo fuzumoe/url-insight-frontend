@@ -26,6 +26,9 @@
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css,md}",
     "format:check": "prettier --check src/**/*.{js,jsx,ts,tsx,json,css,md}",
+    "commitlint": "commitlint --edit",
+    "commitlint:last": "commitlint --from HEAD~1 --to HEAD --verbose",
+    "hooks:check": "ls -la .husky/ && echo '✅ Husky hooks are set up!'",
     "prepare": "husky"
   },
   "browserslist": {
@@ -41,6 +44,8 @@
     ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^7.32.0",
