@@ -1,27 +1,37 @@
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
+# Testing
 /coverage
 
-# production
+# Production build
 /build
 /dist
 
-# misc
-.DS_Store
+# Environment
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+*.log
 
-# editor settings
+# Lock files (optional)
+/package-lock.json
+/pnpm-lock.yaml
+/yarn.lock
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Editor settings
 .vscode/
 .idea/
 *.suo
@@ -29,19 +39,9 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 
-# Optional: Mac system files
+# Misc
+.DS_Store
 *.DS_Store
 
-# Optional: Log files
-*.log
-
-# Optional: Lock files (if you want to re-generate)
-/package-lock.json
-/pnpm-lock.yaml
-/yarn.lock
-
-# Optional: TypeScript
-*.tsbuildinfo
-
 # Optional: local dev tools
-.vitepress/cache/
+/vitepress/cache/

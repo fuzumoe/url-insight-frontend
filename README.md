@@ -1,36 +1,46 @@
-# URLInsight Frontend
+# Getting Started with Create React App
 
-A React + TypeScript web application for managing URL analyses, viewing crawl results, and exploring detailed metrics.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Features
+## Available Scripts
 
-- **URL Management**  
-  Add new URLs, start/stop crawls, bulk actions (re-run, delete)
-- **Dashboard**  
-  Paginated, sortable, filterable table of URL summaries
-- **Detail View**  
-  Donut/bar chart of internal vs. external links, broken-links list
-- **Real-Time Status**  
-  Polling-based status updates (queued → running → done / error)
-- **Responsive Design**  
-  Mobile-first layout with Tailwind CSS
-- **Tests**  
-  Jest + React Testing Library covering core user flows
+In the project directory, you can run:
 
----
+### `npm start`
 
-## Prerequisites
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-- [Node.js](https://nodejs.org/) v16+  
-- [npm](https://npmjs.com/) or [Yarn](https://yarnpkg.com/)  
-- A running instance of the **URLInsight Backend** API (see `REACT_APP_API_URL` below)
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
----
+### `npm test`
 
-## Getting Started
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-1. **Clone the repo**
+### `npm run build`
 
-   ```bash
-   git clone https://github.com/your-org/urlinsight-frontend.git
-   cd urlinsight-frontend
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
