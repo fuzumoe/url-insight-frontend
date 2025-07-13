@@ -41,5 +41,5 @@ module.exports = {
     },
   },
   // Ignore files that you don't want ESLint to process
-  ignorePatterns: ['.commitlintrc.js'],
+  ignorePatterns: ['.commitlintrc.js', "vitest.config.ts", "vitest.setup.ts"],
 };

@@ -1,6 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "cypress", "cypress.config.ts", "vite-env.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "*.ts", // This will include root .ts files like vitest.config.ts
+    "*.js"
+  ],
   "compilerOptions": {
     "noEmit": true
   }
