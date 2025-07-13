@@ -1,0 +1,6 @@
+#!/bin/sh
+# Remove the deprecated line if present
+
+echo "🔍 Validating commit message..."
+npx --no -- commitlint --edit $1
+echo "✅ Commit message is valid!"
