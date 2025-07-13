@@ -1,0 +1,3 @@
+[submodule "urlinsight-backend"]
+	path = urlinsight-backend
+	url = git@github.com:fuzumoe/urlinsight-backend.git
