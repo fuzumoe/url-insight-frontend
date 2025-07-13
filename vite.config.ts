@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import istanbul from 'vite-plugin-istanbul';
 
@@ -12,7 +12,10 @@ export default defineConfig({
       exclude: ['node_modules', '**/cypress/**', '**/*.d.ts'],
     }),
   ],
-  build: {
-    sourcemap: true,
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/setupTests.ts',
   },
+  build: { sourcemap: true },
 });
