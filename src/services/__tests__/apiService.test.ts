@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock axios first - with default export and interceptors
@@ -22,6 +23,7 @@ vi.mock('../../utils/storage', () => ({
 // --- Imports after mocks ---
 import axios from 'axios';
 import { getToken, removeToken } from '../../utils/storage';
+import apiService from '../apiService';
 
 // Get the axios instance created during apiService initialization.
 // We capture it once so that the interceptor registrations made in apiService.ts remain.
@@ -83,6 +85,7 @@ describe('API Service', () => {
   it('passes through non-401 errors', async () => {
     const err = { response: { status: 500 } } as any;
     await expect(errorHandler(err)).rejects.toBe(err);
+
     expect(removeToken).toHaveBeenCalled();
     expect(window.location.href).toBe('');
   });
