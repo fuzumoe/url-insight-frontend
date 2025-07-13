@@ -1,0 +1,32 @@
+# Build outputs
+dist/
+build/
+coverage/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Package files
+package-lock.json
+yarn.lock
+
+# Generated files
+.eslintcache
+.npm
+.DS_Store
+.git
+
+# Minified files
+*.min.js
+*.min.css
+
+# Cypress files
+cypress/videos/
+cypress/screenshots/
