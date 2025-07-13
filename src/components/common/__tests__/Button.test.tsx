@@ -31,6 +31,24 @@ describe('Button', () => {
     expect(screen.getByText('D')).toHaveClass('bg-red-600');
   });
 
+  it('applies the correct size class', () => {
+    const { rerender } = render(<Button size="sm">Small</Button>);
+    expect(screen.getByText('Small')).toHaveClass('px-2.5');
+    expect(screen.getByText('Small')).toHaveClass('text-xs');
+
+    rerender(<Button size="md">Medium</Button>);
+    expect(screen.getByText('Medium')).toHaveClass('px-4');
+    expect(screen.getByText('Medium')).toHaveClass('text-sm');
+
+    rerender(<Button size="lg">Large</Button>);
+    expect(screen.getByText('Large')).toHaveClass('px-5');
+    expect(screen.getByText('Large')).toHaveClass('text-base');
+
+    rerender(<Button size="xl">XL</Button>);
+    expect(screen.getByText('XL')).toHaveClass('px-6');
+    expect(screen.getByText('XL')).toHaveClass('text-lg');
+  });
+
   it('is disabled when loading or when disabled prop is set', () => {
     const { rerender } = render(<Button isLoading>Loading</Button>);
     expect(screen.getByRole('button')).toBeDisabled();
