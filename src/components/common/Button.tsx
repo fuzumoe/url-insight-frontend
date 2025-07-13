@@ -1,4 +1,5 @@
 import React from 'react';
+import { CgSpinner } from 'react-icons/cg';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger';
 
@@ -33,7 +34,7 @@ const Button: React.FC<ButtonProps> = ({
     >
       {isLoading ? (
         <span className="inline-flex items-center">
-          <div className="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+          <CgSpinner className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
           Loading...
         </span>
       ) : (

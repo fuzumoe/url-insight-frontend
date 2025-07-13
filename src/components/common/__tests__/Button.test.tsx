@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import '@testing-library/jest-dom'; // Add this line
+import '@testing-library/jest-dom';
 import Button from '../Button';
 
 describe('Button', () => {
@@ -11,13 +11,13 @@ describe('Button', () => {
 
   it('shows loading spinner and text when isLoading is true', () => {
     render(<Button isLoading>Submit</Button>);
-    // Should not show original children
     expect(screen.queryByText('Submit')).not.toBeInTheDocument();
-    // Should show loading text
     expect(screen.getByText('Loading...')).toBeInTheDocument();
-    // Spinner element should be present and spinning
-    const spinnerEl = document.querySelector('.animate-spin');
-    expect(spinnerEl).toBeInTheDocument();
+    const spinner = screen
+      .getByText('Loading...')
+      .parentElement?.querySelector('.animate-spin');
+    expect(spinner).toBeInTheDocument();
+    expect(spinner).toHaveClass('animate-spin');
   });
 
   it('applies the correct variant class', () => {
