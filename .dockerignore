@@ -1,0 +1,26 @@
+# Node dependencies
+node_modules
+
+# Build output directories (adjust if necessary)
+dist
+build
+
+# Log files
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Docker files (optional, if not needed in the image)
+Dockerfile*
+docker-compose*.yml
+
+# Git files and directories
+.git
+.gitignore
+
+# Editor and IDE settings
+.vscode
+.idea
