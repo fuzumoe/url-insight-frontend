@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import { describe, it, beforeEach } from 'vitest';
 
 describe('App E2E Tests', () => {
   beforeEach(() => {
