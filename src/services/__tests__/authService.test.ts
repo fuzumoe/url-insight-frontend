@@ -9,8 +9,22 @@ vi.mock('../apiService', () => ({
   },
 }));
 
-// Import apiService AFTER mocking it
+// Mock the storage utility functions - path must match the import path
+vi.mock('../../utils/storage', () => ({
+  setToken: vi.fn(),
+  removeToken: vi.fn(),
+  setUser: vi.fn(),
+  removeUser: vi.fn(),
+}));
+
+// Import dependencies AFTER mocking
 import apiService from '../apiService';
+import {
+  setToken,
+  removeToken,
+  setUser,
+  removeUser,
+} from '../../utils/storage';
 
 // Mock btoa which is used for Basic Auth
 global.btoa = vi.fn(str => `encoded_${str}`);
@@ -19,14 +33,6 @@ describe('Auth Service', () => {
   beforeEach(() => {
     // Reset all mocks before each test
     vi.resetAllMocks();
-
-    // Mock localStorage
-    Object.defineProperty(window, 'localStorage', {
-      value: {
-        removeItem: vi.fn(),
-      },
-      configurable: true,
-    });
   });
 
   describe('login', () => {
@@ -58,6 +64,10 @@ describe('Auth Service', () => {
       );
       expect(result).toEqual(mockResponse.data);
       expect(btoa).toHaveBeenCalledWith('test@example.com:password123');
+
+      // Verify storage functions were called
+      expect(setToken).toHaveBeenCalledWith('token123');
+      expect(setUser).toHaveBeenCalledWith(mockUser);
     });
 
     it('handles login errors', async () => {
@@ -69,6 +79,10 @@ describe('Auth Service', () => {
       await expect(
         authService.login('test@example.com', 'password123')
       ).rejects.toThrow('Login failed');
+
+      // Storage functions should not be called on error
+      expect(setToken).not.toHaveBeenCalled();
+      expect(setUser).not.toHaveBeenCalled();
     });
   });
 
@@ -98,6 +112,10 @@ describe('Auth Service', () => {
         password: 'password123',
       });
       expect(result).toEqual(mockResponse.data);
+
+      // Verify storage functions were called
+      expect(setToken).toHaveBeenCalledWith('token123');
+      expect(setUser).toHaveBeenCalledWith(mockUser);
     });
   });
 
@@ -123,7 +141,7 @@ describe('Auth Service', () => {
   });
 
   describe('logout', () => {
-    it('logs out the user and removes token', async () => {
+    it('logs out the user and removes token and user data', async () => {
       // Setup mock response
       const mockResponse = { data: {} };
       (apiService.post as any).mockResolvedValue(mockResponse);
@@ -133,7 +151,8 @@ describe('Auth Service', () => {
 
       // Verify results
       expect(apiService.post).toHaveBeenCalledWith('/auth/logout');
-      expect(window.localStorage.removeItem).toHaveBeenCalledWith('token');
+      expect(removeToken).toHaveBeenCalled();
+      expect(removeUser).toHaveBeenCalled();
     });
   });
 });

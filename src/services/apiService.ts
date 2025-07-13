@@ -3,6 +3,7 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios';
+import { getToken, removeToken } from '../utils/storage';
 
 const apiService = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
@@ -17,7 +18,7 @@ apiService.interceptors.request.use(
   (
     config: InternalAxiosRequestConfig<any>
   ): InternalAxiosRequestConfig<any> => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,7 +31,7 @@ apiService.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      removeToken();
       // Redirect to login if unauthorized
       window.location.href = '/login';
     }
