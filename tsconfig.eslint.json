@@ -3,8 +3,10 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "*.ts", // This will include root .ts files like vitest.config.ts
-    "*.js"
+    "cypress/**/*.ts", // Add this line
+    "cypress/**/*.tsx", // Add this line
+    "*.js",
+    "*.ts"
   ],
   "compilerOptions": {
     "noEmit": true
