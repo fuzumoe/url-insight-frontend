@@ -26,3 +26,4 @@ urlinsight_frontend_requirements.md
 .env
 coverage/
 .nyc_output/
+code_plan.md
