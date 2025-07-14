@@ -4,7 +4,11 @@ import Button from '../common/Button';
 import Pagination from '../common/Pagination';
 import SearchBar from '../common/SearchBar';
 import Checkbox from '../common/Checkbox';
-import type { URLData, URLTableFilters } from '../../types';
+import TableHeaderCell from '../common/TableHeaderCell';
+import TableCell from '../common/TableCell';
+import SelectInput from '../common/SelectInput';
+import Spinner from '../common/Spinner';
+import type { URLData, URLStatus, URLTableFilters } from '../../types';
 
 interface URLTableProps {
   urls: URLData[];
@@ -78,7 +82,6 @@ const URLTable: React.FC<URLTableProps> = ({
 
   const renderBulkActionBar = () => {
     if (selectedIds.length === 0) return null;
-
     return (
       <div className="bg-gray-100 px-6 py-3 border-b flex items-center justify-between">
         <div>
@@ -111,19 +114,25 @@ const URLTable: React.FC<URLTableProps> = ({
     return (
       <div className="bg-gray-50 px-6 py-4 border-b flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <div className="flex flex-wrap items-center space-x-4">
-          <select
-            className="border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+          <SelectInput
+            id="status-filter"
+            label="Filter by Status"
             value={filters.status || ''}
+            options={[
+              { value: '', label: 'All Statuses' },
+              { value: 'queued', label: 'Queued' },
+              { value: 'running', label: 'Running' },
+              { value: 'done', label: 'Done' },
+              { value: 'error', label: 'Error' },
+            ]}
             onChange={e =>
-              updateFilters({ status: (e.target.value as any) || undefined })
+              updateFilters({
+                status: e.target.value
+                  ? (e.target.value as URLStatus)
+                  : undefined,
+              })
             }
-          >
-            <option value="">All Statuses</option>
-            <option value="queued">Queued</option>
-            <option value="running">Running</option>
-            <option value="done">Done</option>
-            <option value="error">Error</option>
-          </select>
+          />
 
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -151,16 +160,15 @@ const URLTable: React.FC<URLTableProps> = ({
 
   const renderURLRow = (url: URLData) => {
     const isSelected = selectedIds.includes(url.id);
-
     return (
       <tr key={url.id} className={isSelected ? 'bg-blue-50' : undefined}>
-        <td className="px-6 py-4 whitespace-nowrap">
+        <TableCell>
           <Checkbox
             checked={isSelected}
             onChange={() => toggleSelectUrl(url.id)}
           />
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap">
+        </TableCell>
+        <TableCell>
           <div className="flex items-center">
             <div className="ml-2">
               <div className="text-sm font-medium text-gray-900 truncate max-w-xs">
@@ -171,26 +179,16 @@ const URLTable: React.FC<URLTableProps> = ({
               </div>
             </div>
           </div>
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {url.htmlVersion || 'Unknown'}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {url.internalLinks}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {url.externalLinks}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {url.brokenLinks}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-          {url.hasLoginForm ? 'Yes' : 'No'}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap">
+        </TableCell>
+        <TableCell>{url.htmlVersion || 'Unknown'}</TableCell>
+        <TableCell>{url.internalLinks}</TableCell>
+        <TableCell>{url.externalLinks}</TableCell>
+        <TableCell>{url.brokenLinks}</TableCell>
+        <TableCell>{url.hasLoginForm ? 'Yes' : 'No'}</TableCell>
+        <TableCell>
           <StatusBadge status={url.status} />
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        </TableCell>
+        <TableCell>
           <div className="flex space-x-2">
             {url.status === 'queued' || url.status === 'error' ? (
               <Button
@@ -213,7 +211,7 @@ const URLTable: React.FC<URLTableProps> = ({
               <a href={`/urls/${url.id}`}>Details</a>
             </Button>
           </div>
-        </td>
+        </TableCell>
       </tr>
     );
   };
@@ -224,78 +222,53 @@ const URLTable: React.FC<URLTableProps> = ({
     <div className="bg-white rounded-lg shadow overflow-hidden">
       {renderFilterBar()}
       {renderBulkActionBar()}
-
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left">
+              <TableHeaderCell>
                 <Checkbox
                   checked={
                     selectedIds.length === urls.length && urls.length > 0
                   }
                   onChange={toggleSelectAll}
                 />
-              </th>
-              <th
-                onClick={() => handleSort('title')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              >
+              </TableHeaderCell>
+              <TableHeaderCell onClick={() => handleSort('title')}>
                 Title/URL {renderSortIcon('title')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                HTML Version
-              </th>
-              <th
-                onClick={() => handleSort('internalLinks')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              >
+              </TableHeaderCell>
+              <TableHeaderCell>HTML Version</TableHeaderCell>
+              <TableHeaderCell onClick={() => handleSort('internalLinks')}>
                 Internal Links {renderSortIcon('internalLinks')}
-              </th>
-              <th
-                onClick={() => handleSort('externalLinks')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              >
+              </TableHeaderCell>
+              <TableHeaderCell onClick={() => handleSort('externalLinks')}>
                 External Links {renderSortIcon('externalLinks')}
-              </th>
-              <th
-                onClick={() => handleSort('brokenLinks')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              >
+              </TableHeaderCell>
+              <TableHeaderCell onClick={() => handleSort('brokenLinks')}>
                 Broken Links {renderSortIcon('brokenLinks')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Login Form
-              </th>
-              <th
-                onClick={() => handleSort('status')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              >
+              </TableHeaderCell>
+              <TableHeaderCell>Login Form</TableHeaderCell>
+              <TableHeaderCell onClick={() => handleSort('status')}>
                 Status {renderSortIcon('status')}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+              </TableHeaderCell>
+              <TableHeaderCell>Actions</TableHeaderCell>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td
-                  colSpan={9}
-                  className="px-6 py-4 text-center text-sm text-gray-500"
-                >
-                  Loading...
-                </td>
+                <TableCell colSpan={9} className="text-center">
+                  <Spinner size="lg" showText text="Loading..." />
+                </TableCell>
               </tr>
             ) : urls.length === 0 ? (
               <tr>
-                <td
+                <TableCell
                   colSpan={9}
-                  className="px-6 py-4 text-center text-sm text-gray-500"
+                  className="text-center text-sm text-gray-500"
                 >
                   No URLs found. Add a URL to get started.
-                </td>
+                </TableCell>
               </tr>
             ) : (
               urls.map(url => renderURLRow(url))
@@ -303,7 +276,6 @@ const URLTable: React.FC<URLTableProps> = ({
           </tbody>
         </table>
       </div>
-
       {totalPages > 1 && (
         <div className="px-6 py-4 border-t">
           <Pagination
