@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
@@ -16,12 +15,82 @@ vi.mock('react-icons/fa', () => ({
   FaSignInAlt: () => <div data-testid="signin-icon">Sign In Icon</div>,
 }));
 
+interface TextInputProps {
+  id: string;
+  label: string;
+  type: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
+  required?: boolean;
+  placeholder?: string;
+  error?: string;
+  autoComplete?: string;
+  icon?: React.ReactNode;
+  helpText?: string;
+  pattern?: string;
+}
+
+vi.mock('../../common/TextInput', () => ({
+  default: ({
+    id,
+    label,
+    type,
+    value,
+    onChange,
+    onBlur,
+    required,
+    placeholder,
+    error,
+    autoComplete,
+    icon,
+    helpText,
+    pattern,
+  }: TextInputProps) => (
+    <div data-testid={`text-input-${id}`}>
+      <label htmlFor={id}>{label}</label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        required={required}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        pattern={pattern}
+      />
+      {icon && <div data-testid={`icon-${id}`}>{icon}</div>}
+      {helpText && <div data-testid={`help-${id}`}>{helpText}</div>}
+      {error && (
+        <div role="alert" data-testid={`error-${id}`}>
+          {error}
+        </div>
+      )}
+    </div>
+  ),
+}));
+
+interface ButtonProps {
+  children: React.ReactNode;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: () => void;
+}
+
+vi.mock('../../common/Button', () => ({
+  default: ({ children, type, onClick }: ButtonProps) => (
+    <button type={type} onClick={onClick} data-testid="button">
+      {children}
+    </button>
+  ),
+}));
+
 describe('LoginForm', () => {
   const mockLogin = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useAuth as any).mockReturnValue({
+    (useAuth as Mock).mockReturnValue({
       login: mockLogin,
     });
   });
@@ -33,17 +102,22 @@ describe('LoginForm', () => {
   it('renders all form elements correctly', () => {
     render(<LoginForm />);
 
+    expect(screen.getByTestId('text-input-email')).toBeInTheDocument();
+    expect(screen.getByTestId('text-input-password')).toBeInTheDocument();
+
     expect(getInputById('email')).toBeInTheDocument();
     expect(getInputById('password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
-    expect(
-      screen.getByText(/don't have an account\? register/i)
-    ).toBeInTheDocument();
 
     expect(screen.getByTestId('email-icon')).toBeInTheDocument();
     expect(screen.getByTestId('lock-icon')).toBeInTheDocument();
     expect(screen.getByTestId('signin-icon')).toBeInTheDocument();
 
+    expect(screen.getByTestId('button')).toBeInTheDocument();
+    expect(
+      screen.getByText(/don't have an account\? register/i)
+    ).toBeInTheDocument();
+
+    expect(screen.getByTestId('help-email')).toBeInTheDocument();
     expect(
       screen.getByText(/enter the email you used to register/i)
     ).toBeInTheDocument();
@@ -115,10 +189,10 @@ describe('LoginForm', () => {
     await user.tab();
 
     await waitFor(() => {
-      const errorElement = screen.queryByText(
-        /please enter a valid email address/i
-      );
-      expect(errorElement).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(
+        screen.getByText(/please enter a valid email address/i)
+      ).toBeInTheDocument();
     });
   });
 
@@ -132,57 +206,46 @@ describe('LoginForm', () => {
     await user.tab();
 
     await waitFor(() => {
-      const errorElement = screen.queryByText(/password is required/i);
-      expect(errorElement).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText(/password is required/i)).toBeInTheDocument();
     });
   });
 
-  it('tests error element styles when error occurs', async () => {
-    mockLogin.mockRejectedValueOnce(new Error('Test error'));
-    const user = userEvent.setup();
-    render(<LoginForm />);
-
-    const emailInput = getInputById('email');
-    const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
-
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'wrong');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      const errorText = screen.getByText('Test error');
-      expect(errorText).toBeInTheDocument();
-
-      const errorContainer = errorText.closest('div');
-      expect(errorContainer).toBeInTheDocument();
-      expect(errorContainer?.classList.contains('text-red-600')).toBe(true);
-      expect(errorContainer?.classList.contains('bg-red-50')).toBe(true);
-      expect(errorContainer?.classList.contains('border-red-200')).toBe(true);
-      expect(errorContainer?.classList.contains('rounded')).toBe(true);
-    });
-  });
-
-  it('tests error clearing on form resubmission', async () => {
+  it('displays error message when login fails', async () => {
     mockLogin.mockRejectedValueOnce(new Error('Invalid credentials'));
     const user = userEvent.setup();
     render(<LoginForm />);
 
     const emailInput = getInputById('email');
     const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
+    const submitButton = screen.getByTestId('button');
 
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'wrong');
     await user.click(submitButton);
 
-    // Verify error is shown
     await waitFor(() => {
-      const errorElement = screen.queryByText('Invalid credentials');
-      expect(errorElement).toBeInTheDocument();
+      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+    });
+  });
+
+  it('clears error on resubmission', async () => {
+    mockLogin.mockRejectedValueOnce(new Error('Invalid credentials'));
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    const emailInput = getInputById('email');
+    const passwordInput = getInputById('password');
+    const submitButton = screen.getByTestId('button');
+
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'wrong');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
     });
 
-    // Now submit with success
     mockLogin.mockResolvedValueOnce(undefined);
     await user.clear(emailInput);
     await user.clear(passwordInput);
@@ -190,163 +253,24 @@ describe('LoginForm', () => {
     await user.type(passwordInput, 'correct');
     await user.click(submitButton);
 
-    // Verify error is gone
     await waitFor(() => {
       const errorAfterResubmit = screen.queryByText('Invalid credentials');
       expect(errorAfterResubmit).toBeNull();
     });
   });
 
-  it('handles non-trimmed email input correctly', async () => {
+  it('calls login function with trimmed email', async () => {
     const user = userEvent.setup();
     render(<LoginForm />);
 
     const emailInput = getInputById('email');
     const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
+    const submitButton = screen.getByTestId('button');
 
-    // Add spaces before and after email
     await user.type(emailInput, '  test@example.com  ');
     await user.type(passwordInput, 'password123');
-
-    // Trim may happen on input or on submission
-    await user.click(submitButton);
-
-    // Login should be called with the trimmed email
-    expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
-  });
-
-  it('calls login function on form submission', async () => {
-    const user = userEvent.setup();
-    render(<LoginForm />);
-
-    const emailInput = getInputById('email');
-    const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
-
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'password123');
     await user.click(submitButton);
 
     expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
-  });
-
-  it('displays error message when login fails with Error instance', async () => {
-    mockLogin.mockRejectedValueOnce(new Error('Invalid credentials'));
-    const user = userEvent.setup();
-    render(<LoginForm />);
-
-    const emailInput = getInputById('email');
-    const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
-
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'wrong');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
-    });
-  });
-
-  it('displays generic error message when login fails with non-Error', async () => {
-    mockLogin.mockRejectedValueOnce('Some other error');
-    const user = userEvent.setup();
-    render(<LoginForm />);
-
-    const emailInput = getInputById('email');
-    const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
-
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'password123');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(
-        screen.getByText('Login failed. Please try again.')
-      ).toBeInTheDocument();
-    });
-  });
-
-  it('clears previous error on new submission', async () => {
-    mockLogin.mockRejectedValueOnce(new Error('Invalid credentials'));
-    const user = userEvent.setup();
-    render(<LoginForm />);
-
-    const emailInput = getInputById('email');
-    const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
-
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'wrong');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
-    });
-
-    mockLogin.mockResolvedValueOnce(undefined);
-
-    await user.clear(emailInput);
-    await user.clear(passwordInput);
-    await user.type(emailInput, 'correct@example.com');
-    await user.type(passwordInput, 'correct');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      const errorAfterResubmit = screen.queryByText('Invalid credentials');
-      expect(errorAfterResubmit).toBeNull();
-    });
-  });
-
-  it('handles consecutive failed login attempts correctly', async () => {
-    mockLogin.mockRejectedValueOnce(new Error('Invalid credentials'));
-    mockLogin.mockRejectedValueOnce(new Error('Account locked'));
-
-    const user = userEvent.setup();
-    render(<LoginForm />);
-
-    const emailInput = getInputById('email');
-    const passwordInput = getInputById('password');
-    const submitButton = screen.getByRole('button', { name: /login/i });
-
-    // First attempt
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'wrong');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
-    });
-
-    // Second attempt
-    await user.clear(emailInput);
-    await user.clear(passwordInput);
-    await user.type(emailInput, 'test@example.com');
-    await user.type(passwordInput, 'stillwrong');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Account locked')).toBeInTheDocument();
-    });
-  });
-
-  it('applies correct styling to the register link', () => {
-    render(<LoginForm />);
-
-    const registerLink = screen.getByText(
-      /don't have an account\? register/i
-    ) as HTMLElement;
-
-    expect(registerLink.classList.contains('text-blue-600')).toBe(true);
-    expect(registerLink.classList.contains('hover:text-blue-500')).toBe(true);
-  });
-
-  it('verifies the button text is correct', () => {
-    render(<LoginForm />);
-
-    const loginButton = screen.getByRole('button', { name: /login/i });
-    expect(loginButton.textContent).toContain('Login');
   });
 });

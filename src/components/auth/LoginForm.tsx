@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
-import FormTextInput from '../common/FormTextInput';
+import TextInput from '../common/TextInput';
 import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
 
 const LoginForm: React.FC = () => {
@@ -74,7 +74,7 @@ const LoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <FormTextInput
+      <TextInput
         id="email"
         label="Email"
         type="email"
@@ -91,7 +91,7 @@ const LoginForm: React.FC = () => {
         pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
       />
 
-      <FormTextInput
+      <TextInput
         id="password"
         label="Password"
         type="password"
