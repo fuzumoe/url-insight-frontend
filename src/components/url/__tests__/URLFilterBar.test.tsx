@@ -1,17 +1,25 @@
-import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import URLFilterBar from '../URLFilterBar';
 import type { URLTableFilters } from '../../../types';
 
-// Mock the SearchBar and Checkbox so the tests focus on URLFilterBar logic.
+interface SearchBarProps {
+  onSearch: (searchTerm: string) => void;
+  placeholder: string;
+  className?: string;
+}
+
 vi.mock('../common/SearchBar', () => ({
-  default: ({ onSearch, placeholder, className }: any) => (
+  default: ({ onSearch, placeholder, className }: SearchBarProps) => (
     <form
       onSubmit={e => {
         e.preventDefault();
-        const value = (e.target as any).elements.search.value;
+        const value = (
+          (e.target as HTMLFormElement).elements.namedItem(
+            'search'
+          ) as HTMLInputElement
+        ).value;
         onSearch(value);
       }}
     >
@@ -27,27 +35,30 @@ vi.mock('../common/SearchBar', () => ({
 }));
 
 vi.mock('../common/Checkbox', () => ({
-  default: ({ id, checked, onChange }: any) => {
-    // Create a stateful mock that can track clicks
-    return (
-      <input
-        data-testid={id}
-        id={id}
-        type="checkbox"
-        checked={checked}
-        aria-label={id === 'latest-filter' ? 'Latest analysis only' : undefined}
-        onChange={() => {
-          // On change, pass the opposite of current checked state
-          // This simulates toggle behavior
-          if (checked) {
-            onChange(undefined); // If currently checked, pass undefined when unchecking
-          } else {
-            onChange(true); // If currently unchecked, pass true when checking
-          }
-        }}
-      />
-    );
-  },
+  default: ({
+    id,
+    checked,
+    onChange,
+  }: {
+    id: string;
+    checked?: boolean;
+    onChange: (value: boolean | undefined) => void;
+  }) => (
+    <input
+      data-testid={id}
+      id={id}
+      type="checkbox"
+      checked={checked}
+      aria-label={id === 'latest-filter' ? 'Latest analysis only' : undefined}
+      onChange={() => {
+        if (checked) {
+          onChange(undefined);
+        } else {
+          onChange(true);
+        }
+      }}
+    />
+  ),
 }));
 
 describe('URLFilterBar', () => {
@@ -74,15 +85,13 @@ describe('URLFilterBar', () => {
       />
     );
 
-    // The search bar is found by its placeholder.
     expect(screen.getByPlaceholderText('Search URLs...')).toBeInTheDocument();
 
-    // The three dropdowns are found by their accessible labels.
-    expect(screen.getByLabelText('Filter by status')).toBeInTheDocument();
-    expect(screen.getByLabelText('Filter by login form')).toBeInTheDocument();
-    expect(screen.getByLabelText('Filter by broken links')).toBeInTheDocument();
-
-    // The checkbox should be accessible via its associated label.
+    expect(screen.getByLabelText(/Filter by Status/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Filter by Login Form/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Filter by Broken Links/i)
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('checkbox', { name: /Latest analysis only/i })
     ).toBeInTheDocument();
@@ -96,8 +105,6 @@ describe('URLFilterBar', () => {
         onFilterChange={mockOnFilterChange}
       />
     );
-
-    // Use the placeholder text to get the search input
     const searchInput = screen.getByPlaceholderText('Search URLs...');
     fireEvent.change(searchInput, { target: { value: 'example.com' } });
     fireEvent.submit(searchInput.closest('form')!);
@@ -112,14 +119,12 @@ describe('URLFilterBar', () => {
         onFilterChange={mockOnFilterChange}
       />
     );
-
     const statusSelect = screen.getByLabelText(
-      'Filter by status'
+      /Filter by Status/i
     ) as HTMLSelectElement;
     fireEvent.change(statusSelect, { target: { value: 'error' } });
     expect(mockOnFilterChange).toHaveBeenCalledWith({ status: 'error' });
 
-    // Selecting "all" resets the filter.
     fireEvent.change(statusSelect, { target: { value: 'all' } });
     expect(mockOnFilterChange).toHaveBeenCalledWith({ status: undefined });
   });
@@ -132,9 +137,8 @@ describe('URLFilterBar', () => {
         onFilterChange={mockOnFilterChange}
       />
     );
-
     const loginSelect = screen.getByLabelText(
-      'Filter by login form'
+      /Filter by Login Form/i
     ) as HTMLSelectElement;
     fireEvent.change(loginSelect, { target: { value: 'true' } });
     expect(mockOnFilterChange).toHaveBeenCalledWith({ hasLoginForm: true });
@@ -156,9 +160,8 @@ describe('URLFilterBar', () => {
         onFilterChange={mockOnFilterChange}
       />
     );
-
     const brokenLinksSelect = screen.getByLabelText(
-      'Filter by broken links'
+      /Filter by Broken Links/i
     ) as HTMLSelectElement;
     fireEvent.change(brokenLinksSelect, { target: { value: 'true' } });
     expect(mockOnFilterChange).toHaveBeenCalledWith({ hasBrokenLinks: true });
@@ -172,7 +175,6 @@ describe('URLFilterBar', () => {
     });
   });
 
-  // ...
   it('calls onFilterChange when latest analysis checkbox is toggled', () => {
     render(
       <URLFilterBar
@@ -181,23 +183,13 @@ describe('URLFilterBar', () => {
         onFilterChange={mockOnFilterChange}
       />
     );
-
-    // Find the checkbox by its accessible role and label.
     const checkbox = screen.getByRole('checkbox', {
       name: /Latest analysis only/i,
     }) as HTMLInputElement;
-
-    // Simulate checking (click toggles false → true)
     fireEvent.click(checkbox);
     expect(mockOnFilterChange).toHaveBeenCalledWith({ latestOnly: true });
-
-    // Clear the mock to focus only on the second call
     mockOnFilterChange.mockClear();
-
-    // Simulate unchecking (click toggles true → false)
     fireEvent.click(checkbox);
-
-    // Just verify that onFilterChange was called again
     expect(mockOnFilterChange).toHaveBeenCalled();
   });
 
@@ -218,21 +210,20 @@ describe('URLFilterBar', () => {
     );
 
     const statusSelect = screen.getByLabelText(
-      'Filter by status'
+      /Filter by Status/i
     ) as HTMLSelectElement;
     expect(statusSelect.value).toBe('error');
 
     const loginSelect = screen.getByLabelText(
-      'Filter by login form'
+      /Filter by Login Form/i
     ) as HTMLSelectElement;
     expect(loginSelect.value).toBe('true');
 
     const brokenLinksSelect = screen.getByLabelText(
-      'Filter by broken links'
+      /Filter by Broken Links/i
     ) as HTMLSelectElement;
     expect(brokenLinksSelect.value).toBe('false');
 
-    // Find the checkbox using the accessible role.
     const checkbox = screen.getByRole('checkbox', {
       name: /Latest analysis only/i,
     }) as HTMLInputElement;

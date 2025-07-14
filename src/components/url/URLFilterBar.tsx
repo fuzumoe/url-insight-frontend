@@ -1,7 +1,8 @@
 import React from 'react';
 import SearchBar from '../common/SearchBar';
 import Checkbox from '../common/Checkbox';
-import type { URLTableFilters } from '../../types';
+import SelectInput from '../common/SelectInput';
+import type { URLTableFilters, URLStatus } from '../../types';
 
 interface URLFilterBarProps {
   filters: URLTableFilters;
@@ -26,59 +27,67 @@ const URLFilterBar: React.FC<URLFilterBarProps> = ({
         </div>
 
         <div className="flex flex-wrap gap-3 items-center">
-          <div>
-            <select
-              className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+          <div className="w-full md:w-auto">
+            <SelectInput
+              id="status-filter"
+              label="Filter by Status"
               value={filters.status || 'all'}
+              options={[
+                { value: 'all', label: 'All Statuses' },
+                { value: 'queued', label: 'Queued' },
+                { value: 'running', label: 'Running' },
+                { value: 'done', label: 'Done' },
+                { value: 'error', label: 'Error' },
+                { value: 'stopped', label: 'Stopped' },
+              ]}
               onChange={e =>
                 onFilterChange({
                   status:
                     e.target.value === 'all'
                       ? undefined
-                      : (e.target.value as any),
+                      : (e.target.value as URLStatus),
                 })
               }
-              aria-label="Filter by status"
-            >
-              <option value="all">All Statuses</option>
-              <option value="queued">Queued</option>
-              <option value="running">Running</option>
-              <option value="done">Done</option>
-              <option value="error">Error</option>
-              <option value="stopped">Stopped</option>
-            </select>
+            />
           </div>
 
-          <div>
-            <select
-              className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+          <div className="w-full md:w-auto">
+            <SelectInput
+              id="login-filter"
+              label="Filter by Login Form"
               value={
                 filters.hasLoginForm === undefined
                   ? 'all'
                   : filters.hasLoginForm.toString()
               }
+              options={[
+                { value: 'all', label: 'Login Form' },
+                { value: 'true', label: 'Has Login Form' },
+                { value: 'false', label: 'No Login Form' },
+              ]}
               onChange={e => {
                 const value = e.target.value;
                 onFilterChange({
                   hasLoginForm: value === 'all' ? undefined : value === 'true',
                 });
               }}
-              aria-label="Filter by login form"
-            >
-              <option value="all">Login Form</option>
-              <option value="true">Has Login Form</option>
-              <option value="false">No Login Form</option>
-            </select>
+            />
           </div>
 
-          <div>
-            <select
-              className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+          <div className="w-full md:w-auto">
+            <SelectInput
+              id="broken-filter"
+              label="Filter by Broken Links"
               value={
                 filters.hasBrokenLinks === undefined
                   ? 'all'
                   : filters.hasBrokenLinks.toString()
               }
+              options={[
+                { value: 'all', label: 'Broken Links' },
+                { value: 'true', label: 'Has Broken Links' },
+                { value: 'false', label: 'No Broken Links' },
+              ]}
               onChange={e => {
                 const value = e.target.value;
                 onFilterChange({
@@ -86,12 +95,7 @@ const URLFilterBar: React.FC<URLFilterBarProps> = ({
                     value === 'all' ? undefined : value === 'true',
                 });
               }}
-              aria-label="Filter by broken links"
-            >
-              <option value="all">Broken Links</option>
-              <option value="true">Has Broken Links</option>
-              <option value="false">No Broken Links</option>
-            </select>
+            />
           </div>
 
           <div className="flex items-center space-x-2">
