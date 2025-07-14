@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
-import { describe, it, beforeEach, vi, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { describe, it, beforeEach, vi, expect } from 'vitest';
 import RegisterForm from '../RegisterForm';
 
 vi.mock('react-icons/fa', () => ({
@@ -94,7 +94,6 @@ describe('RegisterForm', () => {
         'Password123'
       );
     });
-
     await waitFor(() => {
       expect(mockOnSuccess).toHaveBeenCalled();
     });
@@ -131,13 +130,6 @@ describe('RegisterForm', () => {
     expect(button).toBeDisabled();
   });
 
-  it('shows loading state during registration', () => {
-    render(<RegisterForm loading={true} />);
-
-    const button = screen.getByRole('button');
-    expect(button).toBeDisabled();
-  });
-
   it('shows validation errors for invalid inputs', async () => {
     const user = userEvent.setup();
     render(<RegisterForm />);
@@ -153,37 +145,12 @@ describe('RegisterForm', () => {
 
     expect(mockOnRegister).not.toHaveBeenCalled();
 
-    await waitFor(
-      () => {
-        const redTextElements = document.querySelectorAll(
-          '[class*="text-red"]'
-        );
-
-        const alertElements = document.querySelectorAll('[role="alert"]');
-
-        const errorTexts = ['invalid', 'required', 'match', 'characters'];
-        let textErrorFound = false;
-
-        errorTexts.forEach(text => {
-          const elements = Array.from(document.querySelectorAll('*')).filter(
-            el =>
-              el.textContent &&
-              el.textContent.toLowerCase().includes(text.toLowerCase())
-          );
-
-          if (elements.length > 0) {
-            textErrorFound = true;
-          }
-        });
-
-        expect(
-          redTextElements.length > 0 ||
-            alertElements.length > 0 ||
-            textErrorFound
-        ).toBe(true);
-      },
-      { timeout: 3000 }
-    );
+    await waitFor(() => {
+      const errorElements = document.querySelectorAll(
+        '[role="alert"], [class*="text-red"]'
+      );
+      expect(errorElements.length).toBeGreaterThan(0);
+    });
   });
 
   it('clears field errors when user corrects the input', async () => {
@@ -191,57 +158,29 @@ describe('RegisterForm', () => {
     render(<RegisterForm />);
 
     await user.type(getInputById('email'), 'not-an-email');
-
     await user.tab();
     await user.click(screen.getByRole('button', { name: /register/i }));
 
-    const hasError = await waitFor(
-      () => {
-        const alerts = document.querySelectorAll('[role="alert"]');
-        if (alerts.length > 0) return true;
-
-        const redTexts = document.querySelectorAll('[class*="text-red"]');
-        if (redTexts.length > 0) return true;
-
-        const errorKeywords = ['invalid', 'email', 'valid'];
-        for (const keyword of errorKeywords) {
-          const elements = Array.from(document.querySelectorAll('*')).filter(
-            el =>
-              el.textContent && el.textContent.toLowerCase().includes(keyword)
-          );
-          if (elements.length > 0) return true;
-        }
-        throw new Error('No error message found');
-      },
-      { timeout: 3000 }
-    );
-
-    expect(hasError).toBe(true);
+    await waitFor(() => {
+      const errorElements = document.querySelectorAll(
+        '[role="alert"], [class*="text-red"]'
+      );
+      expect(errorElements.length).toBeGreaterThan(0);
+    });
 
     const emailInput = getInputById('email');
     await user.clear(emailInput);
     await user.type(emailInput, 'valid@example.com');
-
     await user.tab();
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    await waitFor(
-      () => {
-        // Look for error elements related to email
-        const errorElements = Array.from(
-          document.querySelectorAll('[role="alert"], [class*="text-red"]')
-        ).filter(
-          el =>
-            el.textContent &&
-            (el.textContent.toLowerCase().includes('email') ||
-              el.textContent.toLowerCase().includes('valid'))
-        );
-
-        expect(errorElements.length).toBe(0);
-      },
-      { timeout: 3000 }
-    );
+    await waitFor(() => {
+      const errorElements = Array.from(
+        document.querySelectorAll('[role="alert"], [class*="text-red"]')
+      ).filter(el => el.textContent?.toLowerCase().includes('email'));
+      expect(errorElements.length).toBe(0);
+    });
   });
 
   it('updates password strength indicator as password changes', async () => {

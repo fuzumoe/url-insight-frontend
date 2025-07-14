@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../common/Button';
-import FormTextInput from '../common/FormTextInput';
+import TextInput from '../common/TextInput';
 import {
   isValidEmail,
   isValidUsername,
@@ -160,7 +160,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <FormTextInput
+      <TextInput
         id="username"
         label="Username"
         value={username}
@@ -175,7 +175,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         pattern="^[a-zA-Z0-9_-]{3,20}$"
       />
 
-      <FormTextInput
+      <TextInput
         id="email"
         label="Email"
         type="email"
@@ -192,7 +192,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       />
 
       <div>
-        <FormTextInput
+        <TextInput
           id="password"
           label="Password"
           type="password"
@@ -232,7 +232,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         )}
       </div>
 
-      <FormTextInput
+      <TextInput
         id="confirmPassword"
         label="Confirm Password"
         type="password"
