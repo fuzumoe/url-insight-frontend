@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../common/Button';
+import FormTextInput from '../common/FormTextInput';
 import {
   isValidEmail,
   isValidUsername,
   isValidPassword,
   getPasswordStrength,
 } from '../../utils/validators';
+// Import React Icons instead of Heroicons
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaCheckCircle,
+  FaUserPlus,
+} from 'react-icons/fa';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -27,6 +36,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    username?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  }>({});
   const [passwordStrength, setPasswordStrength] = useState<
     'weak' | 'medium' | 'strong'
   >('weak');
@@ -39,31 +54,76 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     }
   }, [password]);
 
+  // Add field validation on blur for better user experience
+  const validateField = (
+    field: 'username' | 'email' | 'password' | 'confirmPassword'
+  ) => {
+    const errors = { ...fieldErrors };
+
+    if (field === 'username' && !isValidUsername(username)) {
+      errors.username =
+        'Username must be 3-20 characters and can only contain letters, numbers, underscores, or hyphens';
+    } else if (field === 'username') {
+      delete errors.username;
+    }
+
+    if (field === 'email' && !isValidEmail(email)) {
+      errors.email = 'Please enter a valid email address';
+    } else if (field === 'email') {
+      delete errors.email;
+    }
+
+    if (field === 'password' && !isValidPassword(password, 7)) {
+      errors.password =
+        'Password must be at least 8 characters long and include uppercase, lowercase, and numbers';
+    } else if (field === 'password') {
+      delete errors.password;
+    }
+
+    if (field === 'confirmPassword' && password !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    } else if (field === 'confirmPassword') {
+      delete errors.confirmPassword;
+    }
+
+    setFieldErrors(errors);
+  };
+
+  const validateForm = () => {
+    const errors: {
+      username?: string;
+      email?: string;
+      password?: string;
+      confirmPassword?: string;
+    } = {};
+
+    if (!isValidUsername(username)) {
+      errors.username =
+        'Username must be 3-20 characters and can only contain letters, numbers, underscores, or hyphens';
+    }
+
+    if (!isValidEmail(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+
+    if (!isValidPassword(password, 7)) {
+      errors.password =
+        'Password must be at least 8 characters long and include uppercase, lowercase, and numbers';
+    }
+
+    if (password !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!isValidUsername(username)) {
-      setError(
-        'Username must be 3-20 characters and can only contain letters, numbers, underscores, or hyphens'
-      );
-      return;
-    }
-
-    if (!isValidEmail(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (!isValidPassword(password, 7)) {
-      setError(
-        'Password must be at least 8 characters long and include uppercase, lowercase, and numbers'
-      );
+    if (!validateForm()) {
       return;
     }
 
@@ -100,57 +160,52 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label
-          htmlFor="username"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Username
-        </label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          required
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="3-20 characters (letters, numbers, _ or -)"
-        />
-      </div>
+      <FormTextInput
+        id="username"
+        label="Username"
+        value={username}
+        onChange={e => setUsername(e.target.value)}
+        onBlur={() => validateField('username')}
+        required
+        placeholder="3-20 characters (letters, numbers, _ or -)"
+        error={fieldErrors.username}
+        autoComplete="username"
+        icon={<FaUser className="text-gray-400" />}
+        iconPosition="left"
+        pattern="^[a-zA-Z0-9_-]{3,20}$"
+      />
+
+      <FormTextInput
+        id="email"
+        label="Email"
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        onBlur={() => validateField('email')}
+        required
+        placeholder="your.email@example.com"
+        error={fieldErrors.email}
+        autoComplete="email"
+        icon={<FaEnvelope className="text-gray-400" />}
+        iconPosition="left"
+        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+      />
 
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="your.email@example.com"
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Password
-        </label>
-        <input
+        <FormTextInput
           id="password"
+          label="Password"
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
+          onBlur={() => validateField('password')}
           required
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="Min 8 chars with uppercase, lowercase & numbers"
+          error={fieldErrors.password}
+          autoComplete="new-password"
+          icon={<FaLock className="text-gray-400" />}
+          iconPosition="left"
+          helpText="Create a strong password for better security"
         />
         {password && (
           <div className="mt-1">
@@ -177,23 +232,20 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         )}
       </div>
 
-      <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Confirm Password
-        </label>
-        <input
-          id="confirmPassword"
-          type="password"
-          value={confirmPassword}
-          onChange={e => setConfirmPassword(e.target.value)}
-          required
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Re-enter your password"
-        />
-      </div>
+      <FormTextInput
+        id="confirmPassword"
+        label="Confirm Password"
+        type="password"
+        value={confirmPassword}
+        onChange={e => setConfirmPassword(e.target.value)}
+        onBlur={() => validateField('confirmPassword')}
+        required
+        placeholder="Re-enter your password"
+        error={fieldErrors.confirmPassword}
+        autoComplete="new-password"
+        icon={<FaCheckCircle className="text-gray-400" />}
+        iconPosition="left"
+      />
 
       {error && (
         <div className="text-red-600 text-sm p-2 bg-red-50 border border-red-200 rounded">
@@ -212,7 +264,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           isLoading={loading}
           disabled={passwordStrength === 'weak'}
         >
-          Register
+          <FaUserPlus className="mr-2" /> Register
         </Button>
       </div>
     </form>
