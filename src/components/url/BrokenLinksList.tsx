@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import type { BrokenLink } from '../../types';
+import TableHeaderCell from '../common/TableHeaderCell';
+import TableCell from '../common/TableCell';
+import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
 
 interface BrokenLinksListProps {
   links: BrokenLink[];
@@ -72,63 +75,56 @@ const BrokenLinksList: React.FC<BrokenLinksListProps> = ({ links }) => {
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              onClick={() => handleSort('url')}
-            >
+            <TableHeaderCell onClick={() => handleSort('url')}>
               URL
               {sortBy === 'url' && (
                 <span className="ml-1">
-                  {sortDirection === 'asc' ? '↑' : '↓'}
+                  {sortDirection === 'asc' ? (
+                    <FiArrowUp size={14} />
+                  ) : (
+                    <FiArrowDown size={14} />
+                  )}
                 </span>
               )}
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              onClick={() => handleSort('statusCode')}
-            >
+            </TableHeaderCell>
+            <TableHeaderCell onClick={() => handleSort('statusCode')}>
               Status Code
               {sortBy === 'statusCode' && (
                 <span className="ml-1">
-                  {sortDirection === 'asc' ? '↑' : '↓'}
+                  {sortDirection === 'asc' ? (
+                    <FiArrowUp size={14} />
+                  ) : (
+                    <FiArrowDown size={14} />
+                  )}
                 </span>
               )}
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Description
-            </th>
+            </TableHeaderCell>
+            <TableHeaderCell>Description</TableHeaderCell>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {sortedLinks.map(link => (
             <tr key={link.id}>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900 max-w-sm truncate">
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    {link.url}
-                  </a>
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <TableCell className="max-w-sm truncate">
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  {link.url}
+                </a>
+              </TableCell>
+              <TableCell>
                 <span
                   className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusCodeColor(link.statusCode)}`}
                 >
                   {link.statusCode}
                 </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              </TableCell>
+              <TableCell className="text-sm text-gray-500">
                 {getStatusCodeDescription(link.statusCode)}
-              </td>
+              </TableCell>
             </tr>
           ))}
         </tbody>
