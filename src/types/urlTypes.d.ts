@@ -1,7 +1,6 @@
 // URL status types
 export type URLStatus = 'queued' | 'running' | 'done' | 'error' | 'stopped';
 
-// URL data structure
 export interface URLData {
   id: string;
   url: string;
@@ -16,7 +15,6 @@ export interface URLData {
   updatedAt?: string;
 }
 
-// Link data structure
 export interface LinkData {
   id: string;
   url: string;
@@ -32,7 +30,6 @@ export interface URLTableFilters {
   latestOnly?: boolean;
 }
 
-// API response structure for paginated URL list
 export interface URLListResponse {
   items: URLData[];
   total: number;
@@ -40,7 +37,6 @@ export interface URLListResponse {
   perPage: number;
 }
 
-// URL details with links
 export interface URLDetailsResponse {
   url: URLData;
   links: LinkData[];

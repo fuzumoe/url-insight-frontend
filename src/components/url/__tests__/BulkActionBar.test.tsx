@@ -1,12 +1,21 @@
-import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import BulkActionBar from '../BulkActionBar';
+import React from 'react';
 
-// Fix 1: Make sure this path matches the actual import in BulkActionBar.tsx
 vi.mock('../../common/Button', () => ({
-  default: ({ children, onClick, variant, size }: any) => (
+  default: ({
+    children,
+    onClick,
+    variant,
+    size,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+    variant?: string;
+    size?: string;
+  }) => (
     <button
       onClick={onClick}
       data-variant={variant}
