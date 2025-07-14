@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import type { URLData, URLTableFilters } from '../../types';
+import type { URLData, URLTableFilters, URLStatus } from '../../types';
 
 import Button from '../common/Button';
 import Pagination from '../common/Pagination';
+import SearchBar from '../common/SearchBar';
+import SelectInput from '../common/SelectInput';
+import TableHeaderCell from '../common/TableHeaderCell';
+import TableCell from '../common/TableCell';
 
 interface URLTableProps {
   urls: URLData[];
@@ -37,7 +41,7 @@ const URLTable: React.FC<URLTableProps> = ({
   const [sortField, setSortField] = useState<keyof URLData>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<URLTableFilters>({});
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery] = useState('');
 
   const toggleSelectAll = () => {
     if (selectedIds.length === urls.length) {
@@ -77,7 +81,6 @@ const URLTable: React.FC<URLTableProps> = ({
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  // Render action buttons based on URL status
   const renderActionButtons = (url: URLData) => {
     if (url.status === 'queued' || url.status === 'running') {
       return (
@@ -102,7 +105,6 @@ const URLTable: React.FC<URLTableProps> = ({
     }
   };
 
-  // Render bulk action controls
   const renderBulkActions = () => {
     if (selectedIds.length === 0) return null;
 
@@ -134,58 +136,43 @@ const URLTable: React.FC<URLTableProps> = ({
     );
   };
 
-  // Add search and filter controls
   const renderSearchAndFilters = () => {
     return (
       <div className="bg-white p-4 border-b">
         <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0">
           <form onSubmit={handleSearch} className="w-full md:w-1/3">
-            <div className="flex">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search URLs..."
-                className="block w-full rounded-l-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 text-sm font-medium rounded-r-md bg-gray-50 hover:bg-gray-100"
-              >
-                Search
-              </button>
-            </div>
+            <SearchBar
+              onSearch={onSearch}
+              placeholder="Search URLs..."
+              className="w-full"
+            />
           </form>
 
           <div className="flex space-x-2">
-            <select
-              onChange={e =>
-                updateFilters({
-                  status: e.target.value as URLTableFilters['status'],
-                })
-              }
+            <SelectInput
+              id="status-filter"
+              label="Filter by Status"
               value={filters.status || 'all'}
-              className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="all">All Statuses</option>
-              <option value="queued">Queued</option>
-              <option value="running">Running</option>
-              <option value="done">Done</option>
-              <option value="error">Error</option>
-              <option value="stopped">Stopped</option>
-            </select>
-
-            <select
+              options={[
+                { value: 'all', label: 'All Statuses' },
+                { value: 'queued', label: 'Queued' },
+                { value: 'running', label: 'Running' },
+                { value: 'done', label: 'Done' },
+                { value: 'error', label: 'Error' },
+                { value: 'stopped', label: 'Stopped' },
+              ]}
               onChange={e =>
                 updateFilters({
-                  hasBrokenLinks:
-                    e.target.value === 'true'
-                      ? true
-                      : e.target.value === 'false'
-                        ? false
-                        : undefined,
+                  status:
+                    e.target.value === 'all'
+                      ? undefined
+                      : (e.target.value as URLStatus),
                 })
               }
+            />
+            <SelectInput
+              id="broken-filter"
+              label="Filter Broken Links"
               value={
                 filters.hasBrokenLinks === true
                   ? 'true'
@@ -193,24 +180,25 @@ const URLTable: React.FC<URLTableProps> = ({
                     ? 'false'
                     : 'all'
               }
-              className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="all">All Links</option>
-              <option value="true">Has Broken Links</option>
-              <option value="false">No Broken Links</option>
-            </select>
-
-            <select
+              options={[
+                { value: 'all', label: 'All Links' },
+                { value: 'true', label: 'Has Broken Links' },
+                { value: 'false', label: 'No Broken Links' },
+              ]}
               onChange={e =>
                 updateFilters({
-                  hasLoginForm:
-                    e.target.value === 'true'
-                      ? true
-                      : e.target.value === 'false'
-                        ? false
-                        : undefined,
+                  hasBrokenLinks:
+                    e.target.value === 'all'
+                      ? undefined
+                      : e.target.value === 'true'
+                        ? true
+                        : false,
                 })
               }
+            />
+            <SelectInput
+              id="login-filter"
+              label="Login Form"
               value={
                 filters.hasLoginForm === true
                   ? 'true'
@@ -218,12 +206,22 @@ const URLTable: React.FC<URLTableProps> = ({
                     ? 'false'
                     : 'all'
               }
-              className="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="all">Login Form</option>
-              <option value="true">Has Login Form</option>
-              <option value="false">No Login Form</option>
-            </select>
+              options={[
+                { value: 'all', label: 'All' },
+                { value: 'true', label: 'Has Login Form' },
+                { value: 'false', label: 'No Login Form' },
+              ]}
+              onChange={e =>
+                updateFilters({
+                  hasLoginForm:
+                    e.target.value === 'all'
+                      ? undefined
+                      : e.target.value === 'true'
+                        ? true
+                        : false,
+                })
+              }
+            />
           </div>
         </div>
       </div>
@@ -239,7 +237,7 @@ const URLTable: React.FC<URLTableProps> = ({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left">
+              <TableHeaderCell>
                 <input
                   type="checkbox"
                   checked={
@@ -248,48 +246,46 @@ const URLTable: React.FC<URLTableProps> = ({
                   onChange={toggleSelectAll}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-              </th>
-              <th
-                onClick={() => handleSort('url')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-              >
+              </TableHeaderCell>
+              <TableHeaderCell onClick={() => handleSort('url')}>
                 URL
                 {sortField === 'url' && (
                   <span className="ml-1">
                     {sortDirection === 'asc' ? '↑' : '↓'}
                   </span>
                 )}
-              </th>
-              {/* Other column headers here */}
+              </TableHeaderCell>
+              <TableHeaderCell>Actions</TableHeaderCell>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={10} className="px-6 py-4 text-center">
+                <TableCell colSpan={10} className="px-6 py-4 text-center">
                   Loading...
-                </td>
+                </TableCell>
               </tr>
             ) : urls.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-6 py-4 text-center">
+                <TableCell colSpan={10} className="px-6 py-4 text-center">
                   No URLs found
-                </td>
+                </TableCell>
               </tr>
             ) : (
               urls.map(url => (
                 <tr key={url.id}>
-                  <td className="px-6 py-4">
+                  <TableCell className="px-6 py-4">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(url.id)}
                       onChange={() => toggleSelectUrl(url.id)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                  </td>
-                  <td className="px-6 py-4">{url.url}</td>
-                  {/* Other cells here */}
-                  <td className="px-6 py-4">{renderActionButtons(url)}</td>
+                  </TableCell>
+                  <TableCell className="px-6 py-4">{url.url}</TableCell>
+                  <TableCell className="px-6 py-4">
+                    {renderActionButtons(url)}
+                  </TableCell>
                 </tr>
               ))
             )}

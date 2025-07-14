@@ -1,19 +1,38 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
+import React from 'react';
 import URLTable from '../URLTable';
 import type { URLData } from '../../../types';
-// Mock components used in URLTable
+
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  variant?: string;
+  size?: string;
+}
+
 vi.mock('../../common/Button', () => ({
-  default: ({ children, onClick, variant, size }: any) => (
+  default: ({
+    children,
+    onClick,
+    variant,
+    size,
+  }: ButtonProps): React.ReactElement => (
     <button onClick={onClick} data-variant={variant} data-size={size}>
       {children}
     </button>
   ),
 }));
 
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+
 vi.mock('../../common/Pagination', () => ({
-  default: ({ currentPage, totalPages, onPageChange }: any) => (
+  default: ({ currentPage, totalPages, onPageChange }: PaginationProps) => (
     <div
       data-testid="pagination"
       data-current-page={currentPage}
@@ -22,6 +41,87 @@ vi.mock('../../common/Pagination', () => ({
       <button onClick={() => onPageChange(currentPage - 1)}>Prev</button>
       <button onClick={() => onPageChange(currentPage + 1)}>Next</button>
     </div>
+  ),
+}));
+
+interface SearchBarProps {
+  onSearch: (value: string) => void;
+  placeholder: string;
+  className?: string;
+}
+
+vi.mock('../../common/SearchBar', () => ({
+  default: ({ onSearch, placeholder, className }: SearchBarProps) => (
+    <div data-testid="search-bar" className={className}>
+      <input
+        placeholder={placeholder}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onSearch(e.target.value)
+        }
+      />
+      <button>Search</button>
+    </div>
+  ),
+}));
+
+interface SelectInputProps {
+  id: string;
+  label: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+vi.mock('../../common/SelectInput', () => ({
+  default: ({ id, label, value, options, onChange }: SelectInputProps) => (
+    <label htmlFor={id}>
+      {label}
+      <select id={id} value={value} onChange={onChange}>
+        {options.map((option: { value: string; label: string }) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  ),
+}));
+
+interface CheckboxProps {
+  checked: boolean;
+  onChange?: (checked: boolean) => void;
+  id?: string;
+}
+
+vi.mock('../../common/Checkbox', () => ({
+  default: ({ checked, onChange, id }: CheckboxProps) => (
+    <input
+      type="checkbox"
+      data-testid={id ? `checkbox-${id}` : 'checkbox'}
+      checked={checked}
+      onChange={() => onChange && onChange(!checked)}
+    />
+  ),
+}));
+
+interface TableHeaderCellProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+vi.mock('../../common/TableHeaderCell', () => ({
+  default: ({ children, onClick }: TableHeaderCellProps) => (
+    <th onClick={onClick}>{children}</th>
+  ),
+}));
+
+interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
+  children: React.ReactNode;
+}
+
+vi.mock('../../common/TableCell', () => ({
+  default: ({ children, ...rest }: TableCellProps) => (
+    <td {...rest}>{children}</td>
   ),
 }));
 
@@ -69,8 +169,13 @@ describe('URLTable', () => {
     onSearch: vi.fn(),
   };
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders loading state correctly', () => {
     render(<URLTable {...defaultProps} loading={true} />);
+    // Expect the Spinner to render "Loading..." text
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
@@ -81,47 +186,39 @@ describe('URLTable', () => {
 
   it('renders URLs correctly', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Check if URLs are displayed
     expect(screen.getByText('https://example.com')).toBeInTheDocument();
     expect(screen.getByText('https://test.com')).toBeInTheDocument();
   });
 
   it('allows selecting individual URLs', () => {
     render(<URLTable {...defaultProps} />);
-
     const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes.length).toBe(3); // 1 for "select all" + 2 for individual URLs
+    expect(checkboxes.length).toBe(3); // 1 header + 2 URL rows
 
-    // Initially, no checkboxes should be checked
+    // None are checked initially
     checkboxes.forEach(checkbox => {
       expect(checkbox).not.toBeChecked();
     });
 
-    // Check the first URL
+    // Select first URL
     fireEvent.click(checkboxes[1]);
     expect(checkboxes[1]).toBeChecked();
-    expect(checkboxes[0]).not.toBeChecked(); // "Select all" should not be checked
-    expect(checkboxes[2]).not.toBeChecked(); // Other URL should not be checked
+    expect(checkboxes[0]).not.toBeChecked();
+    expect(checkboxes[2]).not.toBeChecked();
   });
 
   it('allows selecting all URLs', () => {
     render(<URLTable {...defaultProps} />);
-
     const checkboxes = screen.getAllByRole('checkbox');
 
-    // Check "select all" checkbox
+    // Click "select all"
     fireEvent.click(checkboxes[0]);
-
-    // All checkboxes should be checked
     checkboxes.forEach(checkbox => {
       expect(checkbox).toBeChecked();
     });
 
-    // Uncheck "select all" checkbox
+    // Unselect all
     fireEvent.click(checkboxes[0]);
-
-    // All checkboxes should be unchecked
     checkboxes.forEach(checkbox => {
       expect(checkbox).not.toBeChecked();
     });
@@ -129,16 +226,12 @@ describe('URLTable', () => {
 
   it('shows bulk actions when URLs are selected', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Initially, bulk actions should not be visible
     expect(screen.queryByText('Rerun Analysis')).not.toBeInTheDocument();
     expect(screen.queryByText('Delete')).not.toBeInTheDocument();
 
-    // Select a URL
     const checkboxes = screen.getAllByRole('checkbox');
     fireEvent.click(checkboxes[1]);
 
-    // Bulk actions should be visible
     expect(screen.getByText('Rerun Analysis')).toBeInTheDocument();
     expect(screen.getByText('Delete')).toBeInTheDocument();
     expect(screen.getByText('1 item selected')).toBeInTheDocument();
@@ -146,113 +239,73 @@ describe('URLTable', () => {
 
   it('calls onDeleteSelected when Delete button is clicked', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Select a URL
     const checkboxes = screen.getAllByRole('checkbox');
     fireEvent.click(checkboxes[1]);
-
-    // Click Delete button
     fireEvent.click(screen.getByText('Delete'));
-
-    // onDeleteSelected should be called with the selected URL ID
     expect(defaultProps.onDeleteSelected).toHaveBeenCalledWith(['1']);
   });
 
   it('calls onRerunSelected when Rerun Analysis button is clicked', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Select a URL
     const checkboxes = screen.getAllByRole('checkbox');
     fireEvent.click(checkboxes[1]);
-
-    // Click Rerun Analysis button
     fireEvent.click(screen.getByText('Rerun Analysis'));
-
-    // onRerunSelected should be called with the selected URL ID
     expect(defaultProps.onRerunSelected).toHaveBeenCalledWith(['1']);
   });
 
   it('renders action buttons based on URL status', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Find action buttons for each URL
-    const rows = screen.getAllByRole('row').slice(1); // Skip header row
-
-    // First URL is "done", should have "Analyze" button
+    // First URL (status: done) should show an "Analyze" button,
+    // Second URL (status: running) should show a "Stop" button.
+    const rows = screen.getAllByRole('row').slice(1); // skip header row
     const analyzeButton = within(rows[0]).getByText('Analyze');
     expect(analyzeButton).toBeInTheDocument();
-
-    // Second URL is "running", should have "Stop" button
     const stopButton = within(rows[1]).getByText('Stop');
     expect(stopButton).toBeInTheDocument();
   });
 
   it('calls onStartAnalysis when Analyze button is clicked', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Click Analyze button for the first URL
     fireEvent.click(screen.getByText('Analyze'));
-
-    // onStartAnalysis should be called with the URL ID
     expect(defaultProps.onStartAnalysis).toHaveBeenCalledWith('1');
   });
 
   it('calls onStopAnalysis when Stop button is clicked', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Click Stop button for the second URL
     fireEvent.click(screen.getByText('Stop'));
-
-    // onStopAnalysis should be called with the URL ID
     expect(defaultProps.onStopAnalysis).toHaveBeenCalledWith('2');
   });
 
   it('calls onSearch when search form is submitted', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Type in search input
     const searchInput = screen.getByPlaceholderText('Search URLs...');
     fireEvent.change(searchInput, { target: { value: 'example' } });
-
-    // Submit search form
     const searchButton = screen.getByText('Search');
     fireEvent.click(searchButton);
-
-    // onSearch should be called with the search query
     expect(defaultProps.onSearch).toHaveBeenCalledWith('example');
   });
 
   it('calls onFilterChange when filters are changed', () => {
     render(<URLTable {...defaultProps} />);
-
-    // Change status filter
-    const statusFilter = screen.getByText('All Statuses').closest('select')!;
-    fireEvent.change(statusFilter, { target: { value: 'done' } });
-
-    // onFilterChange should be called with the updated filters
+    const statusSelect = screen.getByRole('combobox', {
+      name: /filter by status/i,
+    });
+    fireEvent.change(statusSelect, { target: { value: 'done' } });
     expect(defaultProps.onFilterChange).toHaveBeenCalledWith({
       status: 'done',
     });
   });
 
   it('renders pagination when there are URLs', () => {
-    render(<URLTable {...defaultProps} />);
-
-    // Pagination should be rendered
+    render(<URLTable {...defaultProps} totalItems={20} itemsPerPage={10} />);
     const pagination = screen.getByTestId('pagination');
     expect(pagination).toBeInTheDocument();
-
-    // Click Next button
     fireEvent.click(screen.getByText('Next'));
-
-    // onPageChange should be called with the next page number
     expect(defaultProps.onPageChange).toHaveBeenCalledWith(2);
   });
 
   it('does not render pagination when there are no URLs', () => {
     render(<URLTable {...defaultProps} urls={[]} />);
-
-    // Pagination should not be rendered
     expect(screen.queryByTestId('pagination')).not.toBeInTheDocument();
   });
 });
