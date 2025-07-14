@@ -29,6 +29,7 @@ export interface URLTableFilters {
   status?: URLStatus;
   hasLoginForm?: boolean;
   hasBrokenLinks?: boolean;
+  latestOnly?: boolean;
 }
 
 // API response structure for paginated URL list
