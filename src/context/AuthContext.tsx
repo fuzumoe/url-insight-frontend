@@ -12,8 +12,14 @@ interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  register: (
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
 }
-
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthProviderProps {
@@ -24,13 +30,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const login = async (email: string, password: string): Promise<void> => {
+    const response = await authService.login(email, password);
+    setUser(response.user);
+  };
+
+  const logout = async (): Promise<void> => {
+    await authService.logout();
+    setUser(null);
+    removeToken();
+  };
+
+  const register = async (
+    username: string,
+    email: string,
+    password: string
+  ): Promise<void> => {
+    const response = await authService.register(username, email, password);
+    setUser(response.user);
+  };
+
   useEffect(() => {
     const initAuth = async () => {
       const token = getToken();
       if (token) {
         try {
-          const currentUser = await authService.getCurrentUser();
-          setUser(currentUser);
+          const response = await authService.getCurrentUser();
+          setUser(response);
         } catch (error) {
           console.error('Failed to authenticate with stored token:', error);
           removeToken();
@@ -51,7 +77,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider
+      value={{ user, setUser, loading, login, logout, register }}
+    >
       {children}
     </AuthContext.Provider>
   );

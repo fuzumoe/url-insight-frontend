@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -50,7 +49,7 @@ describe('AuthContext', () => {
   it('attempts to authenticate with token and sets user on success', async () => {
     // Mock getToken to return a valid token
     vi.mocked(storage.getToken).mockReturnValue('valid-token');
-    vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser as any);
+    vi.mocked(authService.getCurrentUser).mockResolvedValue(mockUser);
 
     render(<AuthProvider>Test content</AuthProvider>);
 
