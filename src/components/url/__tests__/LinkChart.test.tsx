@@ -10,7 +10,13 @@ vi.mock('recharts', () => {
     PieChart: ({ children }: { children: React.ReactNode }) => (
       <div data-testid="pie-chart">{children}</div>
     ),
-    Pie: ({ data, children }: { data: any[]; children: React.ReactNode }) => (
+    Pie: ({
+      data,
+      children,
+    }: {
+      data: Array<{ name: string; value: number; color: string }>;
+      children: React.ReactNode;
+    }) => (
       <div data-testid="pie">
         <span data-testid="pie-data">{JSON.stringify(data)}</span>
         {children}
@@ -25,7 +31,6 @@ vi.mock('recharts', () => {
     Tooltip: () => {
       // Always return the hardcoded content needed for the test
       const percentage = ((10 / 17) * 100).toFixed(1);
-
       return (
         <div data-testid="tooltip">
           <p>Test</p>
@@ -34,8 +39,19 @@ vi.mock('recharts', () => {
         </div>
       );
     },
-    Legend: ({ content }: { content: any }) => {
-      // Call the custom legend with mock data to test it
+    Legend: ({
+      content,
+    }: {
+      content: (props: {
+        payload: readonly {
+          value: string;
+          color: string;
+          payload: { name: string; value: number; color: string };
+        }[];
+      }) => React.ReactNode;
+    }) => {
+      // Call the custom legend with a mock payload that matches our component's expected type.
+      // Note that the payload is passed as a readonly array.
       const CustomLegend = content;
       return (
         <div data-testid="legend">
@@ -45,19 +61,31 @@ vi.mock('recharts', () => {
                   {
                     value: 'Internal Links',
                     color: '#3B82F6',
-                    payload: { value: 10 },
+                    payload: {
+                      name: 'Internal Links',
+                      value: 10,
+                      color: '#3B82F6',
+                    },
                   },
                   {
                     value: 'External Links',
                     color: '#10B981',
-                    payload: { value: 5 },
+                    payload: {
+                      name: 'External Links',
+                      value: 5,
+                      color: '#10B981',
+                    },
                   },
                   {
                     value: 'Broken Links',
                     color: '#EF4444',
-                    payload: { value: 2 },
+                    payload: {
+                      name: 'Broken Links',
+                      value: 2,
+                      color: '#EF4444',
+                    },
                   },
-                ],
+                ] as const,
               })
             : null}
         </div>
@@ -78,16 +106,13 @@ describe('LinkChart', () => {
     // Check the data is passed correctly to the Pie component
     const pieData = screen.getByTestId('pie-data');
     const parsedData = JSON.parse(pieData.textContent || '[]');
-
     expect(parsedData).toHaveLength(3);
     expect(parsedData[0].name).toBe('Internal Links');
     expect(parsedData[0].value).toBe(10);
     expect(parsedData[0].color).toBe('#3B82F6');
-
     expect(parsedData[1].name).toBe('External Links');
     expect(parsedData[1].value).toBe(5);
     expect(parsedData[1].color).toBe('#10B981');
-
     expect(parsedData[2].name).toBe('Broken Links');
     expect(parsedData[2].value).toBe(2);
     expect(parsedData[2].color).toBe('#EF4444');
@@ -95,8 +120,6 @@ describe('LinkChart', () => {
     // Check that we have the right number of cells
     const cells = screen.getAllByTestId('chart-cell');
     expect(cells).toHaveLength(3);
-
-    // Check the colors of the cells
     expect(cells[0]).toHaveStyle('background-color: #3B82F6');
     expect(cells[1]).toHaveStyle('background-color: #10B981');
     expect(cells[2]).toHaveStyle('background-color: #EF4444');
@@ -113,7 +136,6 @@ describe('LinkChart', () => {
     const pieData = screen.getByTestId('pie-data');
     const parsedData = JSON.parse(pieData.textContent || '[]');
 
-    // Should only have 2 items since externalLinks is 0
     expect(parsedData).toHaveLength(2);
     expect(parsedData[0].name).toBe('Internal Links');
     expect(parsedData[1].name).toBe('Broken Links');
