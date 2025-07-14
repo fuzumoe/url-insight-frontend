@@ -1,6 +1,7 @@
 import React from 'react';
 
-export interface TableCellProps {
+export interface TableCellProps
+  extends React.TdHTMLAttributes<HTMLTableCellElement> {
   children: React.ReactNode;
   icon?: React.ReactNode;
   className?: string;
@@ -10,13 +11,12 @@ const TableCell: React.FC<TableCellProps> = ({
   children,
   icon,
   className = '',
+  ...rest
 }) => {
   return (
-    <td className={`px-6 py-4 whitespace-nowrap ${className}`}>
-      <div className="flex items-center">
-        {icon && <span className="mr-2">{icon}</span>}
-        <span className="text-sm text-gray-900">{children}</span>
-      </div>
+    <td className={`px-4 py-2 ${className}`} {...rest}>
+      {icon && <span>{icon}</span>}
+      {children}
     </td>
   );
 };

@@ -1,37 +1,41 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import TableCell from '../TableCell';
 import '@testing-library/jest-dom';
 import { describe, it, expect } from 'vitest';
 
-const renderInTable = (component: React.ReactElement) => {
-  return render(
-    <table>
-      <tbody>
-        <tr>{component}</tr>
-      </tbody>
-    </table>
-  );
-};
-
 describe('TableCell', () => {
-  it('renders children correctly', () => {
-    renderInTable(<TableCell>Test Content</TableCell>);
+  it('renders its children correctly', () => {
+    render(<TableCell>Test Content</TableCell>);
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
-  it('renders icon if provided', () => {
-    const TestIcon = () => <span data-testid="test-icon">Icon</span>;
-    renderInTable(<TableCell icon={<TestIcon />}>Content with Icon</TableCell>);
-    expect(screen.getByTestId('test-icon')).toBeInTheDocument();
-    expect(screen.getByText('Content with Icon')).toBeInTheDocument();
+  it('applies additional TD attributes such as colSpan', () => {
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <TableCell colSpan={3}>Cell with colSpan</TableCell>
+          </tr>
+        </tbody>
+      </table>
+    );
+    const cell = screen.getByText('Cell with colSpan');
+    expect(cell.tagName).toBe('TD');
+    expect(cell).toHaveAttribute('colspan', '3');
   });
 
-  it('applies additional className to td element', () => {
-    renderInTable(
-      <TableCell className="custom-class">Styled Content</TableCell>
+  it('renders an icon when provided', () => {
+    render(
+      <TableCell icon={<span data-testid="icon">Icon</span>}>
+        Cell Content
+      </TableCell>
     );
-    const tdElement = screen.getByText('Styled Content').closest('td');
-    expect(tdElement).toHaveClass('custom-class');
+    expect(screen.getByTestId('icon')).toBeInTheDocument();
+  });
+
+  it('applies custom className', () => {
+    render(<TableCell className="custom-class">Custom Cell</TableCell>);
+    const cell = screen.getByText('Custom Cell');
+    expect(cell).toHaveClass('custom-class');
   });
 });
