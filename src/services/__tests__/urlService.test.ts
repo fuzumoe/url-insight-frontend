@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { urlService } from '../urlService';
 
@@ -28,7 +29,6 @@ describe('URL Service', () => {
 
       const result = await urlService.create('https://example.com');
 
-      // Fix #1: Change expectation to match implementation
       expect(apiService.post).toHaveBeenCalledWith('/urls', {
         original_url: 'https://example.com',
       });
@@ -51,10 +51,20 @@ describe('URL Service', () => {
         { id: '1', url: 'https://example.com', status: 'pending' },
         { id: '2', url: 'https://test.com', status: 'completed' },
       ];
+
+      // Updated mock response to match backend structure
       const mockResponse = {
-        data: mockURLs,
-        headers: { 'x-total-count': '42' },
+        data: {
+          data: mockURLs,
+          pagination: {
+            page: 2,
+            pageSize: 10,
+            totalItems: 42,
+            totalPages: 5,
+          },
+        },
       };
+
       (apiService.get as any).mockResolvedValue(mockResponse);
 
       const filters: URLTableFilters = {
@@ -64,7 +74,6 @@ describe('URL Service', () => {
       };
       const result = await urlService.list(2, 10, filters);
 
-      // Fix #2: Update expectation to match implementation
       expect(apiService.get).toHaveBeenCalledWith('/urls', {
         params: {
           page: 2,
@@ -74,9 +83,16 @@ describe('URL Service', () => {
           hasBrokenLinks: false,
         },
       });
+
+      // Updated expectation to match service implementation
       expect(result).toEqual({
         data: mockURLs,
-        total: 42,
+        pagination: {
+          page: 2,
+          pageSize: 10,
+          totalItems: 42,
+          totalPages: 5,
+        },
       });
     });
   });
@@ -107,15 +123,6 @@ describe('URL Service', () => {
             original_url: 'https://example.com',
             status: 'COMPLETED',
             created_at: '2025-07-13',
-            analysis_results: [
-              {
-                title: 'Example Domain',
-                html_version: 'HTML5',
-                internal_link_count: 5,
-                external_link_count: 3,
-                has_login_form: true,
-              },
-            ],
           },
           analysis_results: [
             {

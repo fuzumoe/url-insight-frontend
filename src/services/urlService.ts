@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import apiService from './apiService';
 import type { URLData, URLTableFilters, BrokenLink, URLStatus } from '../types';
 
@@ -11,12 +12,22 @@ export const urlService = {
     page: number,
     pageSize: number,
     filters?: URLTableFilters
-  ): Promise<{ data: URLData[]; total: number }> => {
+  ): Promise<{
+    data: URLData[];
+    pagination: {
+      page: number;
+      pageSize: number;
+      totalItems: number;
+      totalPages: number;
+    };
+  }> => {
     const params = { page, page_size: pageSize, ...filters };
     const response = await apiService.get('/urls', { params });
+
+    // Backend returns { data: [...], pagination: {...} }
     return {
-      data: response.data,
-      total: parseInt(response.headers['x-total-count'] || '0'),
+      data: response.data.data,
+      pagination: response.data.pagination,
     };
   },
 
