@@ -1,12 +1,19 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
-import React from 'react';
 import type { BrokenLink, URLData, URLStatus } from '../../../types';
 import URLDetails from '../URLDetails';
-// Mock child components
+
 vi.mock('../LinkChart', () => ({
-  default: ({ internalLinks, externalLinks, brokenLinks }: any) => (
+  default: ({
+    internalLinks,
+    externalLinks,
+    brokenLinks,
+  }: {
+    internalLinks: number;
+    externalLinks: number;
+    brokenLinks: number;
+  }) => (
     <div data-testid="link-chart">
       <span data-testid="internal-links">{internalLinks}</span>
       <span data-testid="external-links">{externalLinks}</span>
@@ -16,9 +23,9 @@ vi.mock('../LinkChart', () => ({
 }));
 
 vi.mock('../BrokenLinksList', () => ({
-  default: ({ links }: any) => (
+  default: ({ links }: { links: BrokenLink[] }) => (
     <div data-testid="broken-links-list">
-      {links.map((link: any) => (
+      {links.map((link: BrokenLink) => (
         <div key={link.id} data-testid="broken-link-item">
           {link.url}
         </div>
@@ -28,11 +35,21 @@ vi.mock('../BrokenLinksList', () => ({
 }));
 
 vi.mock('../../common/StatusBadge', () => ({
-  default: ({ status }: any) => <div data-testid="status-badge">{status}</div>,
+  default: ({ status }: { status: URLStatus }) => (
+    <div data-testid="status-badge">{status}</div>
+  ),
 }));
 
 vi.mock('../../common/Button', () => ({
-  default: ({ children, onClick, variant }: any) => (
+  default: ({
+    children,
+    onClick,
+    variant,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+    variant?: string;
+  }) => (
     <button
       data-testid="action-button"
       data-variant={variant}
