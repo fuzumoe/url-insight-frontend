@@ -2,7 +2,7 @@ import apiService from './apiService';
 import type { URLData, URLTableFilters, BrokenLink, URLStatus } from '../types';
 
 export const urlService = {
-  create: async (url: number): Promise<number> => {
+  create: async (url: string): Promise<number> => {
     const response = await apiService.post('/urls', { original_url: url });
     return response.data.id;
   },
