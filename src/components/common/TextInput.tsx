@@ -1,4 +1,5 @@
 import React from 'react';
+import Typography from './Typography';
 
 interface TextInputProps {
   id: string;
@@ -54,21 +55,21 @@ const TextInput: React.FC<TextInputProps> = ({
   readOnly = false,
 }) => {
   return (
-    <div className={`mb-4 ${className}`}>
-      <label
-        htmlFor={id}
-        className={`block text-sm font-medium text-gray-700 mb-1 ${labelClassName}`}
-      >
-        {label}
-        {required && (
-          <span className="text-red-500 ml-1" aria-hidden="true">
-            *
-          </span>
-        )}
+    <div className={`mb-3 sm:mb-4 ${className}`}>
+      <label htmlFor={id} className={`block font-medium ${labelClassName}`}>
+        <Typography as="span" variant="body2">
+          {label}
+          {required && (
+            <span className="text-red-500 ml-1" aria-hidden="true">
+              *
+            </span>
+          )}
+        </Typography>
       </label>
-      <div className="relative">
+
+      <div className="relative mt-1">
         {icon && iconPosition === 'left' && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
             {icon}
           </div>
         )}
@@ -93,33 +94,40 @@ const TextInput: React.FC<TextInputProps> = ({
           aria-describedby={
             error ? `${id}-error` : helpText ? `${id}-help` : undefined
           }
-          className={`mt-1 block w-full px-3 py-2 border ${
+          className={`block w-full px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm border ${
             error ? 'border-red-300' : 'border-gray-300'
           } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
             disabled ? 'bg-gray-100 text-gray-500' : ''
           } ${readOnly ? 'bg-gray-50 cursor-not-allowed' : ''} ${
-            icon && iconPosition === 'left' ? 'pl-10' : ''
-          } ${icon && iconPosition === 'right' ? 'pr-10' : ''} ${inputClassName}`}
+            icon && iconPosition === 'left' ? 'pl-8 sm:pl-10' : ''
+          } ${icon && iconPosition === 'right' ? 'pr-8 sm:pr-10' : ''} ${inputClassName}`}
         />
         {icon && iconPosition === 'right' && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <div className="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center pointer-events-none">
             {icon}
           </div>
         )}
       </div>
+
       {error && (
-        <p
-          id={`${id}-error`}
-          className="mt-1 text-sm text-red-600"
-          role="alert"
-        >
-          {error}
-        </p>
+        <div id={`${id}-error`} role="alert">
+          <Typography variant="caption" color="error" as="p" className="mt-1">
+            {error}
+          </Typography>
+        </div>
       )}
+
       {helpText && !error && (
-        <p id={`${id}-help`} className="mt-1 text-sm text-gray-500">
-          {helpText}
-        </p>
+        <div id={`${id}-help`}>
+          <Typography
+            variant="caption"
+            color="secondary"
+            as="p"
+            className="mt-1"
+          >
+            {helpText}
+          </Typography>
+        </div>
       )}
     </div>
   );
