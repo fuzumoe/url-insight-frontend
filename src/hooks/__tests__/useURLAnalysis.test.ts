@@ -90,11 +90,11 @@ describe('useURLAnalysis hook', () => {
     let returnedResult: URLData;
     await act(async () => {
       returnedResult = await result.current.analyzeURL(newURL);
+      expect(returnedResult).toEqual(newURLData);
     });
 
     expect(urlService.create).toHaveBeenCalledWith(newURL);
     expect(urlService.get).toHaveBeenCalledWith(newId);
-    expect(returnedResult).toEqual(newURLData);
     expect(result.current.urls).toContainEqual(newURLData);
   });
 
