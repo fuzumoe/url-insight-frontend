@@ -14,6 +14,36 @@ describe('Box', () => {
     expect(screen.getByText('Test content')).toBeInTheDocument();
   });
 
+  it('renders as div by default', () => {
+    const { container } = render(
+      <Box>
+        <div>Test content</div>
+      </Box>
+    );
+
+    expect(container.firstChild?.nodeName).toBe('DIV');
+  });
+
+  it('renders as specified element when as prop is provided', () => {
+    const { container } = render(
+      <Box as="main">
+        <div>Test content</div>
+      </Box>
+    );
+
+    expect(container.firstChild?.nodeName).toBe('MAIN');
+  });
+
+  it('renders as section element', () => {
+    const { container } = render(
+      <Box as="section">
+        <div>Test content</div>
+      </Box>
+    );
+
+    expect(container.firstChild?.nodeName).toBe('SECTION');
+  });
+
   it('applies padding classes correctly', () => {
     const { container } = render(
       <Box padding="lg">
@@ -85,5 +115,141 @@ describe('Box', () => {
       'rounded-lg',
       'w-full'
     );
+  });
+
+  it('combines as prop with other styling props', () => {
+    const { container } = render(
+      <Box
+        as="article"
+        padding="sm"
+        background="blue-50"
+        shadow="md"
+        rounded="full"
+        className="max-w-md"
+      >
+        <div>Test content</div>
+      </Box>
+    );
+
+    expect(container.firstChild?.nodeName).toBe('ARTICLE');
+    expect(container.firstChild).toHaveClass(
+      'p-2',
+      'sm:p-3',
+      'bg-blue-50',
+      'shadow-md',
+      'rounded-full',
+      'max-w-md'
+    );
+  });
+
+  it('handles all padding options correctly', () => {
+    const paddingTests = [
+      { padding: 'none', expectedClasses: [] },
+      { padding: 'sm', expectedClasses: ['p-2', 'sm:p-3'] },
+      { padding: 'md', expectedClasses: ['p-3', 'sm:p-4'] },
+      { padding: 'lg', expectedClasses: ['p-4', 'sm:p-6'] },
+      { padding: 'xl', expectedClasses: ['p-6', 'sm:p-8'] },
+    ];
+
+    paddingTests.forEach(({ padding, expectedClasses }) => {
+      const { container } = render(
+        <Box padding={padding as 'none' | 'sm' | 'md' | 'lg' | 'xl'}>
+          <div>Test</div>
+        </Box>
+      );
+
+      if (expectedClasses.length > 0) {
+        expect(container.firstChild).toHaveClass(...expectedClasses);
+      } else {
+        // For 'none' padding, ensure no padding classes are applied
+        expect((container.firstChild as HTMLElement)?.className).not.toMatch(
+          /p-\d/
+        );
+      }
+    });
+  });
+
+  it('handles all background options correctly', () => {
+    const backgroundTests = [
+      { background: 'transparent', expectedClass: 'bg-transparent' },
+      { background: 'white', expectedClass: 'bg-white' },
+      { background: 'gray-50', expectedClass: 'bg-gray-50' },
+      { background: 'gray-100', expectedClass: 'bg-gray-100' },
+      { background: 'blue-50', expectedClass: 'bg-blue-50' },
+    ];
+
+    backgroundTests.forEach(({ background, expectedClass }) => {
+      const { container } = render(
+        <Box
+          background={
+            background as
+              | 'transparent'
+              | 'white'
+              | 'gray-50'
+              | 'gray-100'
+              | 'blue-50'
+          }
+        >
+          <div>Test</div>
+        </Box>
+      );
+
+      expect(container.firstChild).toHaveClass(expectedClass);
+    });
+  });
+
+  it('handles all shadow options correctly', () => {
+    const shadowTests = [
+      { shadow: 'none', expectedClass: '' },
+      { shadow: 'sm', expectedClass: 'shadow-sm' },
+      { shadow: 'md', expectedClass: 'shadow-md' },
+      { shadow: 'lg', expectedClass: 'shadow-lg' },
+      { shadow: 'xl', expectedClass: 'shadow-xl' },
+    ];
+
+    shadowTests.forEach(({ shadow, expectedClass }) => {
+      const { container } = render(
+        <Box shadow={shadow as 'none' | 'sm' | 'md' | 'lg' | 'xl'}>
+          <div>Test</div>
+        </Box>
+      );
+
+      if (expectedClass) {
+        expect(container.firstChild).toHaveClass(expectedClass);
+      } else {
+        // For 'none' shadow, ensure no shadow classes are applied
+        expect((container.firstChild as HTMLElement)?.className).not.toMatch(
+          /shadow-\w+/
+        );
+      }
+    });
+  });
+
+  it('handles all rounded options correctly', () => {
+    const roundedTests = [
+      { rounded: 'none', expectedClass: '' },
+      { rounded: 'sm', expectedClass: 'rounded-sm' },
+      { rounded: 'md', expectedClass: 'rounded-md' },
+      { rounded: 'lg', expectedClass: 'rounded-lg' },
+      { rounded: 'xl', expectedClass: 'rounded-xl' },
+      { rounded: 'full', expectedClass: 'rounded-full' },
+    ];
+
+    roundedTests.forEach(({ rounded, expectedClass }) => {
+      const { container } = render(
+        <Box rounded={rounded as 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full'}>
+          <div>Test</div>
+        </Box>
+      );
+
+      if (expectedClass) {
+        expect(container.firstChild).toHaveClass(expectedClass);
+      } else {
+        // For 'none' rounded, ensure no rounded classes are applied
+        expect((container.firstChild as HTMLElement)?.className).not.toMatch(
+          /rounded-\w+/
+        );
+      }
+    });
   });
 });

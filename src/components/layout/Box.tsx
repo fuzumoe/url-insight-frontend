@@ -2,6 +2,7 @@ import React from 'react';
 
 interface BoxProps {
   children: React.ReactNode;
+  as?: React.ElementType;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   background?: 'transparent' | 'white' | 'gray-50' | 'gray-100' | 'blue-50';
   shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
@@ -11,6 +12,7 @@ interface BoxProps {
 
 const Box: React.FC<BoxProps> = ({
   children,
+  as: Component = 'div',
   padding = 'md',
   background = 'transparent',
   shadow = 'none',
@@ -60,7 +62,7 @@ const Box: React.FC<BoxProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  return <div className={classes}>{children}</div>;
+  return <Component className={classes}>{children}</Component>;
 };
 
 export default Box;
