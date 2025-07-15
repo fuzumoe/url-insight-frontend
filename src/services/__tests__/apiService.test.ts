@@ -22,7 +22,7 @@ vi.mock('../../utils/storage', () => ({
 
 // --- Imports after mocks ---
 import axios from 'axios';
-import { getToken, removeToken } from '../../utils/storage';
+import { getToken, removeToken } from '../../utils';
 import apiService from '../apiService';
 
 // Get the axios instance created during apiService initialization.

@@ -1,6 +1,6 @@
 import type { AuthResponse, User } from '../types';
 import apiService from './apiService';
-import { setToken, removeToken, setUser, removeUser } from '../utils/storage';
+import { setToken, removeToken, setUser, removeUser } from '../utils';
 
 export const authService = {
   login: async (email: string, password: string): Promise<AuthResponse> => {

@@ -3,7 +3,7 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import { getToken, removeToken } from '../utils/storage';
+import { getToken, removeToken } from '../utils';
 
 const apiService = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
@@ -16,8 +16,8 @@ const apiService = axios.create({
 // Attach the auth token if available using InternalAxiosRequestConfig
 apiService.interceptors.request.use(
   (
-    config: InternalAxiosRequestConfig<any>
-  ): InternalAxiosRequestConfig<any> => {
+    config: InternalAxiosRequestConfig<unknown>
+  ): InternalAxiosRequestConfig<unknown> => {
     const token = getToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
