@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { BrokenLink } from '../../types';
-import TableHeaderCell from '../common/TableHeaderCell';
-import TableCell from '../common/TableCell';
+import { TableHeaderCell, TableCell } from '../common';
 import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
 
 interface BrokenLinksListProps {

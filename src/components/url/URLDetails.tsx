@@ -1,12 +1,9 @@
 import React from 'react';
 import type { BrokenLink, URLData } from '../../types';
-import StatusBadge from '../common/StatusBadge';
+import { StatusBadge, Button, Spinner, Alert } from '../common';
 import LinkChart from './LinkChart';
 import BrokenLinksList from './BrokenLinksList';
-import Button from '../common/Button';
 import DetailsList, { type DetailsItem } from './DetailsList';
-import Spinner from '../common/Spinner';
-import Alert from '../common/Alert';
 import SectionHeader from './SectionHeader';
 import ChartPanel from './ChartPanel';
 

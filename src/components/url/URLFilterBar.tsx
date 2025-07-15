@@ -1,7 +1,5 @@
 import React from 'react';
-import SearchBar from '../common/SearchBar';
-import Checkbox from '../common/Checkbox';
-import SelectInput from '../common/SelectInput';
+import { SearchBar, Checkbox, SelectInput } from '../common';
 import type { URLTableFilters, URLStatus } from '../../types';
 
 interface URLFilterBarProps {

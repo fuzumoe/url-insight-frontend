@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import type { URLData, URLTableFilters, URLStatus } from '../../types';
 
-import Button from '../common/Button';
-import Pagination from '../common/Pagination';
-import SearchBar from '../common/SearchBar';
-import SelectInput from '../common/SelectInput';
-import TableHeaderCell from '../common/TableHeaderCell';
-import TableCell from '../common/TableCell';
+import {
+  Button,
+  Pagination,
+  SearchBar,
+  SelectInput,
+  TableHeaderCell,
+  TableCell,
+} from '../common';
 
 interface URLTableProps {
   urls: URLData[];

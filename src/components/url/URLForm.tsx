@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import Button from '../common/Button';
-import TextInput from '../common/TextInput';
+import { Button, TextInput } from '../common';
 
 interface URLFormProps {
   onSubmit: (url: string) => Promise<void>;
