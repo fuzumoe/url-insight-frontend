@@ -20,7 +20,6 @@ describe('DashboardCard', () => {
 
   it('does not render description when not provided', () => {
     render(<DashboardCard title="Test Title" />);
-    // Using a query instead of getBy because we expect it not to exist
     const description = screen.queryByText(/description/i);
     expect(description).toBeNull();
   });
@@ -39,7 +38,6 @@ describe('DashboardCard', () => {
     render(<DashboardCard title="Test Title" />);
     const card = screen.getByText('Test Title').closest('div');
 
-    // Check individual classes are present in the className string
     expect(card?.className).toContain('bg-white');
     expect(card?.className).toContain('rounded-lg');
     expect(card?.className).toContain('shadow');
