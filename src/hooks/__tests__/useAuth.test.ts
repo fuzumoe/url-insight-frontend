@@ -2,9 +2,9 @@ import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import useAuth from '../useAuth';
-import { AuthContext } from '../../context/AuthContext';
-import { authService } from '../../services/authService';
-import { getToken, setToken, removeToken } from '../../utils/storage';
+import { AuthContext } from '../../context';
+import { authService } from '../../services';
+import { getToken, setToken, removeToken } from '../../utils';
 import type { AuthResponse, User } from '../../types';
 
 // Mock dependencies

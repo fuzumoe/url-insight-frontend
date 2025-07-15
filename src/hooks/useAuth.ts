@@ -1,7 +1,7 @@
 import { useState, useCallback, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { authService } from '../services/authService';
-import { getToken, setToken, removeToken } from '../utils/storage';
+import { AuthContext } from '../context';
+import { authService } from '../services';
+import { getToken, setToken, removeToken } from '../utils';
 import type { AuthResponse } from '../types';
 
 export const useAuth = () => {
@@ -73,7 +73,6 @@ export const useAuth = () => {
       setUser(null);
       removeToken();
     } catch (err) {
-      // Even if logout fails on the server, we'll still clear the local session
       console.error('Logout failed on server:', err);
       removeToken();
       setUser(null);
