@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import Button from '../common/Button';
-import TextInput from '../common/TextInput';
+import { useAuth, useToast } from '../../hooks';
+import { Button, TextInput } from '../common';
 import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
-import useToast from '../../hooks/useToast';
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

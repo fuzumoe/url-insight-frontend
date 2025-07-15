@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Button from '../common/Button';
-import TextInput from '../common/TextInput';
+import { Button, TextInput } from '../common';
 import {
   isValidEmail,
   isValidUsername,
   isValidPassword,
   getPasswordStrength,
-} from '../../utils/validators';
+} from '../../utils';
 import {
   FaUser,
   FaEnvelope,
@@ -14,7 +13,7 @@ import {
   FaCheckCircle,
   FaUserPlus,
 } from 'react-icons/fa';
-import useToast from '../../hooks/useToast';
+import { useToast } from '../../hooks';
 
 interface RegisterFormProps {
   onSuccess?: () => void;

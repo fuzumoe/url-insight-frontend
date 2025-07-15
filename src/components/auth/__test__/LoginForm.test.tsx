@@ -3,20 +3,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import LoginForm from '../LoginForm';
-import { useAuth } from '../../../hooks/useAuth';
-import useToast from '../../../hooks/useToast';
+import { useAuth, useToast } from '../../../hooks';
 
-// Mock auth hook
-vi.mock('../../../hooks/useAuth', () => ({
+vi.mock('../../../hooks', () => ({
   useAuth: vi.fn(),
+  useToast: vi.fn(),
 }));
 
-// Mock toast hook
-vi.mock('../../../hooks/useToast', () => ({
-  default: vi.fn(),
-}));
-
-// Mock icons
 vi.mock('react-icons/fa', () => ({
   FaEnvelope: () => <div data-testid="email-icon">Email Icon</div>,
   FaLock: () => <div data-testid="lock-icon">Lock Icon</div>,

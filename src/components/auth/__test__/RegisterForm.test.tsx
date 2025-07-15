@@ -3,11 +3,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import RegisterForm from '../RegisterForm';
-import * as validators from '../../../utils/validators';
+import * as validators from '../../../utils';
 import React from 'react';
+import { useToast } from '../../../hooks';
 
-vi.mock('../../../hooks/useToast', () => ({
-  default: vi.fn(),
+vi.mock('../../../hooks', () => ({
+  useToast: vi.fn(),
 }));
 
 vi.mock('../../../utils/validators', () => ({
@@ -24,8 +25,6 @@ vi.mock('react-icons/fa', () => ({
   FaCheckCircle: () => <div data-testid="check-icon">Check Icon</div>,
   FaUserPlus: () => <div data-testid="register-icon">Register Icon</div>,
 }));
-
-import useToast from '../../../hooks/useToast';
 
 vi.mock('../../common/TextInput', () => ({
   default: ({
