@@ -12,3 +12,4 @@ export { default as TableCell } from './TableCell';
 export { default as TableHeaderCell } from './TableHeaderCell';
 export { default as TextInput } from './TextInput';
 export { default as Toast } from './Toast';
+export { default as Typography } from './Typography';
