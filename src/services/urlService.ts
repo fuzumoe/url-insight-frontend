@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import apiService from './apiService';
 import type { URLData, URLTableFilters, BrokenLink, URLStatus } from '../types';
 
@@ -24,7 +23,6 @@ export const urlService = {
     const params = { page, page_size: pageSize, ...filters };
     const response = await apiService.get('/urls', { params });
 
-    // Backend returns { data: [...], pagination: {...} }
     return {
       data: response.data.data,
       pagination: response.data.pagination,
@@ -44,26 +42,30 @@ export const urlService = {
   },
 
   getResults: async (
-    id: string
+    id: number
   ): Promise<{ url: URLData; brokenLinks: BrokenLink[] }> => {
     const response = await apiService.get(`/urls/${id}/results`);
 
-    // The backend returns lowercase field names according to URLResultsDTO
     const {
       url: urlData,
       analysis_results: analysisResults,
       links,
     } = response.data;
 
-    // Map the URL data to our frontend format
+    interface ApiLink {
+      id: number;
+      href: string;
+      status_code: number;
+    }
+
     const url: URLData = {
-      id: urlData.id.toString(),
+      id: urlData.id,
       url: urlData.original_url,
       title: analysisResults?.[0]?.title || '',
       htmlVersion: analysisResults?.[0]?.html_version || '',
       internalLinks: analysisResults?.[0]?.internal_link_count || 0,
       externalLinks: analysisResults?.[0]?.external_link_count || 0,
-      brokenLinks: links.filter((l: any) => l.status_code >= 400).length,
+      brokenLinks: links.filter((l: ApiLink) => l.status_code >= 400).length,
       hasLoginForm: analysisResults?.[0]?.has_login_form || false,
       status: urlData.status.toLowerCase() as URLStatus,
       createdAt: urlData.created_at,
@@ -71,30 +73,29 @@ export const urlService = {
 
     // Map the broken links
     const brokenLinks: BrokenLink[] = links
-      .filter((l: any) => l.status_code >= 400)
-      .map((l: any) => ({
-        id: l.id.toString(),
-        url: l.href, // Backend uses href for the URL field
+      .filter((l: ApiLink) => l.status_code >= 400)
+      .map((l: ApiLink) => ({
+        id: l.id,
+        url: l.href,
         statusCode: l.status_code,
       }));
 
     return { url, brokenLinks };
   },
 
-  startAnalysis: async (id: string): Promise<void> => {
+  startAnalysis: async (id: number): Promise<void> => {
     await apiService.patch(`/urls/${id}/start`);
   },
 
-  stopAnalysis: async (id: string): Promise<void> => {
+  stopAnalysis: async (id: number): Promise<void> => {
     await apiService.patch(`/urls/${id}/stop`);
   },
 
-  deleteUrl: async (id: string): Promise<void> => {
+  deleteUrl: async (id: number): Promise<void> => {
     await apiService.delete(`/urls/${id}`);
   },
 
-  deleteUrls: async (ids: string[]): Promise<void> => {
-    // For batch deletes, we'll need to make separate calls
+  deleteUrls: async (ids: number[]): Promise<void> => {
     await Promise.all(ids.map(id => apiService.delete(`/urls/${id}`)));
   },
 };
