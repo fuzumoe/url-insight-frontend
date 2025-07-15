@@ -2,7 +2,7 @@
 export type URLStatus = 'queued' | 'running' | 'done' | 'error' | 'stopped';
 
 export interface URLData {
-  id: string;
+  id: number;
   url: string;
   title?: string;
   htmlVersion?: string;
