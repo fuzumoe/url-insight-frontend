@@ -7,6 +7,7 @@ import React, {
 import type { User } from '../types/authTypes';
 import { authService } from '../services';
 import { getToken, removeToken } from '../utils';
+import Spinner from '../components/common/Spinner';
 
 interface AuthContextType {
   user: User | null;
@@ -70,8 +71,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Loading...
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6">
+        <Spinner
+          size="lg"
+          color="primary"
+          showText={true}
+          text="Loading your account..."
+          className="mb-2 sm:mb-4"
+        />
       </div>
     );
   }
@@ -84,3 +91,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

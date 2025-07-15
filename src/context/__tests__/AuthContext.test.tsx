@@ -11,6 +11,9 @@ import type { User } from '../../types';
 vi.mock('../../services/authService', () => ({
   authService: {
     getCurrentUser: vi.fn(),
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
   },
 }));
 
@@ -18,6 +21,22 @@ vi.mock('../../services/authService', () => ({
 vi.mock('../../utils/storage', () => ({
   getToken: vi.fn(),
   removeToken: vi.fn(),
+}));
+
+// Mock the Spinner component
+vi.mock('../../components/common/Spinner', () => ({
+  default: ({ size, color, showText, text, className }) => (
+    <div
+      data-testid="mock-spinner"
+      data-size={size}
+      data-color={color}
+      data-showtext={showText.toString()}
+      data-text={text}
+      className={className}
+    >
+      Loading Spinner
+    </div>
+  ),
 }));
 
 describe('AuthContext', () => {
@@ -30,6 +49,33 @@ describe('AuthContext', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('displays spinner with proper props during loading state', async () => {
+    // Keep the loading state active by not resolving authentication
+    vi.mocked(storage.getToken).mockReturnValue('valid-token');
+    vi.mocked(authService.getCurrentUser).mockImplementation(
+      () => new Promise(() => {}) // Never resolves to keep loading active
+    );
+
+    render(<AuthProvider>Test content</AuthProvider>);
+
+    // Check for the spinner with correct props
+    const spinner = screen.getByTestId('mock-spinner');
+    expect(spinner).toBeInTheDocument();
+    expect(spinner).toHaveAttribute('data-size', 'lg');
+    expect(spinner).toHaveAttribute('data-color', 'primary');
+    expect(spinner).toHaveAttribute('data-showtext', 'true');
+    expect(spinner).toHaveAttribute('data-text', 'Loading your account...');
+
+    // Check for responsive container classes
+    const container = spinner.parentElement;
+    expect(container).toHaveClass('flex-col');
+    expect(container).toHaveClass('items-center');
+    expect(container).toHaveClass('justify-center');
+    expect(container).toHaveClass('min-h-screen');
+    expect(container).toHaveClass('p-4');
+    expect(container).toHaveClass('sm:p-6');
   });
 
   it('initializes with loading state and null user when no token exists', async () => {
