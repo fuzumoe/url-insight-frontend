@@ -1,5 +1,5 @@
 import React from 'react';
-import { CgSpinner } from 'react-icons/cg';
+import Spinner from './Spinner';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -9,6 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: ButtonSize;
   isLoading?: boolean;
   children: React.ReactNode;
+  fullWidth?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -17,10 +18,11 @@ const Button: React.FC<ButtonProps> = ({
   isLoading = false,
   children,
   className = '',
+  fullWidth = false,
   ...props
 }) => {
   const baseStyles =
-    'rounded font-medium focus:outline-none focus:ring-2 transition';
+    'rounded font-medium focus:outline-none focus:ring-2 transition inline-flex items-center justify-center';
 
   const variantStyles = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-300',
@@ -30,25 +32,36 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const sizeStyles = {
-    sm: 'px-2.5 py-1.5 text-xs',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-5 py-2.5 text-base',
-    xl: 'px-6 py-3 text-lg',
+    sm: 'px-2 py-1 sm:px-2.5 sm:py-1.5',
+    md: 'px-3 py-1.5 sm:px-4 sm:py-2',
+    lg: 'px-4 py-2 sm:px-5 sm:py-2.5',
+    xl: 'px-5 py-2.5 sm:px-6 sm:py-3',
   };
+
+  const spinnerSizeMap = {
+    sm: 'sm',
+    md: 'sm',
+    lg: 'md',
+    xl: 'md',
+  } as const;
+
+  const widthClass = fullWidth ? 'w-full' : '';
 
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${widthClass} ${className}`}
       disabled={isLoading || props.disabled}
       {...props}
     >
       {isLoading ? (
-        <span className="inline-flex items-center">
-          <CgSpinner className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-          Loading...
-        </span>
+        <Spinner
+          size={spinnerSizeMap[size]}
+          color={variant === 'secondary' ? 'gray' : 'white'}
+          showText={true}
+          text="Loading..."
+        />
       ) : (
-        children
+        <span className="inline-flex items-center">{children}</span>
       )}
     </button>
   );
