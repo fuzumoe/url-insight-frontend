@@ -1,7 +1,14 @@
-/* eslint-disable */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Mock } from 'vitest';
+import axios, {
+  AxiosError,
+  type AxiosRequestHeaders,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import { getToken, removeToken } from '../../utils/storage';
 
-// Mock axios first - with default export and interceptors
+import _apiService from '../apiService';
+
 vi.mock('axios', () => {
   const interceptors = {
     request: { use: vi.fn() },
@@ -14,34 +21,27 @@ vi.mock('axios', () => {
   };
 });
 
-// Mock storage utilities
 vi.mock('../../utils/storage', () => ({
   getToken: vi.fn(),
   removeToken: vi.fn(),
 }));
 
-// --- Imports after mocks ---
-import axios from 'axios';
-import { getToken, removeToken } from '../../utils';
-import apiService from '../apiService';
-
-// Get the axios instance created during apiService initialization.
-// We capture it once so that the interceptor registrations made in apiService.ts remain.
-const axiosInstance = (axios.create as any).mock.results[0].value;
-let requestHandler: (config: any) => any;
-let errorHandler: (error: any) => any;
+const axiosInstance = vi.mocked(axios.create)().interceptors;
+let requestHandler: (
+  config: InternalAxiosRequestConfig
+) => InternalAxiosRequestConfig;
+let errorHandler: (error: AxiosError) => Promise<never>;
 
 describe('API Service', () => {
   beforeEach(() => {
-    // Instead of clearing all mocks (which removes our stored registration),
-    // we just reassign our interceptor handlers from the original registration.
-    const reqCalls = (axiosInstance.interceptors.request.use as any).mock.calls;
-    const resCalls = (axiosInstance.interceptors.response.use as any).mock
-      .calls;
-    requestHandler = reqCalls.length ? reqCalls[0][0] : undefined;
-    errorHandler = resCalls.length ? resCalls[0][1] : undefined;
+    const reqCalls = (axiosInstance.request.use as unknown as Mock).mock.calls;
+    const resCalls = (axiosInstance.response.use as unknown as Mock).mock.calls;
 
-    // Set up window.location for tests
+    requestHandler = reqCalls.length > 0 ? reqCalls[0][0] : config => config;
+
+    errorHandler =
+      resCalls.length > 0 ? resCalls[0][1] : error => Promise.reject(error);
+
     Object.defineProperty(window, 'location', {
       value: { href: '' },
       writable: true,
@@ -51,41 +51,71 @@ describe('API Service', () => {
 
   it('creates axios instance with correct config', () => {
     expect(axios.create).toHaveBeenCalledWith({
-      baseURL: 'http://localhost:8080/api',
+      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
       headers: { 'Content-Type': 'application/json' },
       timeout: 30000,
     });
   });
 
   it('adds Authorization header when token exists', () => {
-    // When no token, getToken returns null
-    (getToken as any).mockReturnValueOnce(null);
-    let cfg = { headers: {} as Record<string, string> };
-    let configAfter = requestHandler(cfg);
-    expect(configAfter.headers.Authorization).toBeUndefined();
+    const mockedGetToken = getToken as unknown as Mock;
+    let config: InternalAxiosRequestConfig = {
+      headers: {} as AxiosRequestHeaders,
+    };
 
-    // When a token exists, getToken returns 'test-token'
-    (getToken as any).mockReturnValueOnce('test-token');
-    cfg = { headers: {} as Record<string, string> };
-    configAfter = requestHandler(cfg);
-    expect(configAfter.headers.Authorization).toBe('Bearer test-token');
+    mockedGetToken.mockReturnValueOnce(null);
+    let configAfter = requestHandler(config);
+    expect(configAfter.headers?.Authorization).toBeUndefined();
+
+    mockedGetToken.mockReturnValueOnce('test-token');
+    config = { headers: {} as AxiosRequestHeaders };
+    configAfter = requestHandler(config);
+    expect(configAfter.headers?.Authorization).toBe('Bearer test-token');
   });
 
   it('handles 401 errors by clearing token and redirecting', async () => {
-    // Simulate an error with status 401
-    try {
-      await errorHandler({ response: { status: 401 } } as any);
-    } catch {
-      // ignore rejection from Promise.reject(error)
-    }
+    const error401: AxiosError = {
+      config: {} as InternalAxiosRequestConfig,
+      code: '401',
+      isAxiosError: true,
+      message: 'Unauthorized',
+      name: 'AxiosError',
+      request: {},
+      response: {
+        status: 401,
+        data: null,
+        headers: {},
+        config: {} as InternalAxiosRequestConfig,
+        statusText: '',
+      },
+      toJSON: () => ({}),
+    };
+
+    await expect(errorHandler(error401)).rejects.toBeDefined();
+
     expect(removeToken).toHaveBeenCalled();
     expect(window.location.href).toBe('/login');
   });
 
   it('passes through non-401 errors', async () => {
-    const err = { response: { status: 500 } } as any;
-    await expect(errorHandler(err)).rejects.toBe(err);
+    const error500: AxiosError = {
+      config: {} as InternalAxiosRequestConfig,
+      code: '500',
+      isAxiosError: true,
+      message: 'Server Error',
+      name: 'AxiosError',
+      request: {},
+      response: {
+        status: 500,
+        data: null,
+        headers: {},
+        config: {} as InternalAxiosRequestConfig,
+        statusText: '',
+      },
+      toJSON: () => ({}),
+    };
 
+    await expect(errorHandler(error500)).rejects.toEqual(error500);
     expect(removeToken).toHaveBeenCalled();
     expect(window.location.href).toBe('');
   });
