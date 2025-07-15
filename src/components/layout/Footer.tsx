@@ -9,6 +9,7 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ className = '' }) => {
   return (
     <Box
+      as="footer"
       background="white"
       shadow="md"
       padding="lg"
