@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './Button';
 
 interface PaginationProps {
   currentPage: number;
@@ -13,13 +14,11 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
   if (totalPages <= 1) return null;
 
-  // Generate page numbers array
   const getPageNumbers = () => {
     const pageNumbers = [];
     let startPage = Math.max(1, currentPage - 2);
     let endPage = Math.min(totalPages, currentPage + 2);
 
-    // Ensure we always show 5 pages if possible
     if (endPage - startPage < 4) {
       if (startPage === 1) {
         endPage = Math.min(5, totalPages);
@@ -39,26 +38,20 @@ const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className="flex justify-center items-center space-x-2">
-      <button
+      <Button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`px-3 py-1 rounded border ${
-          currentPage === 1
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-white text-gray-700 hover:bg-gray-50'
-        }`}
+        variant="secondary"
+        size="sm"
       >
         Previous
-      </button>
+      </Button>
 
       {pageNumbers[0] > 1 && (
         <>
-          <button
-            onClick={() => onPageChange(1)}
-            className="px-3 py-1 rounded border bg-white text-gray-700 hover:bg-gray-50"
-          >
+          <Button onClick={() => onPageChange(1)} variant="secondary" size="sm">
             1
-          </button>
+          </Button>
           {pageNumbers[0] > 2 && (
             <span className="px-2 py-1 text-gray-500">...</span>
           )}
@@ -66,17 +59,14 @@ const Pagination: React.FC<PaginationProps> = ({
       )}
 
       {pageNumbers.map(number => (
-        <button
+        <Button
           key={number}
           onClick={() => onPageChange(number)}
-          className={`px-3 py-1 rounded border ${
-            currentPage === number
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
+          variant={currentPage === number ? 'primary' : 'secondary'}
+          size="sm"
         >
           {number}
-        </button>
+        </Button>
       ))}
 
       {pageNumbers[pageNumbers.length - 1] < totalPages && (
@@ -84,26 +74,24 @@ const Pagination: React.FC<PaginationProps> = ({
           {pageNumbers[pageNumbers.length - 1] < totalPages - 1 && (
             <span className="px-2 py-1 text-gray-500">...</span>
           )}
-          <button
+          <Button
             onClick={() => onPageChange(totalPages)}
-            className="px-3 py-1 rounded border bg-white text-gray-700 hover:bg-gray-50"
+            variant="secondary"
+            size="sm"
           >
             {totalPages}
-          </button>
+          </Button>
         </>
       )}
 
-      <button
+      <Button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`px-3 py-1 rounded border ${
-          currentPage === totalPages
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-white text-gray-700 hover:bg-gray-50'
-        }`}
+        variant="secondary"
+        size="sm"
       >
         Next
-      </button>
+      </Button>
     </div>
   );
 };

@@ -15,27 +15,28 @@ describe('Pagination', () => {
     render(
       <Pagination currentPage={1} totalPages={5} onPageChange={() => {}} />
     );
-    const prevButton = screen.getByText('Previous');
+    const prevButton = screen.getByRole('button', { name: 'Previous' });
     expect(prevButton).toBeDisabled();
-    expect(prevButton).toHaveClass('cursor-not-allowed');
   });
 
   it('disables Next button on last page', () => {
     render(
       <Pagination currentPage={5} totalPages={5} onPageChange={() => {}} />
     );
-    const nextButton = screen.getByText('Next');
+    const nextButton = screen.getByRole('button', { name: 'Next' });
     expect(nextButton).toBeDisabled();
-    expect(nextButton).toHaveClass('cursor-not-allowed');
   });
 
   it('highlights the current page', () => {
     render(
       <Pagination currentPage={3} totalPages={5} onPageChange={() => {}} />
     );
-    const currentPageButton = screen.getByText('3');
-    expect(currentPageButton).toHaveClass('bg-blue-600');
-    expect(currentPageButton).toHaveClass('text-white');
+
+    const currentPageButton = screen.getByRole('button', { name: '3' });
+    const otherPageButton = screen.getByRole('button', { name: '2' });
+
+    expect(currentPageButton.className).toContain('bg-blue-600');
+    expect(otherPageButton.className).toContain('bg-gray-200');
   });
 
   it('calls onPageChange with the correct page number when page is clicked', () => {
@@ -48,7 +49,7 @@ describe('Pagination', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('4'));
+    fireEvent.click(screen.getByRole('button', { name: '4' }));
     expect(handlePageChange).toHaveBeenCalledWith(4);
   });
 
@@ -62,7 +63,7 @@ describe('Pagination', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Previous'));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous' }));
     expect(handlePageChange).toHaveBeenCalledWith(2);
   });
 
@@ -76,7 +77,7 @@ describe('Pagination', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Next'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(handlePageChange).toHaveBeenCalledWith(4);
   });
 
@@ -92,8 +93,8 @@ describe('Pagination', () => {
     render(
       <Pagination currentPage={5} totalPages={10} onPageChange={() => {}} />
     );
-    expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('10')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '10' })).toBeInTheDocument();
   });
 
   it('does not show ellipsis for small page ranges', () => {
@@ -107,11 +108,21 @@ describe('Pagination', () => {
     render(
       <Pagination currentPage={1} totalPages={10} onPageChange={() => {}} />
     );
-    // Should show pages 1-5
-    expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('3')).toBeInTheDocument();
-    expect(screen.getByText('4')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '2' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '3' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '5' })).toBeInTheDocument();
+  });
+
+  it('uses sm size for buttons', () => {
+    render(
+      <Pagination currentPage={3} totalPages={5} onPageChange={() => {}} />
+    );
+
+    const buttons = screen.getAllByRole('button');
+    buttons.forEach(button => {
+      expect(button.className).toContain('sm');
+    });
   });
 });
