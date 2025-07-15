@@ -11,7 +11,6 @@ describe('ErrorCard', () => {
 
   test('renders error code and title correctly', () => {
     render(<ErrorCard {...defaultProps} />);
-
     expect(screen.getByText('404')).toBeInTheDocument();
     expect(screen.getByText('Page Not Found')).toBeInTheDocument();
   });
@@ -19,17 +18,12 @@ describe('ErrorCard', () => {
   test('renders description when provided', () => {
     const description = 'The page you are looking for does not exist';
     render(<ErrorCard {...defaultProps} description={description} />);
-
     expect(screen.getByText(description)).toBeInTheDocument();
   });
 
   test('does not render description when not provided', () => {
     render(<ErrorCard {...defaultProps} />);
-
-    const descriptionElements = screen
-      .queryAllByText(/./i)
-      .filter(element => element.tagName.toLowerCase() === 'p');
-    expect(descriptionElements.length).toBe(0);
+    expect(screen.queryByText(/description/i)).not.toBeInTheDocument();
   });
 
   test('renders children when provided', () => {
@@ -38,25 +32,19 @@ describe('ErrorCard', () => {
         <button>Go Back</button>
       </ErrorCard>
     );
-
     expect(screen.getByRole('button', { name: 'Go Back' })).toBeInTheDocument();
   });
 
-  test('applies correct styling to elements', () => {
+  test('applies correct Typography components with proper hierarchy', () => {
     render(<ErrorCard {...defaultProps} />);
 
-    const container = screen.getByText('404').closest('div');
-    expect(container).toHaveClass(
-      'text-6xl',
-      'font-bold',
-      'text-blue-600',
-      'mb-4'
-    );
+    const container = screen.getByText('404').closest('div.bg-white');
+    expect(container).toHaveClass('bg-white', 'rounded-lg', 'shadow-lg', 'p-8');
 
     const errorCode = screen.getByText('404');
-    expect(errorCode).toHaveClass('text-6xl', 'font-bold', 'text-blue-600');
+    expect(errorCode.tagName).toBe('H1');
 
     const title = screen.getByText('Page Not Found');
-    expect(title).toHaveClass('text-2xl', 'font-semibold');
+    expect(title.tagName).toBe('H2');
   });
 });

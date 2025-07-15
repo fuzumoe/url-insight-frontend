@@ -1,4 +1,5 @@
 import React from 'react';
+import Typography from '../common/Typography';
 
 type ErrorCardProps = {
   errorCode: string | number;
@@ -14,9 +15,31 @@ const ErrorCard: React.FC<ErrorCardProps> = ({
   children,
 }) => (
   <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-    <div className="text-6xl font-bold text-blue-600 mb-4">{errorCode}</div>
-    <h2 className="text-2xl font-semibold mb-2">{title}</h2>
-    {description && <p className="text-gray-600 mb-4">{description}</p>}
+    <Typography
+      variant="h1"
+      color="primary"
+      weight="bold"
+      align="center"
+      className="mb-4"
+    >
+      {errorCode}
+    </Typography>
+
+    <Typography variant="h2" weight="semibold" align="center" className="mb-2">
+      {title}
+    </Typography>
+
+    {description && (
+      <Typography
+        variant="body2"
+        color="secondary"
+        align="center"
+        className="mb-4"
+      >
+        {description}
+      </Typography>
+    )}
+
     {children}
   </div>
 );

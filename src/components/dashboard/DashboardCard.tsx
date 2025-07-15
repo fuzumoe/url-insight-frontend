@@ -1,4 +1,5 @@
 import React from 'react';
+import Typography from '../common/Typography';
 
 type DashboardCardProps = {
   title: string;
@@ -12,8 +13,16 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   children,
 }) => (
   <div className="bg-white rounded-lg shadow p-6">
-    <h2 className="text-xl font-semibold mb-4">{title}</h2>
-    {description && <p className="text-gray-600 mb-4">{description}</p>}
+    <Typography variant="h4" weight="semibold" className="mb-4">
+      {title}
+    </Typography>
+
+    {description && (
+      <Typography variant="body2" color="secondary" className="mb-4">
+        {description}
+      </Typography>
+    )}
+
     {children}
   </div>
 );
