@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
+import Button from './Button';
+import TextInput from './TextInput';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -22,26 +24,33 @@ const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`flex relative items-center ${className}`}
+      className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 ${className}`}
     >
-      <div className="relative flex-grow">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <FiSearch className="w-4 h-4 text-gray-400" />
-        </div>
-        <input
-          type="text"
+      <div className="w-full">
+        <TextInput
+          id="search-input"
+          label="Search"
+          labelClassName="sr-only"
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          icon={
+            <FiSearch className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
+          }
+          iconPosition="left"
+          className="mb-0"
+          inputClassName="pl-8 sm:pl-10 pr-2 sm:pr-3 py-1.5 sm:py-2"
         />
       </div>
-      <button
+      <Button
         type="submit"
-        className="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        variant="primary"
+        size="sm"
+        className="sm:flex-shrink-0"
       >
-        Search
-      </button>
+        <FiSearch className="w-3.5 h-3.5 sm:hidden" />
+        <span className="hidden sm:inline">Search</span>
+      </Button>
     </form>
   );
 };
