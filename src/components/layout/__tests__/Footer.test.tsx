@@ -3,16 +3,29 @@ import '@testing-library/jest-dom';
 import Footer from '../Footer';
 import { describe, it, expect, vi } from 'vitest';
 
+interface ContainerProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
 vi.mock('../Container', () => ({
-  default: ({ children, className }: any) => (
+  default: ({ children, className }: ContainerProps) => (
     <div data-testid="container" className={className}>
       {children}
     </div>
   ),
 }));
 
+interface BoxProps {
+  children: React.ReactNode;
+  background?: string;
+  shadow?: string;
+  padding?: string;
+  className?: string;
+}
+
 vi.mock('../Box', () => ({
-  default: ({ children, background, shadow, padding, className }: any) => (
+  default: ({ children, background, shadow, padding, className }: BoxProps) => (
     <div
       data-testid={`box-${background}-${shadow}-${padding}`}
       className={className}
@@ -22,8 +35,24 @@ vi.mock('../Box', () => ({
   ),
 }));
 
+interface FlexProps {
+  children: React.ReactNode;
+  direction?: string;
+  justify?: string;
+  align?: string;
+  gap?: string;
+  className?: string;
+}
+
 vi.mock('../Flex', () => ({
-  default: ({ children, direction, justify, align, gap, className }: any) => (
+  default: ({
+    children,
+    direction,
+    justify,
+    align,
+    gap,
+    className,
+  }: FlexProps) => (
     <div
       data-testid={`flex-${direction || 'row'}-${justify || 'start'}-${align || 'start'}-${gap || 'none'}`}
       className={className}
@@ -33,8 +62,14 @@ vi.mock('../Flex', () => ({
   ),
 }));
 
+interface TypographyProps {
+  children: React.ReactNode;
+  variant: string;
+  className?: string;
+}
+
 vi.mock('../../common/Typography', () => ({
-  default: ({ children, variant, className }: any) => (
+  default: ({ children, variant, className }: TypographyProps) => (
     <span data-testid={`typography-${variant}`} className={className}>
       {children}
     </span>
