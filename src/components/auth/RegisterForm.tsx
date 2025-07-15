@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextInput } from '../common';
+import { Button, TextInput, Typography } from '../common';
 import {
   isValidEmail,
   isValidUsername,
@@ -14,6 +14,7 @@ import {
   FaUserPlus,
 } from 'react-icons/fa';
 import { useToast } from '../../hooks';
+import { Link } from 'react-router-dom';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -264,9 +265,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                   }}
                 ></div>
               </div>
-              <span className="ml-2 text-xs text-gray-500 capitalize">
+              <Typography
+                variant="caption"
+                color="secondary"
+                className="ml-2 capitalize"
+              >
                 {passwordStrength}
-              </span>
+              </Typography>
             </div>
           </div>
         )}
@@ -288,21 +293,26 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       />
 
       {error && (
-        <div className="text-red-600 text-sm p-2 bg-red-50 border border-red-200 rounded">
+        <Typography
+          variant="body2"
+          color="error"
+          className="p-2 bg-red-50 border border-red-200 rounded"
+        >
           {error}
-        </div>
+        </Typography>
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="text-sm">
-          <a href="/login" className="text-blue-600 hover:text-blue-500">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <Typography variant="body2">
+          <Link to="/login" className="text-blue-600 hover:text-blue-500">
             Already have an account? Sign in
-          </a>
-        </div>
+          </Link>
+        </Typography>
         <Button
           type="submit"
           isLoading={loading}
           disabled={passwordStrength === 'weak'}
+          className="w-full sm:w-auto"
         >
           <FaUserPlus className="mr-2" /> Register
         </Button>

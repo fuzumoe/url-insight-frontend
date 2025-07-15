@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth, useToast } from '../../hooks';
-import { Button, TextInput } from '../common';
+import { Button, TextInput, Typography } from '../common';
 import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,7 +65,6 @@ const LoginForm: React.FC = () => {
     try {
       await login(email.trim(), password);
 
-      // 👇 Success toast notification
       addToast({
         title: 'Login Successful',
         message: 'Welcome back!',
@@ -133,18 +134,23 @@ const LoginForm: React.FC = () => {
       />
 
       {error && (
-        <div className="text-red-600 text-sm p-2 bg-red-50 border border-red-200 rounded">
+        <Typography
+          variant="body2"
+          color="error"
+          className="p-2 bg-red-50 border border-red-200 rounded"
+        >
           {error}
-        </div>
+        </Typography>
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="text-sm">
-          <a href="/register" className="text-blue-600 hover:text-blue-500">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
+        <Typography variant="body2">
+          <Link to="/register" className="text-blue-600 hover:text-blue-500">
             Don&apos;t have an account? Register
-          </a>
-        </div>
-        <Button type="submit">
+          </Link>
+        </Typography>
+
+        <Button type="submit" className="w-full sm:w-auto">
           <FaSignInAlt className="mr-2" /> Login
         </Button>
       </div>

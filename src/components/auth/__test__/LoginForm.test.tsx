@@ -10,10 +10,49 @@ vi.mock('../../../hooks', () => ({
   useToast: vi.fn(),
 }));
 
+vi.mock('react-router-dom', () => ({
+  Link: ({
+    to,
+    children,
+    className,
+  }: {
+    to: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <a href={to} className={className} data-testid="router-link">
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock('react-icons/fa', () => ({
   FaEnvelope: () => <div data-testid="email-icon">Email Icon</div>,
   FaLock: () => <div data-testid="lock-icon">Lock Icon</div>,
   FaSignInAlt: () => <div data-testid="signin-icon">Sign In Icon</div>,
+}));
+
+// Add Typography mock
+vi.mock('../../common/Typography', () => ({
+  default: ({
+    children,
+    variant,
+    color,
+    className,
+  }: {
+    children: React.ReactNode;
+    variant?: string;
+    color?: string;
+    className?: string;
+  }) => (
+    <div
+      data-testid={`typography-${variant || 'default'}`}
+      data-color={color}
+      className={className}
+    >
+      {children}
+    </div>
+  ),
 }));
 
 interface TextInputProps {
@@ -30,6 +69,7 @@ interface TextInputProps {
   icon?: React.ReactNode;
   helpText?: string;
   pattern?: string;
+  iconPosition?: string;
 }
 
 vi.mock('../../common/TextInput', () => ({
@@ -76,11 +116,17 @@ interface ButtonProps {
   children: React.ReactNode;
   type?: 'button' | 'submit' | 'reset';
   onClick?: () => void;
+  className?: string;
 }
 
 vi.mock('../../common/Button', () => ({
-  default: ({ children, type, onClick }: ButtonProps) => (
-    <button type={type} onClick={onClick} data-testid="button">
+  default: ({ children, type, onClick, className }: ButtonProps) => (
+    <button
+      type={type}
+      onClick={onClick}
+      data-testid="button"
+      className={className}
+    >
       {children}
     </button>
   ),
@@ -118,6 +164,9 @@ describe('LoginForm', () => {
     expect(screen.getByTestId('signin-icon')).toBeInTheDocument();
 
     expect(screen.getByTestId('button')).toBeInTheDocument();
+    // Check for Typography component
+    expect(screen.getByTestId('typography-body2')).toBeInTheDocument();
+    expect(screen.getByTestId('router-link')).toBeInTheDocument();
     expect(
       screen.getByText(/don't have an account\? register/i)
     ).toBeInTheDocument();
@@ -126,6 +175,28 @@ describe('LoginForm', () => {
     expect(
       screen.getByText(/enter the email you used to register/i)
     ).toBeInTheDocument();
+  });
+
+  it('tests mobile-first responsive layout', () => {
+    render(<LoginForm />);
+
+    // Find the form actions container by finding the wrapper div that contains both the link and button
+    const registerLink = screen.getByTestId('router-link');
+    const loginButton = screen.getByTestId('button');
+
+    // Get the common parent container
+    const formActionsContainer = registerLink.closest('div')?.parentElement;
+
+    // Verify responsive classes
+    expect(formActionsContainer).toHaveClass('flex-col');
+    expect(formActionsContainer).toHaveClass('sm:flex-row');
+    expect(formActionsContainer).toHaveClass('sm:items-center');
+    expect(formActionsContainer).toHaveClass('sm:justify-between');
+    expect(formActionsContainer).toHaveClass('gap-4');
+    expect(formActionsContainer).toHaveClass('sm:gap-0');
+
+    expect(loginButton).toHaveClass('w-full');
+    expect(loginButton).toHaveClass('sm:w-auto');
   });
 
   it('allows input in email and password fields', async () => {
@@ -158,10 +229,8 @@ describe('LoginForm', () => {
   it('tests register link href attribute', () => {
     render(<LoginForm />);
 
-    const registerLink = screen.getByText(
-      /don't have an account\? register/i
-    ) as HTMLAnchorElement;
-    expect(registerLink.href).toContain('/register');
+    const registerLink = screen.getByTestId('router-link');
+    expect(registerLink).toHaveAttribute('href', '/register');
   });
 
   it('verifies input field attributes', () => {
@@ -230,7 +299,12 @@ describe('LoginForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+      const errorElement = screen.getByText('Invalid credentials');
+      expect(errorElement).toBeInTheDocument();
+
+      const typographyContainer = errorElement.closest('[data-color="error"]');
+      expect(typographyContainer).toBeInTheDocument();
+      expect(typographyContainer).toHaveClass('bg-red-50');
     });
   });
 
@@ -260,7 +334,7 @@ describe('LoginForm', () => {
 
     await waitFor(() => {
       const errorAfterResubmit = screen.queryByText('Invalid credentials');
-      expect(errorAfterResubmit).toBeNull();
+      expect(errorAfterResubmit).not.toBeInTheDocument();
     });
   });
 
@@ -279,7 +353,6 @@ describe('LoginForm', () => {
     expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
   });
 
-  // New tests for toast notifications
   it('shows success toast on successful login', async () => {
     mockLogin.mockResolvedValueOnce(undefined);
     const user = userEvent.setup();
@@ -330,7 +403,7 @@ describe('LoginForm', () => {
   });
 
   it('shows generic error toast for unknown errors', async () => {
-    mockLogin.mockRejectedValueOnce('Unknown error' as any);
+    mockLogin.mockRejectedValueOnce('Unknown error' as unknown);
 
     const user = userEvent.setup();
     render(<LoginForm />);

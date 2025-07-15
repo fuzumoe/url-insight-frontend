@@ -2,13 +2,29 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
+import React from 'react';
 import RegisterForm from '../RegisterForm';
 import * as validators from '../../../utils';
-import React from 'react';
 import { useToast } from '../../../hooks';
 
 vi.mock('../../../hooks', () => ({
   useToast: vi.fn(),
+}));
+
+vi.mock('react-router-dom', () => ({
+  Link: ({
+    to,
+    children,
+    className,
+  }: {
+    to: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <a href={to} className={className} data-testid="router-link">
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock('../../../utils/validators', () => ({
@@ -71,12 +87,14 @@ vi.mock('../../common/Button', () => ({
     type,
     disabled,
     isLoading,
+    className,
   }: {
     children: React.ReactNode;
     onClick?: () => void;
     type?: 'button' | 'submit' | 'reset';
     disabled?: boolean;
     isLoading?: boolean;
+    className?: string;
   }) => (
     <button
       onClick={onClick}
@@ -84,9 +102,32 @@ vi.mock('../../common/Button', () => ({
       disabled={disabled || isLoading}
       data-testid="button"
       data-loading={isLoading}
+      className={className}
     >
       {children}
     </button>
+  ),
+}));
+
+vi.mock('../../common/Typography', () => ({
+  default: ({
+    children,
+    variant,
+    color,
+    className,
+  }: {
+    children: React.ReactNode;
+    variant?: string;
+    color?: string;
+    className?: string;
+  }) => (
+    <div
+      data-testid={`typography-${variant || 'default'}`}
+      data-color={color}
+      className={className}
+    >
+      {children}
+    </div>
   ),
 }));
 
@@ -108,7 +149,7 @@ describe('RegisterForm', () => {
     });
   });
 
-  it('renders all form elements correctly including icons', () => {
+  it('renders all form elements correctly including icons and without displaying password strength when empty', () => {
     render(
       <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
     );
@@ -126,8 +167,17 @@ describe('RegisterForm', () => {
     expect(screen.getByTestId('check-icon')).toBeInTheDocument();
     expect(screen.getByTestId('register-icon')).toBeInTheDocument();
 
-    expect(screen.getByTestId('button')).toBeInTheDocument();
-    expect(screen.getByTestId('button')).toHaveTextContent(/register/i);
+    const button = screen.getByTestId('button');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveTextContent(/register/i);
+
+    expect(screen.queryByTestId('typography-caption')).not.toBeInTheDocument();
+
+    expect(screen.getByTestId('typography-body2')).toBeInTheDocument();
+    expect(screen.getByTestId('router-link')).toBeInTheDocument();
+    expect(
+      screen.getByText(/already have an account\? sign in/i)
+    ).toBeInTheDocument();
   });
 
   it('shows success toast on successful registration', async () => {
@@ -187,5 +237,41 @@ describe('RegisterForm', () => {
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
     });
+  });
+
+  it('displays password strength indicator when password is entered', async () => {
+    (validators.getPasswordStrength as Mock).mockImplementation(() => 'medium');
+    const user = userEvent.setup();
+
+    render(
+      <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
+    );
+
+    await user.type(screen.getByLabelText(/^password$/i), 'SomePassword');
+
+    await waitFor(() => {
+      const caption = screen.getByTestId('typography-caption');
+      expect(caption).toBeInTheDocument();
+      expect(caption).toHaveTextContent(/medium/i);
+    });
+  });
+
+  it('tests mobile-first responsive layout', () => {
+    render(
+      <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
+    );
+
+    const formActionsContainer = screen
+      .getByTestId('router-link')
+      .closest('div')?.parentElement;
+
+    expect(formActionsContainer).toHaveClass('flex-col');
+    expect(formActionsContainer).toHaveClass('sm:flex-row');
+    expect(formActionsContainer).toHaveClass('sm:items-center');
+    expect(formActionsContainer).toHaveClass('sm:justify-between');
+
+    const button = screen.getByTestId('button');
+    expect(button).toHaveClass('w-full');
+    expect(button).toHaveClass('sm:w-auto');
   });
 });
