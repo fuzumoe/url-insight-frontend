@@ -8,7 +8,15 @@ vi.mock('../Footer', () => ({
 }));
 
 vi.mock('../Container', () => ({
-  default: ({ children, size, className }: any) => (
+  default: ({
+    children,
+    size,
+    className,
+  }: {
+    children: React.ReactNode;
+    size: string;
+    className?: string;
+  }) => (
     <div data-testid={`container-${size}`} className={className}>
       {children}
     </div>
@@ -23,7 +31,14 @@ vi.mock('../Box', () => ({
     shadow,
     rounded,
     className,
-  }: any) => (
+  }: {
+    children: React.ReactNode;
+    padding: string;
+    background: string;
+    shadow: string;
+    rounded: string;
+    className?: string;
+  }) => (
     <div
       data-testid={`box-${padding}-${background}-${shadow}-${rounded}`}
       className={className}
@@ -34,7 +49,19 @@ vi.mock('../Box', () => ({
 }));
 
 vi.mock('../Flex', () => ({
-  default: ({ children, direction, justify, align, className }: any) => (
+  default: ({
+    children,
+    direction,
+    justify,
+    align,
+    className,
+  }: {
+    children: React.ReactNode;
+    direction: string;
+    justify?: string;
+    align?: string;
+    className?: string;
+  }) => (
     <div
       data-testid={`flex-${direction}-${justify}-${align}`}
       className={className}
@@ -45,7 +72,17 @@ vi.mock('../Flex', () => ({
 }));
 
 vi.mock('../../common/Typography', () => ({
-  default: ({ children, variant, as: Component = 'span', className }: any) => (
+  default: ({
+    children,
+    variant,
+    as: Component = 'span',
+    className,
+  }: {
+    children: React.ReactNode;
+    variant: string;
+    as?: React.ElementType;
+    className?: string;
+  }) => (
     <Component data-testid={`typography-${variant}`} className={className}>
       {children}
     </Component>
