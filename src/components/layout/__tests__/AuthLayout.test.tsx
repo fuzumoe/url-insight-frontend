@@ -32,7 +32,7 @@ vi.mock('../Box', () => ({
     rounded,
     className,
   }: {
-    children: React.ReactNode;
+    children?: React.ReactNode;
     padding: string;
     background: string;
     shadow: string;
@@ -66,6 +66,24 @@ vi.mock('../Flex', () => ({
       data-testid={`flex-${direction}-${justify}-${align}`}
       className={className}
     >
+      {children}
+    </div>
+  ),
+}));
+
+vi.mock('../Stack', () => ({
+  default: ({
+    children,
+    spacing,
+    align,
+    className,
+  }: {
+    children: React.ReactNode;
+    spacing: string;
+    align?: string;
+    className?: string;
+  }) => (
+    <div data-testid={`stack-${spacing}-${align}`} className={className}>
       {children}
     </div>
   ),
@@ -142,14 +160,20 @@ describe('AuthLayout', () => {
       </AuthLayout>
     );
 
+    // Check Container component
     expect(screen.getByTestId('container-sm')).toBeInTheDocument();
 
+    // Check Box component
     expect(screen.getByTestId('box-lg-white-lg-lg')).toBeInTheDocument();
 
+    // Check Flex components
     expect(screen.getByTestId('flex-column-center-center')).toBeInTheDocument();
     expect(
       screen.getByTestId('flex-column-undefined-center')
     ).toBeInTheDocument();
+
+    // Check Stack component
+    expect(screen.getByTestId('stack-md-center')).toBeInTheDocument();
   });
 
   it('applies mobile-first responsive classes', () => {
@@ -191,8 +215,20 @@ describe('AuthLayout', () => {
     const subtitle = screen.getByTestId('typography-body2');
     expect(subtitle).toBeInTheDocument();
     expect(subtitle).toHaveClass('text-gray-600');
-    expect(subtitle).toHaveClass('mt-1');
-    expect(subtitle).toHaveClass('sm:mt-2');
+  });
+
+  it('renders Stack component with correct props', () => {
+    render(
+      <AuthLayout>
+        <div>Test Content</div>
+      </AuthLayout>
+    );
+
+    const stack = screen.getByTestId('stack-md-center');
+    expect(stack).toBeInTheDocument();
+    expect(stack).toHaveClass('text-center');
+    expect(stack).toHaveClass('mb-6');
+    expect(stack).toHaveClass('sm:mb-8');
   });
 
   it('has proper semantic structure', () => {
@@ -207,17 +243,17 @@ describe('AuthLayout', () => {
     expect(title).toHaveTextContent('URL Insight');
   });
 
-  it('centers content correctly', () => {
+  it('centers content correctly using Stack', () => {
     render(
       <AuthLayout>
         <div>Test Content</div>
       </AuthLayout>
     );
 
-    const headerDiv = screen.getByText('URL Insight').closest('div');
-    expect(headerDiv).toHaveClass('text-center');
-    expect(headerDiv).toHaveClass('mb-6');
-    expect(headerDiv).toHaveClass('sm:mb-8');
+    const stack = screen.getByTestId('stack-md-center');
+    expect(stack).toHaveClass('text-center');
+    expect(stack).toHaveClass('mb-6');
+    expect(stack).toHaveClass('sm:mb-8');
   });
 
   it('maintains layout structure with complex children', () => {
@@ -233,5 +269,20 @@ describe('AuthLayout', () => {
     expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
     expect(screen.getByTestId('box-lg-white-lg-lg')).toBeInTheDocument();
+  });
+
+  it('uses Stack for proper spacing between title and subtitle', () => {
+    render(
+      <AuthLayout>
+        <div>Test Content</div>
+      </AuthLayout>
+    );
+
+    const stack = screen.getByTestId('stack-md-center');
+    const title = screen.getByTestId('typography-h3');
+    const subtitle = screen.getByTestId('typography-body2');
+
+    expect(stack).toContainElement(title);
+    expect(stack).toContainElement(subtitle);
   });
 });

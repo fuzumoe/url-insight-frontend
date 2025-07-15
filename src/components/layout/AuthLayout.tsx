@@ -2,6 +2,7 @@ import React from 'react';
 import Footer from './Footer';
 import Typography from '../common/Typography';
 import { Container, Box, Flex } from './';
+import Stack from './Stack';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -18,7 +19,11 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
       >
         <Container size="sm">
           <Flex direction="column" align="center" className="w-full">
-            <div className="text-center mb-6 sm:mb-8">
+            <Stack
+              spacing="md"
+              align="center"
+              className="text-center mb-6 sm:mb-8"
+            >
               <Typography
                 variant="h3"
                 as="h1"
@@ -26,13 +31,10 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
               >
                 URL Insight
               </Typography>
-              <Typography
-                variant="body2"
-                className="text-gray-600 mt-1 sm:mt-2"
-              >
+              <Typography variant="body2" className="text-gray-600">
                 Website Analysis Platform
               </Typography>
-            </div>
+            </Stack>
             <Box
               padding="lg"
               background="white"
