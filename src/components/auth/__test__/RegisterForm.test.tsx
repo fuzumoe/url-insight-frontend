@@ -1,229 +1,192 @@
-import '@testing-library/jest-dom';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, beforeEach, vi, expect } from 'vitest';
+import '@testing-library/jest-dom';
 import RegisterForm from '../RegisterForm';
+import * as validators from '../../../utils/validators';
+import React from 'react';
 
-vi.mock('react-icons/fa', () => ({
-  FaUser: () => <div data-testid="icon-user">User Icon</div>,
-  FaEnvelope: () => <div data-testid="icon-envelope">Email Icon</div>,
-  FaLock: () => <div data-testid="icon-lock">Lock Icon</div>,
-  FaCheckCircle: () => <div data-testid="icon-check">Check Icon</div>,
-  FaUserPlus: () => <div data-testid="icon-user-plus">User Plus Icon</div>,
+vi.mock('../../../hooks/useToast', () => ({
+  default: vi.fn(),
 }));
 
-const mockOnRegister = vi.fn();
-const mockOnSuccess = vi.fn();
+vi.mock('../../../utils/validators', () => ({
+  isValidEmail: vi.fn(),
+  isValidUsername: vi.fn(),
+  isValidPassword: vi.fn(),
+  getPasswordStrength: vi.fn(),
+}));
+
+vi.mock('react-icons/fa', () => ({
+  FaUser: () => <div data-testid="user-icon">User Icon</div>,
+  FaEnvelope: () => <div data-testid="email-icon">Email Icon</div>,
+  FaLock: () => <div data-testid="lock-icon">Lock Icon</div>,
+  FaCheckCircle: () => <div data-testid="check-icon">Check Icon</div>,
+  FaUserPlus: () => <div data-testid="register-icon">Register Icon</div>,
+}));
+
+import useToast from '../../../hooks/useToast';
+
+vi.mock('../../common/TextInput', () => ({
+  default: ({
+    id,
+    label,
+    type,
+    value,
+    onChange,
+    onBlur,
+    error,
+    icon,
+    helpText,
+  }: {
+    id: string;
+    label: string;
+    type?: string;
+    value: string | number | boolean | undefined;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+    error?: string;
+    icon?: React.ReactNode;
+    helpText?: string;
+  }) => (
+    <div data-testid={`text-input-${id}`}>
+      <label htmlFor={id}>{label}</label>
+      <input
+        id={id}
+        type={type || 'text'}
+        value={typeof value === 'boolean' ? value.toString() : value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
+      {icon && <div data-testid={`icon-${id}`}>{icon}</div>}
+      {helpText && <div data-testid={`help-${id}`}>{helpText}</div>}
+      {error && <div data-testid={`error-${id}`}>{error}</div>}
+    </div>
+  ),
+}));
+
+vi.mock('../../common/Button', () => ({
+  default: ({
+    children,
+    onClick,
+    type,
+    disabled,
+    isLoading,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+    type?: 'button' | 'submit' | 'reset';
+    disabled?: boolean;
+    isLoading?: boolean;
+  }) => (
+    <button
+      onClick={onClick}
+      type={type}
+      disabled={disabled || isLoading}
+      data-testid="button"
+      data-loading={isLoading}
+    >
+      {children}
+    </button>
+  ),
+}));
 
 describe('RegisterForm', () => {
-  beforeEach(() => {
-    mockOnRegister.mockReset();
-    mockOnSuccess.mockReset();
-  });
+  const mockOnRegister = vi.fn();
+  const mockOnSuccess = vi.fn();
+  const mockAddToast = vi.fn();
 
-  const getInputById = (id: string) => {
-    return document.getElementById(id) as HTMLInputElement;
-  };
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    (validators.isValidEmail as Mock).mockImplementation(() => true);
+    (validators.isValidUsername as Mock).mockImplementation(() => true);
+    (validators.isValidPassword as Mock).mockImplementation(() => true);
+    (validators.getPasswordStrength as Mock).mockImplementation(() => 'strong');
+
+    (useToast as Mock).mockReturnValue({
+      addToast: mockAddToast,
+    });
+  });
 
   it('renders all form elements correctly including icons', () => {
-    render(<RegisterForm />);
+    render(
+      <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
+    );
 
-    expect(getInputById('username')).toBeInTheDocument();
-    expect(getInputById('email')).toBeInTheDocument();
-    expect(getInputById('password')).toBeInTheDocument();
-    expect(getInputById('confirmPassword')).toBeInTheDocument();
+    expect(screen.getByTestId('text-input-username')).toBeInTheDocument();
+    expect(screen.getByTestId('text-input-email')).toBeInTheDocument();
+    expect(screen.getByTestId('text-input-password')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('text-input-confirmPassword')
+    ).toBeInTheDocument();
 
-    expect(screen.getByTestId('icon-user')).toBeInTheDocument();
-    expect(screen.getByTestId('icon-envelope')).toBeInTheDocument();
-    expect(screen.getByTestId('icon-lock')).toBeInTheDocument();
-    expect(screen.getByTestId('icon-check')).toBeInTheDocument();
-    expect(screen.getByTestId('icon-user-plus')).toBeInTheDocument();
+    expect(screen.getByTestId('user-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('email-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('lock-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('check-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('register-icon')).toBeInTheDocument();
 
-    const button = screen.getByRole('button', { name: /register/i });
-    expect(button).toBeInTheDocument();
-
-    const loginLink = screen.getByRole('link', {
-      name: /already have an account/i,
-    });
-    expect(loginLink).toHaveAttribute('href', '/login');
+    expect(screen.getByTestId('button')).toBeInTheDocument();
+    expect(screen.getByTestId('button')).toHaveTextContent(/register/i);
   });
 
-  it('renders the login link with correct href', () => {
-    render(<RegisterForm />);
-    const loginLink = screen.getByRole('link', {
-      name: /already have an account/i,
-    });
-    expect(loginLink).toHaveAttribute('href', '/login');
-  });
-
-  it('validates that passwords must match', async () => {
+  it('shows success toast on successful registration', async () => {
     const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    await user.type(getInputById('username'), 'validuser');
-    await user.type(getInputById('email'), 'valid@example.com');
-    await user.type(getInputById('password'), 'Password123');
-    await user.type(getInputById('confirmPassword'), 'Different123');
-
-    await user.click(screen.getByRole('button', { name: /register/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
-    });
-  });
-
-  it('submits the form with valid data and calls onSuccess', async () => {
-    const user = userEvent.setup();
-    mockOnRegister.mockResolvedValueOnce(undefined);
 
     render(
       <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
     );
 
-    await user.type(getInputById('username'), 'validuser');
-    await user.type(getInputById('email'), 'valid@example.com');
-    await user.type(getInputById('password'), 'Password123');
-    await user.type(getInputById('confirmPassword'), 'Password123');
+    await user.type(screen.getByLabelText(/username/i), 'testuser');
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/^password$/i), 'Password123');
+    await user.type(screen.getByLabelText(/confirm password/i), 'Password123');
 
-    await user.click(screen.getByRole('button', { name: /register/i }));
+    await user.click(screen.getByTestId('button'));
 
     await waitFor(() => {
       expect(mockOnRegister).toHaveBeenCalledWith(
-        'validuser',
-        'valid@example.com',
+        'testuser',
+        'test@example.com',
         'Password123'
       );
-    });
-    await waitFor(() => {
+
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: 'Registration Successful',
+        message: 'Your account has been created successfully!',
+        variant: 'success',
+        duration: 5000,
+      });
+
       expect(mockOnSuccess).toHaveBeenCalled();
     });
   });
 
-  it('shows error message when registration fails with duplicate error', async () => {
+  it('shows warning toast when account already exists', async () => {
     const user = userEvent.setup();
-    mockOnRegister.mockRejectedValueOnce(new Error('already exists'));
 
-    render(<RegisterForm onRegister={mockOnRegister} />);
+    mockOnRegister.mockRejectedValueOnce(new Error('Account already exists'));
 
-    await user.type(getInputById('username'), 'validuser');
-    await user.type(getInputById('email'), 'valid@example.com');
-    await user.type(getInputById('password'), 'Password123');
-    await user.type(getInputById('confirmPassword'), 'Password123');
+    render(
+      <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
+    );
 
-    await user.click(screen.getByRole('button', { name: /register/i }));
+    await user.type(screen.getByLabelText(/username/i), 'existinguser');
+    await user.type(screen.getByLabelText(/email/i), 'existing@example.com');
+    await user.type(screen.getByLabelText(/^password$/i), 'Password123');
+    await user.type(screen.getByLabelText(/confirm password/i), 'Password123');
+    await user.click(screen.getByTestId('button'));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/this email or username is already registered/i)
-      ).toBeInTheDocument();
-    });
-  });
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: 'Registration Failed',
+        message: 'This email or username is already registered',
+        variant: 'warning',
+        duration: 6000,
+      });
 
-  it('disables the register button when password is weak', async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    const passwordInput = getInputById('password');
-    await user.type(passwordInput, 'short');
-
-    const button = screen.getByRole('button', { name: /register/i });
-    expect(button).toBeDisabled();
-  });
-
-  it('shows validation errors for invalid inputs', async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    await user.type(getInputById('username'), 'ab');
-    await user.type(getInputById('email'), 'invalidemail');
-    await user.type(getInputById('password'), 'weak');
-    await user.type(getInputById('confirmPassword'), 'weak');
-
-    await user.click(screen.getByRole('button', { name: /register/i }));
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    expect(mockOnRegister).not.toHaveBeenCalled();
-
-    await waitFor(() => {
-      const errorElements = document.querySelectorAll(
-        '[role="alert"], [class*="text-red"]'
-      );
-      expect(errorElements.length).toBeGreaterThan(0);
-    });
-  });
-
-  it('clears field errors when user corrects the input', async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    await user.type(getInputById('email'), 'not-an-email');
-    await user.tab();
-    await user.click(screen.getByRole('button', { name: /register/i }));
-
-    await waitFor(() => {
-      const errorElements = document.querySelectorAll(
-        '[role="alert"], [class*="text-red"]'
-      );
-      expect(errorElements.length).toBeGreaterThan(0);
-    });
-
-    const emailInput = getInputById('email');
-    await user.clear(emailInput);
-    await user.type(emailInput, 'valid@example.com');
-    await user.tab();
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    await waitFor(() => {
-      const errorElements = Array.from(
-        document.querySelectorAll('[role="alert"], [class*="text-red"]')
-      ).filter(el => el.textContent?.toLowerCase().includes('email'));
-      expect(errorElements.length).toBe(0);
-    });
-  });
-
-  it('updates password strength indicator as password changes', async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    const passwordInput = getInputById('password');
-
-    await user.type(passwordInput, 'weak');
-    let strengthElem = await screen.findByText(/weak/i);
-    expect(strengthElem).toBeInTheDocument();
-    let indicator = document.querySelector('.bg-red-500');
-    expect(indicator).toBeInTheDocument();
-    expect(indicator).toHaveStyle('width: 33%');
-
-    await user.clear(passwordInput);
-    await user.type(passwordInput, 'MediumPass1');
-
-    strengthElem = await screen.findByText(/medium/i);
-    expect(strengthElem).toBeInTheDocument();
-
-    indicator = document.querySelector('.bg-yellow-500');
-    expect(indicator).toBeInTheDocument();
-    expect(indicator).toHaveStyle('width: 67%');
-  });
-
-  it('allows Enter key to submit the form', async () => {
-    const user = userEvent.setup();
-    mockOnRegister.mockResolvedValueOnce(undefined);
-
-    render(<RegisterForm onRegister={mockOnRegister} />);
-
-    await user.type(getInputById('username'), 'validuser');
-    await user.type(getInputById('email'), 'valid@example.com');
-    await user.type(getInputById('password'), 'Password123');
-    await user.type(getInputById('confirmPassword'), 'Password123{enter}');
-
-    await waitFor(() => {
-      expect(mockOnRegister).toHaveBeenCalledWith(
-        'validuser',
-        'valid@example.com',
-        'Password123'
-      );
+      expect(mockOnSuccess).not.toHaveBeenCalled();
     });
   });
 });

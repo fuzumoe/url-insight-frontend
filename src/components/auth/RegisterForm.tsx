@@ -7,7 +7,6 @@ import {
   isValidPassword,
   getPasswordStrength,
 } from '../../utils/validators';
-// Import React Icons instead of Heroicons
 import {
   FaUser,
   FaEnvelope,
@@ -15,6 +14,7 @@ import {
   FaCheckCircle,
   FaUserPlus,
 } from 'react-icons/fa';
+import useToast from '../../hooks/useToast';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -45,6 +45,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   const [passwordStrength, setPasswordStrength] = useState<
     'weak' | 'medium' | 'strong'
   >('weak');
+  const { addToast } = useToast();
 
   useEffect(() => {
     if (password) {
@@ -54,7 +55,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     }
   }, [password]);
 
-  // Add field validation on blur for better user experience
   const validateField = (
     field: 'username' | 'email' | 'password' | 'confirmPassword'
   ) => {
@@ -129,6 +129,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
     try {
       await onRegister(username, email, password);
+
+      addToast({
+        title: 'Registration Successful',
+        message: 'Your account has been created successfully!',
+        variant: 'success',
+        duration: 5000,
+      });
+
       if (onSuccess) onSuccess();
     } catch (err) {
       if (err instanceof Error) {
@@ -137,16 +145,49 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           err.message.includes('already in use')
         ) {
           setError('This email or username is already registered');
+
+          addToast({
+            title: 'Registration Failed',
+            message: 'This email or username is already registered',
+            variant: 'warning',
+            duration: 6000,
+          });
         } else {
           setError(err.message);
+
+          if (
+            err.message.includes('network') ||
+            err.message.includes('server') ||
+            err.message.includes('timeout')
+          ) {
+            addToast({
+              title: 'Connection Problem',
+              message: 'Please check your internet connection and try again',
+              variant: 'error',
+              duration: 8000,
+            });
+          } else {
+            addToast({
+              title: 'Registration Error',
+              message: err.message,
+              variant: 'error',
+              duration: 6000,
+            });
+          }
         }
       } else {
         setError('Registration failed. Please try again later.');
+
+        addToast({
+          title: 'Error',
+          message: 'Registration failed. Please try again later.',
+          variant: 'error',
+          duration: 6000,
+        });
       }
     }
   };
 
-  // Get color for password strength indicator
   const getStrengthColor = () => {
     switch (passwordStrength) {
       case 'strong':
