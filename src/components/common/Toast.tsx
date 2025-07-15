@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { FiCheckCircle, FiAlertCircle, FiInfo, FiX } from 'react-icons/fi';
+import Typography from './Typography';
+import Button from './Button';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -40,39 +42,54 @@ const Toast: React.FC<ToastProps> = ({
   };
 
   const iconMap = {
-    success: <FiCheckCircle className="h-5 w-5 text-green-500" />,
-    error: <FiAlertCircle className="h-5 w-5 text-red-500" />,
-    warning: <FiAlertCircle className="h-5 w-5 text-yellow-500" />,
-    info: <FiInfo className="h-5 w-5 text-blue-500" />,
+    success: <FiCheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />,
+    error: <FiAlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />,
+    warning: (
+      <FiAlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
+    ),
+    info: <FiInfo className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />,
   };
+
+  const buttonVariantMap = {
+    success: 'primary',
+    error: 'danger',
+    warning: 'secondary',
+    info: 'secondary',
+  } as const;
 
   return (
     <div
-      className={`flex items-start p-4 mb-4 rounded-md shadow-lg border-l-4 max-w-md ${variantStyles[variant]} ${className}`}
+      className={`flex items-start p-3 sm:p-4 mb-3 sm:mb-4 rounded-md shadow-lg border-l-4 max-w-full sm:max-w-md ${variantStyles[variant]} ${className}`}
       role="alert"
     >
       <div className="flex-shrink-0 pt-0.5">{iconMap[variant]}</div>
-      <div className="ml-3 flex-1">
-        {title && <h3 className="text-sm font-medium">{title}</h3>}
-        <div className={`text-sm ${title ? 'mt-1' : ''}`}>{message}</div>
+
+      <div className="ml-2 sm:ml-3 flex-1">
+        {title && (
+          <Typography
+            variant="caption"
+            as="h3"
+            className="font-medium sm:text-sm"
+          >
+            {title}
+          </Typography>
+        )}
+
+        <Typography variant="caption" className={title ? 'mt-0.5 sm:mt-1' : ''}>
+          {message}
+        </Typography>
       </div>
+
       {dismissible && (
-        <button
-          type="button"
-          className={`ml-auto -mx-1.5 -my-1.5 rounded-md p-1.5 inline-flex focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-            variant === 'success'
-              ? 'text-green-500 hover:bg-green-100 focus:ring-green-600'
-              : variant === 'error'
-                ? 'text-red-500 hover:bg-red-100 focus:ring-red-600'
-                : variant === 'warning'
-                  ? 'text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600'
-                  : 'text-blue-500 hover:bg-blue-100 focus:ring-blue-600'
-          }`}
+        <Button
+          variant={buttonVariantMap[variant]}
+          size="sm"
           onClick={onDismiss}
           aria-label="Dismiss"
+          className="ml-auto -mx-1 -my-1 p-0 bg-transparent hover:bg-opacity-20 focus:ring-offset-0"
         >
-          <FiX className="h-5 w-5" />
-        </button>
+          <FiX className="h-4 w-4 sm:h-5 sm:w-5" />
+        </Button>
       )}
     </div>
   );
