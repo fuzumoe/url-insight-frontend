@@ -4,11 +4,19 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import LoginForm from '../LoginForm';
 import { useAuth } from '../../../hooks/useAuth';
+import useToast from '../../../hooks/useToast';
 
+// Mock auth hook
 vi.mock('../../../hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 
+// Mock toast hook
+vi.mock('../../../hooks/useToast', () => ({
+  default: vi.fn(),
+}));
+
+// Mock icons
 vi.mock('react-icons/fa', () => ({
   FaEnvelope: () => <div data-testid="email-icon">Email Icon</div>,
   FaLock: () => <div data-testid="lock-icon">Lock Icon</div>,
@@ -87,11 +95,15 @@ vi.mock('../../common/Button', () => ({
 
 describe('LoginForm', () => {
   const mockLogin = vi.fn();
+  const mockAddToast = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useAuth as Mock).mockReturnValue({
       login: mockLogin,
+    });
+    (useToast as Mock).mockReturnValue({
+      addToast: mockAddToast,
     });
   });
 
@@ -272,5 +284,78 @@ describe('LoginForm', () => {
     await user.click(submitButton);
 
     expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+  });
+
+  // New tests for toast notifications
+  it('shows success toast on successful login', async () => {
+    mockLogin.mockResolvedValueOnce(undefined);
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    const emailInput = getInputById('email');
+    const passwordInput = getInputById('password');
+    const submitButton = screen.getByTestId('button');
+
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'password123');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: 'Login Successful',
+        message: 'Welcome back!',
+        variant: 'success',
+        duration: 4000,
+      });
+    });
+  });
+
+  it('shows connection error toast for network errors', async () => {
+    // Change the error message to include the word "network" that the component checks for
+    const networkError = new Error('A network error occurred');
+    mockLogin.mockRejectedValueOnce(networkError);
+
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    const emailInput = getInputById('email');
+    const passwordInput = getInputById('password');
+    const submitButton = screen.getByTestId('button');
+
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'password123');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: 'Connection Problem',
+        message: 'Please check your internet connection and try again',
+        variant: 'error',
+        duration: 8000,
+      });
+    });
+  });
+
+  it('shows generic error toast for unknown errors', async () => {
+    mockLogin.mockRejectedValueOnce('Unknown error' as any);
+
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    const emailInput = getInputById('email');
+    const passwordInput = getInputById('password');
+    const submitButton = screen.getByTestId('button');
+
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'password123');
+    await user.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockAddToast).toHaveBeenCalledWith({
+        title: 'Error',
+        message: 'An unexpected error occurred',
+        variant: 'error',
+      });
+    });
   });
 });

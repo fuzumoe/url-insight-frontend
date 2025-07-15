@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
-
+import useToast from '../../hooks/useToast';
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +13,7 @@ const LoginForm: React.FC = () => {
     password?: string;
   }>({});
   const { login } = useAuth();
+  const { addToast } = useToast();
 
   const validateForm = (): boolean => {
     const errors: { email?: string; password?: string } = {};
@@ -63,11 +64,38 @@ const LoginForm: React.FC = () => {
 
     try {
       await login(email.trim(), password);
+
+      // 👇 Success toast notification
+      addToast({
+        title: 'Login Successful',
+        message: 'Welcome back!',
+        variant: 'success',
+        duration: 4000,
+      });
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
+
+        if (
+          err.message.includes('network') ||
+          err.message.includes('server') ||
+          err.message.includes('timeout')
+        ) {
+          addToast({
+            title: 'Connection Problem',
+            message: 'Please check your internet connection and try again',
+            variant: 'error',
+            duration: 8000,
+          });
+        }
       } else {
         setError('Login failed. Please try again.');
+
+        addToast({
+          title: 'Error',
+          message: 'An unexpected error occurred',
+          variant: 'error',
+        });
       }
     }
   };
