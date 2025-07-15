@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -6,7 +5,17 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ToastProvider, ToastContext } from '../ToastContext';
 
 vi.mock('../../components/common/Toast', () => ({
-  default: ({ message, variant, title, onDismiss }: any) => (
+  default: ({
+    message,
+    variant,
+    title,
+    onDismiss,
+  }: {
+    message: string;
+    variant: string;
+    title?: string;
+    onDismiss: () => void;
+  }) => (
     <div
       data-testid="mock-toast"
       data-variant={variant}
@@ -26,7 +35,10 @@ const originalSetTimeout = global.setTimeout;
 const originalClearTimeout = global.clearTimeout;
 let timeoutIds: NodeJS.Timeout[] = [];
 
-const customSetTimeout = function (callback: any, delay?: any) {
+const customSetTimeout = function (
+  callback: (...args: unknown[]) => void,
+  delay?: number
+) {
   const id = originalSetTimeout(callback, delay) as unknown as NodeJS.Timeout;
   timeoutIds.push(id);
   return id;
