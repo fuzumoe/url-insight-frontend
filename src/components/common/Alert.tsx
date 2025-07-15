@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiX } from 'react-icons/fi';
+import Typography from './Typography';
+import Button from './Button';
 
 type AlertVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -43,34 +45,64 @@ const Alert: React.FC<AlertProps> = ({
     info: <FiInfo className="h-5 w-5 text-blue-500" />,
   };
 
+  const typographyColorMap = {
+    success: 'success',
+    error: 'error',
+    warning: 'warning',
+    info: 'primary',
+  } as const;
+
+  // Map button variants based on alert variant
+  const buttonVariantMap = {
+    success: 'primary',
+    error: 'danger',
+    warning: 'secondary',
+    info: 'secondary',
+  } as const;
+
+  // Fix for Tailwind JIT - pre-define all possible hover classes
+  const hoverBgClasses = {
+    success: 'hover:bg-green-100',
+    error: 'hover:bg-red-100',
+    warning: 'hover:bg-yellow-100',
+    info: 'hover:bg-blue-100',
+  };
+
   return (
     <div
-      className={`border-l-4 p-4 rounded-md ${variantStyles[variant]} ${className}`}
+      className={`border-l-4 p-3 sm:p-4 rounded-md ${variantStyles[variant]} ${className}`}
       role="alert"
     >
       <div className="flex items-start">
         <div className="flex-shrink-0 pt-0.5">{iconMap[variant]}</div>
         <div className="ml-3 flex-1">
-          {title && <h3 className="text-sm font-medium">{title}</h3>}
-          <div className={`text-sm ${title ? 'mt-1' : ''}`}>{message}</div>
+          {title && (
+            <Typography
+              variant="subtitle2"
+              weight="medium"
+              color={typographyColorMap[variant]}
+            >
+              {title}
+            </Typography>
+          )}
+          <Typography
+            variant="body2"
+            color="secondary"
+            className={title ? 'mt-1' : ''}
+          >
+            {message}
+          </Typography>
         </div>
         {dismissible && (
-          <button
-            type="button"
-            className={`ml-auto -mx-1.5 -my-1.5 rounded-md p-1.5 inline-flex focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-              variant === 'success'
-                ? 'text-green-500 hover:bg-green-100 focus:ring-green-600'
-                : variant === 'error'
-                  ? 'text-red-500 hover:bg-red-100 focus:ring-red-600'
-                  : variant === 'warning'
-                    ? 'text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600'
-                    : 'text-blue-500 hover:bg-blue-100 focus:ring-blue-600'
-            }`}
+          <Button
+            variant={buttonVariantMap[variant]}
+            size="sm"
+            className={`ml-auto -mr-1.5 -mt-1.5 p-1.5 bg-transparent ${hoverBgClasses[variant]}`}
             onClick={handleDismiss}
             aria-label="Dismiss"
           >
-            <FiX className="h-5 w-5" />
-          </button>
+            <FiX className="h-4 w-4" />
+          </Button>
         )}
       </div>
     </div>

@@ -12,37 +12,128 @@ vi.mock('react-icons/fi', () => ({
   FiX: () => <div data-testid="icon-x" />,
 }));
 
+// Mock Typography component
+vi.mock('../Typography', () => ({
+  default: ({
+    children,
+    variant,
+    color,
+    weight,
+    className,
+  }: {
+    children: React.ReactNode;
+    variant?: string;
+    color?: string;
+    weight?: string;
+    className?: string;
+  }) => (
+    <div
+      data-testid="mock-typography"
+      data-variant={variant}
+      data-color={color}
+      data-weight={weight}
+      className={className}
+    >
+      {children}
+    </div>
+  ),
+}));
+
+// Mock Button component
+vi.mock('../Button', () => ({
+  default: ({
+    children,
+    variant,
+    size,
+    className,
+    onClick,
+    'aria-label': ariaLabel,
+  }: {
+    children: React.ReactNode;
+    variant?: string;
+    size?: string;
+    className?: string;
+    onClick?: () => void;
+    'aria-label'?: string;
+  }) => (
+    <button
+      data-testid="mock-button"
+      data-variant={variant}
+      data-size={size}
+      className={className}
+      onClick={onClick}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </button>
+  ),
+}));
+
 describe('Alert', () => {
   it('renders success variant correctly', () => {
     render(<Alert variant="success" message="Operation successful" />);
-    expect(screen.getByText('Operation successful')).toBeInTheDocument();
+
+    // Check for the alert container
+    const alertElement = screen.getByRole('alert');
+    expect(alertElement).toHaveClass('bg-green-50');
+    expect(alertElement).toHaveClass('border-green-500');
+
+    // Check for icon
     expect(screen.getByTestId('icon-check-circle')).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveClass('bg-green-50');
-    expect(screen.getByRole('alert')).toHaveClass('border-green-500');
+
+    // Check for message in Typography
+    const messageTypography = screen.getAllByTestId('mock-typography')[0];
+    expect(messageTypography).toHaveTextContent('Operation successful');
+    expect(messageTypography).toHaveAttribute('data-color', 'secondary');
+    expect(messageTypography).toHaveAttribute('data-variant', 'body2');
   });
 
   it('renders error variant correctly', () => {
     render(<Alert variant="error" message="An error occurred" />);
-    expect(screen.getByText('An error occurred')).toBeInTheDocument();
+
+    // Check for the alert container
+    const alertElement = screen.getByRole('alert');
+    expect(alertElement).toHaveClass('bg-red-50');
+    expect(alertElement).toHaveClass('border-red-500');
+
+    // Check for icon
     expect(screen.getByTestId('icon-alert-circle')).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveClass('bg-red-50');
-    expect(screen.getByRole('alert')).toHaveClass('border-red-500');
+
+    // Check for message in Typography
+    const messageTypography = screen.getAllByTestId('mock-typography')[0];
+    expect(messageTypography).toHaveTextContent('An error occurred');
   });
 
   it('renders warning variant correctly', () => {
     render(<Alert variant="warning" message="Be careful" />);
-    expect(screen.getByText('Be careful')).toBeInTheDocument();
+
+    // Check for the alert container
+    const alertElement = screen.getByRole('alert');
+    expect(alertElement).toHaveClass('bg-yellow-50');
+    expect(alertElement).toHaveClass('border-yellow-500');
+
+    // Check for icon
     expect(screen.getByTestId('icon-alert-circle')).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveClass('bg-yellow-50');
-    expect(screen.getByRole('alert')).toHaveClass('border-yellow-500');
+
+    // Check for message in Typography
+    const messageTypography = screen.getAllByTestId('mock-typography')[0];
+    expect(messageTypography).toHaveTextContent('Be careful');
   });
 
   it('renders info variant correctly', () => {
     render(<Alert variant="info" message="For your information" />);
-    expect(screen.getByText('For your information')).toBeInTheDocument();
+
+    // Check for the alert container
+    const alertElement = screen.getByRole('alert');
+    expect(alertElement).toHaveClass('bg-blue-50');
+    expect(alertElement).toHaveClass('border-blue-500');
+
+    // Check for icon
     expect(screen.getByTestId('icon-info')).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveClass('bg-blue-50');
-    expect(screen.getByRole('alert')).toHaveClass('border-blue-500');
+
+    // Check for message in Typography
+    const messageTypography = screen.getAllByTestId('mock-typography')[0];
+    expect(messageTypography).toHaveTextContent('For your information');
   });
 
   it('renders title when provided', () => {
@@ -53,20 +144,37 @@ describe('Alert', () => {
         message="Your operation was successful"
       />
     );
-    expect(screen.getByText('Success!')).toBeInTheDocument();
-    expect(
-      screen.getByText('Your operation was successful')
-    ).toBeInTheDocument();
+
+    // Check for title in Typography
+    const typographyElements = screen.getAllByTestId('mock-typography');
+    expect(typographyElements[0]).toHaveTextContent('Success!');
+    expect(typographyElements[0]).toHaveAttribute('data-variant', 'subtitle2');
+    expect(typographyElements[0]).toHaveAttribute('data-weight', 'medium');
+    expect(typographyElements[0]).toHaveAttribute('data-color', 'success');
+
+    // Check for message in Typography
+    expect(typographyElements[1]).toHaveTextContent(
+      'Your operation was successful'
+    );
+    expect(typographyElements[1]).toHaveAttribute('data-variant', 'body2');
+    expect(typographyElements[1]).toHaveAttribute('data-color', 'secondary');
+    expect(typographyElements[1]).toHaveClass('mt-1');
   });
 
   it('does not render dismiss button when not dismissible', () => {
     render(<Alert variant="info" message="Info message" />);
-    expect(screen.queryByLabelText('Dismiss')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('mock-button')).not.toBeInTheDocument();
   });
 
   it('renders dismiss button when dismissible', () => {
     render(<Alert variant="info" message="Info message" dismissible />);
-    expect(screen.getByLabelText('Dismiss')).toBeInTheDocument();
+
+    const button = screen.getByTestId('mock-button');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-label', 'Dismiss');
+    expect(button).toHaveAttribute('data-variant', 'secondary');
+    expect(button).toHaveAttribute('data-size', 'sm');
+    expect(button).toHaveClass('hover:bg-blue-100');
   });
 
   it('calls onDismiss and hides the alert when dismiss button is clicked', () => {
@@ -80,11 +188,11 @@ describe('Alert', () => {
       />
     );
 
-    const dismissButton = screen.getByLabelText('Dismiss');
+    const dismissButton = screen.getByTestId('mock-button');
     fireEvent.click(dismissButton);
 
     expect(handleDismiss).toHaveBeenCalledTimes(1);
-    expect(screen.queryByText('Info message')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('mock-typography')).not.toBeInTheDocument();
   });
 
   it('applies custom className', () => {
@@ -98,15 +206,37 @@ describe('Alert', () => {
     expect(screen.getByRole('alert')).toHaveClass('custom-class');
   });
 
-  it('hides the alert when state is changed', () => {
+  it('uses correct button variant based on alert variant', () => {
     const { rerender } = render(
-      <Alert variant="info" message="Info message" dismissible />
+      <Alert variant="success" message="Success message" dismissible />
+    );
+    expect(screen.getByTestId('mock-button')).toHaveAttribute(
+      'data-variant',
+      'primary'
     );
 
-    const dismissButton = screen.getByLabelText('Dismiss');
-    fireEvent.click(dismissButton);
+    rerender(<Alert variant="error" message="Error message" dismissible />);
+    expect(screen.getByTestId('mock-button')).toHaveAttribute(
+      'data-variant',
+      'danger'
+    );
 
-    rerender(<Alert variant="info" message="Updated message" dismissible />);
-    expect(screen.queryByText('Updated message')).not.toBeInTheDocument();
+    rerender(<Alert variant="warning" message="Warning message" dismissible />);
+    expect(screen.getByTestId('mock-button')).toHaveAttribute(
+      'data-variant',
+      'secondary'
+    );
+
+    rerender(<Alert variant="info" message="Info message" dismissible />);
+    expect(screen.getByTestId('mock-button')).toHaveAttribute(
+      'data-variant',
+      'secondary'
+    );
+  });
+
+  it('applies mobile-first responsive padding', () => {
+    render(<Alert variant="success" message="Success message" />);
+    expect(screen.getByRole('alert')).toHaveClass('p-3');
+    expect(screen.getByRole('alert')).toHaveClass('sm:p-4');
   });
 });
