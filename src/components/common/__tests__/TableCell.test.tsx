@@ -32,7 +32,7 @@ const renderTableCell = (
         | bigint
         | boolean
         | ReactPortal
-        | ReactElement<unknown, string | JSXElementConstructor<any>>
+        | ReactElement<unknown, string | JSXElementConstructor<object>>
         | Iterable<ReactNode>
         | null
         | undefined
