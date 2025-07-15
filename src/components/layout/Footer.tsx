@@ -1,4 +1,6 @@
 import React from 'react';
+import { Container, Flex, Box } from './';
+import Typography from '../common/Typography';
 
 interface FooterProps {
   className?: string;
@@ -6,28 +8,49 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ className = '' }) => {
   return (
-    <footer className={`bg-white shadow-md py-6 mt-auto ${className}`}>
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <p className="text-gray-600 text-sm">
+    <Box
+      as="footer"
+      background="white"
+      shadow="md"
+      padding="lg"
+      className={`mt-auto ${className}`}
+    >
+      <Container>
+        <Flex
+          direction="column"
+          justify="between"
+          align="center"
+          className="md:flex-row"
+        >
+          <Box className="mb-4 md:mb-0">
+            <Typography variant="body2" className="text-gray-600">
               © {new Date().getFullYear()} URL Insight. All rights reserved.
-            </p>
-          </div>
-          <div className="flex space-x-4">
-            <a href="#" className="text-gray-500 hover:text-blue-600 text-sm">
-              Privacy Policy
+            </Typography>
+          </Box>
+
+          <Flex gap="md" className="flex-wrap">
+            <a
+              href="#"
+              className="text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <Typography variant="body2">Privacy Policy</Typography>
             </a>
-            <a href="#" className="text-gray-500 hover:text-blue-600 text-sm">
-              Terms of Service
+            <a
+              href="#"
+              className="text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <Typography variant="body2">Terms of Service</Typography>
             </a>
-            <a href="#" className="text-gray-500 hover:text-blue-600 text-sm">
-              Contact Us
+            <a
+              href="#"
+              className="text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <Typography variant="body2">Contact Us</Typography>
             </a>
-          </div>
-        </div>
-      </div>
-    </footer>
+          </Flex>
+        </Flex>
+      </Container>
+    </Box>
   );
 };
 
