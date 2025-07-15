@@ -73,15 +73,12 @@ describe('Alert', () => {
   it('renders success variant correctly', () => {
     render(<Alert variant="success" message="Operation successful" />);
 
-    // Check for the alert container
     const alertElement = screen.getByRole('alert');
     expect(alertElement).toHaveClass('bg-green-50');
     expect(alertElement).toHaveClass('border-green-500');
 
-    // Check for icon
     expect(screen.getByTestId('icon-check-circle')).toBeInTheDocument();
 
-    // Check for message in Typography
     const messageTypography = screen.getAllByTestId('mock-typography')[0];
     expect(messageTypography).toHaveTextContent('Operation successful');
     expect(messageTypography).toHaveAttribute('data-color', 'secondary');
@@ -91,15 +88,12 @@ describe('Alert', () => {
   it('renders error variant correctly', () => {
     render(<Alert variant="error" message="An error occurred" />);
 
-    // Check for the alert container
     const alertElement = screen.getByRole('alert');
     expect(alertElement).toHaveClass('bg-red-50');
     expect(alertElement).toHaveClass('border-red-500');
 
-    // Check for icon
     expect(screen.getByTestId('icon-alert-circle')).toBeInTheDocument();
 
-    // Check for message in Typography
     const messageTypography = screen.getAllByTestId('mock-typography')[0];
     expect(messageTypography).toHaveTextContent('An error occurred');
   });
@@ -107,15 +101,12 @@ describe('Alert', () => {
   it('renders warning variant correctly', () => {
     render(<Alert variant="warning" message="Be careful" />);
 
-    // Check for the alert container
     const alertElement = screen.getByRole('alert');
     expect(alertElement).toHaveClass('bg-yellow-50');
     expect(alertElement).toHaveClass('border-yellow-500');
 
-    // Check for icon
     expect(screen.getByTestId('icon-alert-circle')).toBeInTheDocument();
 
-    // Check for message in Typography
     const messageTypography = screen.getAllByTestId('mock-typography')[0];
     expect(messageTypography).toHaveTextContent('Be careful');
   });
@@ -123,15 +114,12 @@ describe('Alert', () => {
   it('renders info variant correctly', () => {
     render(<Alert variant="info" message="For your information" />);
 
-    // Check for the alert container
     const alertElement = screen.getByRole('alert');
     expect(alertElement).toHaveClass('bg-blue-50');
     expect(alertElement).toHaveClass('border-blue-500');
 
-    // Check for icon
     expect(screen.getByTestId('icon-info')).toBeInTheDocument();
 
-    // Check for message in Typography
     const messageTypography = screen.getAllByTestId('mock-typography')[0];
     expect(messageTypography).toHaveTextContent('For your information');
   });
@@ -145,14 +133,12 @@ describe('Alert', () => {
       />
     );
 
-    // Check for title in Typography
     const typographyElements = screen.getAllByTestId('mock-typography');
     expect(typographyElements[0]).toHaveTextContent('Success!');
     expect(typographyElements[0]).toHaveAttribute('data-variant', 'subtitle2');
     expect(typographyElements[0]).toHaveAttribute('data-weight', 'medium');
     expect(typographyElements[0]).toHaveAttribute('data-color', 'success');
 
-    // Check for message in Typography
     expect(typographyElements[1]).toHaveTextContent(
       'Your operation was successful'
     );

@@ -7,7 +7,6 @@ import { authService } from '../../services';
 import * as storage from '../../utils';
 import type { User } from '../../types';
 
-// Mock the auth service
 vi.mock('../../services/authService', () => ({
   authService: {
     getCurrentUser: vi.fn(),
@@ -17,7 +16,6 @@ vi.mock('../../services/authService', () => ({
   },
 }));
 
-// Mock the storage utility
 vi.mock('../../utils/storage', () => ({
   getToken: vi.fn(),
   removeToken: vi.fn(),
@@ -25,7 +23,19 @@ vi.mock('../../utils/storage', () => ({
 
 // Mock the Spinner component
 vi.mock('../../components/common/Spinner', () => ({
-  default: ({ size, color, showText, text, className }) => (
+  default: ({
+    size,
+    color,
+    showText,
+    text,
+    className,
+  }: {
+    size?: string;
+    color?: string;
+    showText: boolean;
+    text?: string;
+    className?: string;
+  }) => (
     <div
       data-testid="mock-spinner"
       data-size={size}
