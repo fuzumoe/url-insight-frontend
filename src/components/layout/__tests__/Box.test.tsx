@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom';
 import Box from '../Box';
 
@@ -12,6 +12,13 @@ describe('Box', () => {
     );
 
     expect(screen.getByText('Test content')).toBeInTheDocument();
+  });
+
+  it('renders without children', () => {
+    const { container } = render(<Box className="test-box" />);
+
+    expect(container.firstChild).toHaveClass('test-box');
+    expect(container.firstChild).toBeEmptyDOMElement();
   });
 
   it('renders as div by default', () => {
@@ -42,6 +49,31 @@ describe('Box', () => {
     );
 
     expect(container.firstChild?.nodeName).toBe('SECTION');
+  });
+
+  it('handles onClick events', () => {
+    const handleClick = vi.fn();
+    const { container } = render(
+      <Box onClick={handleClick}>
+        <div>Test content</div>
+      </Box>
+    );
+
+    fireEvent.click(container.firstChild as HTMLElement);
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('works without onClick prop', () => {
+    const { container } = render(
+      <Box>
+        <div>Test content</div>
+      </Box>
+    );
+
+    // Should not throw error when clicked without onClick handler
+    expect(() => {
+      fireEvent.click(container.firstChild as HTMLElement);
+    }).not.toThrow();
   });
 
   it('applies padding classes correctly', () => {
@@ -140,6 +172,36 @@ describe('Box', () => {
       'rounded-full',
       'max-w-md'
     );
+  });
+
+  it('combines onClick with other props', () => {
+    const handleClick = vi.fn();
+    const { container } = render(
+      <Box
+        as="button"
+        padding="sm"
+        background="white"
+        shadow="md"
+        rounded="lg"
+        onClick={handleClick}
+        className="cursor-pointer"
+      >
+        <span>Click me</span>
+      </Box>
+    );
+
+    expect(container.firstChild?.nodeName).toBe('BUTTON');
+    expect(container.firstChild).toHaveClass(
+      'p-2',
+      'sm:p-3',
+      'bg-white',
+      'shadow-md',
+      'rounded-lg',
+      'cursor-pointer'
+    );
+
+    fireEvent.click(container.firstChild as HTMLElement);
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
   it('handles all padding options correctly', () => {

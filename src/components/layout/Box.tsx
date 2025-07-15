@@ -1,13 +1,14 @@
 import React from 'react';
 
 interface BoxProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   as?: React.ElementType;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   background?: 'transparent' | 'white' | 'gray-50' | 'gray-100' | 'blue-50';
   shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
+  onClick?: () => void;
 }
 
 const Box: React.FC<BoxProps> = ({
@@ -18,6 +19,7 @@ const Box: React.FC<BoxProps> = ({
   shadow = 'none',
   rounded = 'none',
   className = '',
+  onClick,
 }) => {
   const paddingClasses = {
     none: '',
@@ -62,7 +64,11 @@ const Box: React.FC<BoxProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  return <Component className={classes}>{children}</Component>;
+  return (
+    <Component className={classes} onClick={onClick}>
+      {children}
+    </Component>
+  );
 };
 
 export default Box;
