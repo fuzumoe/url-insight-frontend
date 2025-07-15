@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useToast } from '../useToast';
 import React from 'react';
-import { ToastContext } from '../../context/ToastContext';
+import { ToastContext } from '../../context';
 
 const testMockAddToast = vi.fn();
 const testMockRemoveToast = vi.fn();
