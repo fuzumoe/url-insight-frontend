@@ -40,7 +40,6 @@ describe('Formatters', () => {
 
   describe('formatRelativeTime', () => {
     beforeEach(() => {
-      // Mock Date.now to return a fixed date
       const nowDate = new Date('2025-07-14T12:00:00Z');
       vi.spyOn(Date, 'now').mockImplementation(() => nowDate.getTime());
       vi.useFakeTimers();

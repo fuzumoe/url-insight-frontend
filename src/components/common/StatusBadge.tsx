@@ -1,4 +1,5 @@
 import React from 'react';
+import Typography from './Typography';
 
 type URLStatus = 'queued' | 'running' | 'done' | 'error' | 'stopped';
 
@@ -17,9 +18,11 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status]}`}
+      className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full ${statusStyles[status]}`}
     >
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      <Typography variant="caption" className="font-medium">
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Typography>
     </span>
   );
 };
