@@ -8,7 +8,6 @@ import React, {
 import { urlService } from '../services';
 import type { URLData, URLTableFilters } from '../types/urlTypes';
 
-// Define proper interface for URL analysis params
 interface URLAnalysisParams {
   url: string;
 }
@@ -19,7 +18,7 @@ interface URLContextType {
   error: string | null;
   fetchURLs: (params?: URLTableFilters) => Promise<void>;
   analyzeURL: (params: URLAnalysisParams) => Promise<URLData>;
-  deleteURL: (id: string) => Promise<void>;
+  deleteURL: (id: number) => Promise<void>;
   refreshData: () => Promise<void>;
 }
 
@@ -38,7 +37,6 @@ export const URLProvider: React.FC<URLProviderProps> = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      // Fixed: using list() instead of getURLs()
       const result = await urlService.list(1, 20, params);
       setURLs(result.data);
     } catch (err) {
@@ -57,10 +55,8 @@ export const URLProvider: React.FC<URLProviderProps> = ({ children }) => {
     setError(null);
     try {
       const id = await urlService.create(params.url);
-      // After creating, get the URL data
-      const newURL = await urlService.get(id.toString());
-      // Start analysis
-      await urlService.startAnalysis(id.toString());
+      const newURL = await urlService.get(id);
+      await urlService.startAnalysis(id);
 
       setURLs(prevURLs => [newURL, ...prevURLs]);
       return newURL;
@@ -76,7 +72,7 @@ export const URLProvider: React.FC<URLProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const deleteURL = useCallback(async (id: string) => {
+  const deleteURL = useCallback(async (id: number) => {
     setLoading(true);
     setError(null);
     try {
@@ -97,7 +93,6 @@ export const URLProvider: React.FC<URLProviderProps> = ({ children }) => {
     await fetchURLs();
   }, [fetchURLs]);
 
-  // Initial data fetch
   useEffect(() => {
     fetchURLs();
   }, [fetchURLs]);

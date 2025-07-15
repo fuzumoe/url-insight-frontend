@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -8,7 +6,6 @@ import { URLProvider, URLContext } from '../URLContext';
 import { urlService } from '../../services';
 import type { URLData } from '../../types';
 
-// Mock the URL service
 vi.mock('../../services/urlService', () => ({
   urlService: {
     list: vi.fn(),
@@ -20,10 +17,9 @@ vi.mock('../../services/urlService', () => ({
 }));
 
 describe('URLContext', () => {
-  // Test data - fixed to match URLData type
   const mockURLs: URLData[] = [
     {
-      id: '1',
+      id: 1,
       url: 'https://example.com',
       title: 'Example Site',
       htmlVersion: 'HTML5',
@@ -35,7 +31,7 @@ describe('URLContext', () => {
       createdAt: '2023-01-01',
     },
     {
-      id: '2',
+      id: 2,
       url: 'https://test.com',
       title: 'Test Site',
       htmlVersion: 'HTML5',
@@ -59,7 +55,7 @@ describe('URLContext', () => {
   };
 
   const mockNewURL: URLData = {
-    id: '3',
+    id: 3,
     url: 'https://new-example.com',
     title: 'New Example Site',
     htmlVersion: 'HTML5',
@@ -73,7 +69,7 @@ describe('URLContext', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Default mock implementations
+
     vi.mocked(urlService.list).mockResolvedValue(mockURLResponse);
     vi.mocked(urlService.create).mockResolvedValue(3);
     vi.mocked(urlService.get).mockResolvedValue(mockNewURL);
@@ -82,7 +78,6 @@ describe('URLContext', () => {
   });
 
   it('initializes with empty URLs and loading state', async () => {
-    // Make list take some time to complete
     vi.mocked(urlService.list).mockImplementation(() => {
       return new Promise(resolve => {
         setTimeout(() => resolve(mockURLResponse), 100);
@@ -109,13 +104,11 @@ describe('URLContext', () => {
       </URLProvider>
     );
 
-    // Initially loading, with empty URLs
     expect(screen.getByTestId('loading-state')).toHaveTextContent(
       'Loading: true'
     );
     expect(screen.getByTestId('urls-count')).toHaveTextContent('URLs: 0');
 
-    // After loading completes
     await act(async () => {
       vi.advanceTimersByTime(200);
     });
@@ -142,7 +135,6 @@ describe('URLContext', () => {
       </URLProvider>
     );
 
-    // Wait for the component to finish rendering
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
@@ -177,31 +169,25 @@ describe('URLContext', () => {
       </URLProvider>
     );
 
-    // Wait for initial data load
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // URL count before analysis
     expect(screen.getByTestId('urls-count')).toHaveTextContent('URLs: 2');
 
-    // Trigger URL analysis
     await act(async () => {
       fireEvent.click(screen.getByTestId('analyze-btn'));
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // Verify service was called correctly
     expect(urlService.create).toHaveBeenCalledWith('https://new-example.com');
-    expect(urlService.get).toHaveBeenCalledWith('3');
-    expect(urlService.startAnalysis).toHaveBeenCalledWith('3');
+    expect(urlService.get).toHaveBeenCalledWith(3);
+    expect(urlService.startAnalysis).toHaveBeenCalledWith(3);
 
-    // URL count after analysis (should include the new URL)
     expect(screen.getByTestId('urls-count')).toHaveTextContent('URLs: 3');
   });
 
   it('handles URL analysis error', async () => {
-    // Mock the create method to throw an error
     vi.mocked(urlService.create).mockRejectedValue(
       new Error('Failed to create URL')
     );
@@ -217,8 +203,10 @@ describe('URLContext', () => {
             onClick={async () => {
               try {
                 await context?.analyzeURL({ url: 'https://error-url.com' });
-              } catch (_) {
-                // Error will be caught by the context and set in state
+                expect('Error should have been thrown').toBe(false);
+              } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect((error as Error).message).toBe('Failed to create URL');
               }
             }}
           >
@@ -234,21 +222,17 @@ describe('URLContext', () => {
       </URLProvider>
     );
 
-    // Wait for initial data load
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // Initially no error
     expect(screen.getByTestId('error-state')).toHaveTextContent('Error: None');
 
-    // Trigger error
     await act(async () => {
       fireEvent.click(screen.getByTestId('analyze-error-btn'));
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // Error state should be updated
     expect(screen.getByTestId('error-state')).toHaveTextContent(
       'Error: Failed to create URL'
     );
@@ -263,7 +247,7 @@ describe('URLContext', () => {
           <div data-testid="urls-count">URLs: {context?.urls.length || 0}</div>
           <button
             data-testid="delete-btn"
-            onClick={() => context?.deleteURL('1')}
+            onClick={() => context?.deleteURL(1)}
           >
             Delete URL
           </button>
@@ -277,24 +261,19 @@ describe('URLContext', () => {
       </URLProvider>
     );
 
-    // Wait for initial data load
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // URL count before deletion
     expect(screen.getByTestId('urls-count')).toHaveTextContent('URLs: 2');
 
-    // Trigger URL deletion
     await act(async () => {
       fireEvent.click(screen.getByTestId('delete-btn'));
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // Verify service was called correctly
-    expect(urlService.deleteUrl).toHaveBeenCalledWith('1');
+    expect(urlService.deleteUrl).toHaveBeenCalledWith(1);
 
-    // URL count after deletion (should be reduced by 1)
     expect(screen.getByTestId('urls-count')).toHaveTextContent('URLs: 1');
   });
 
@@ -320,21 +299,17 @@ describe('URLContext', () => {
       </URLProvider>
     );
 
-    // Wait for initial data load
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // Clear previous calls to list (from initial mount)
     vi.mocked(urlService.list).mockClear();
 
-    // Trigger refresh
     await act(async () => {
       fireEvent.click(screen.getByTestId('refresh-btn'));
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // Verify list was called again
     expect(urlService.list).toHaveBeenCalledTimes(1);
     expect(urlService.list).toHaveBeenCalledWith(1, 20, undefined);
   });
