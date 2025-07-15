@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Mock } from 'vitest';
 import { urlService } from '../urlService';
 
-// Mock the apiService module
 vi.mock('../apiService', () => ({
+  __esModule: true,
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -12,20 +12,19 @@ vi.mock('../apiService', () => ({
     put: vi.fn(),
   },
 }));
-// Import apiService AFTER mocking it
+
 import apiService from '../apiService';
 import type { URLTableFilters } from '../../types';
 
 describe('URL Service', () => {
   beforeEach(() => {
-    // Reset all mocks before each test
     vi.resetAllMocks();
   });
 
   describe('create', () => {
     it('sends correct request with URL data', async () => {
       const mockResponse = { data: { id: 123 } };
-      (apiService.post as any).mockResolvedValue(mockResponse);
+      (apiService.post as Mock).mockResolvedValue(mockResponse);
 
       const result = await urlService.create('https://example.com');
 
@@ -37,7 +36,7 @@ describe('URL Service', () => {
 
     it('handles creation errors', async () => {
       const mockError = new Error('Failed to create URL');
-      (apiService.post as any).mockRejectedValue(mockError);
+      (apiService.post as Mock).mockRejectedValue(mockError);
 
       await expect(urlService.create('https://example.com')).rejects.toThrow(
         'Failed to create URL'
@@ -52,7 +51,6 @@ describe('URL Service', () => {
         { id: '2', url: 'https://test.com', status: 'completed' },
       ];
 
-      // Updated mock response to match backend structure
       const mockResponse = {
         data: {
           data: mockURLs,
@@ -65,7 +63,7 @@ describe('URL Service', () => {
         },
       };
 
-      (apiService.get as any).mockResolvedValue(mockResponse);
+      (apiService.get as Mock).mockResolvedValue(mockResponse);
 
       const filters: URLTableFilters = {
         status: 'queued',
@@ -84,7 +82,6 @@ describe('URL Service', () => {
         },
       });
 
-      // Updated expectation to match service implementation
       expect(result).toEqual({
         data: mockURLs,
         pagination: {
@@ -105,7 +102,7 @@ describe('URL Service', () => {
         status: 'pending',
       };
       const mockResponse = { data: mockURL };
-      (apiService.get as any).mockResolvedValue(mockResponse);
+      (apiService.get as Mock).mockResolvedValue(mockResponse);
 
       const result = await urlService.get('1');
 
@@ -140,9 +137,8 @@ describe('URL Service', () => {
           ],
         },
       };
-      (apiService.get as any).mockResolvedValue(mockResponse);
+      (apiService.get as Mock).mockResolvedValue(mockResponse);
 
-      // Pass id as number now.
       const result = await urlService.getResults(1);
 
       expect(apiService.get).toHaveBeenCalledWith('/urls/1/results');
@@ -162,7 +158,7 @@ describe('URL Service', () => {
 
       expect(result.brokenLinks).toHaveLength(2);
       expect(result.brokenLinks[0]).toEqual({
-        id: 1, // number now
+        id: 1,
         url: 'https://broken1.com',
         statusCode: 404,
       });
@@ -172,9 +168,8 @@ describe('URL Service', () => {
   describe('startAnalysis', () => {
     it('sends request to start URL analysis', async () => {
       const mockResponse = { data: { message: 'Analysis started' } };
-      (apiService.patch as any).mockResolvedValue(mockResponse);
+      (apiService.patch as Mock).mockResolvedValue(mockResponse);
 
-      // Pass numeric id.
       await urlService.startAnalysis(1);
 
       expect(apiService.patch).toHaveBeenCalledWith('/urls/1/start');
@@ -184,9 +179,8 @@ describe('URL Service', () => {
   describe('stopAnalysis', () => {
     it('sends request to stop URL analysis', async () => {
       const mockResponse = { data: { message: 'Analysis stopped' } };
-      (apiService.patch as any).mockResolvedValue(mockResponse);
+      (apiService.patch as Mock).mockResolvedValue(mockResponse);
 
-      // Pass numeric id.
       await urlService.stopAnalysis(1);
 
       expect(apiService.patch).toHaveBeenCalledWith('/urls/1/stop');
@@ -196,9 +190,8 @@ describe('URL Service', () => {
   describe('deleteUrl', () => {
     it('sends request to delete a URL', async () => {
       const mockResponse = { data: { message: 'URL deleted' } };
-      (apiService.delete as any).mockResolvedValue(mockResponse);
+      (apiService.delete as Mock).mockResolvedValue(mockResponse);
 
-      // Pass numeric id.
       await urlService.deleteUrl(1);
 
       expect(apiService.delete).toHaveBeenCalledWith('/urls/1');
@@ -208,9 +201,8 @@ describe('URL Service', () => {
   describe('deleteUrls', () => {
     it('sends requests to delete multiple URLs', async () => {
       const mockResponse = { data: { message: 'URL deleted' } };
-      (apiService.delete as any).mockResolvedValue(mockResponse);
+      (apiService.delete as Mock).mockResolvedValue(mockResponse);
 
-      // Pass an array of numbers now.
       await urlService.deleteUrls([1, 2, 3]);
 
       expect(apiService.delete).toHaveBeenCalledTimes(3);
