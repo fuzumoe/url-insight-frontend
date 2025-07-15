@@ -5,7 +5,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { URLProvider, URLContext } from '../URLContext';
-import { urlService } from '../../services/urlService';
+import { urlService } from '../../services';
 import type { URLData } from '../../types';
 
 // Mock the URL service

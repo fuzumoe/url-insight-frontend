@@ -3,8 +3,8 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider, AuthContext } from '../AuthContext';
-import { authService } from '../../services/authService';
-import * as storage from '../../utils/storage';
+import { authService } from '../../services';
+import * as storage from '../../utils';
 import type { User } from '../../types';
 
 // Mock the auth service

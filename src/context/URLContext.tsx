@@ -5,7 +5,7 @@ import React, {
   useEffect,
   type ReactNode,
 } from 'react';
-import { urlService } from '../services/urlService';
+import { urlService } from '../services';
 import type { URLData, URLTableFilters } from '../types/urlTypes';
 
 // Define proper interface for URL analysis params

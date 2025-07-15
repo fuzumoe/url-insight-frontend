@@ -4,7 +4,7 @@ import React, {
   useCallback,
   type ReactNode,
 } from 'react';
-import Toast from '../components/common/Toast';
+import { Toast } from '../components';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 

@@ -5,8 +5,8 @@ import React, {
   type ReactNode,
 } from 'react';
 import type { User } from '../types/authTypes';
-import { authService } from '../services/authService';
-import { getToken, removeToken } from '../utils/storage';
+import { authService } from '../services';
+import { getToken, removeToken } from '../utils';
 
 interface AuthContextType {
   user: User | null;
