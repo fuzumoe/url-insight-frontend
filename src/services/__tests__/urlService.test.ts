@@ -104,7 +104,7 @@ describe('URL Service', () => {
       const mockResponse = { data: mockURL };
       (apiService.get as Mock).mockResolvedValue(mockResponse);
 
-      const result = await urlService.get('1');
+      const result = await urlService.get(1);
 
       expect(apiService.get).toHaveBeenCalledWith('/urls/1');
       expect(result).toEqual(mockURL);
