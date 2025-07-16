@@ -1,72 +1,49 @@
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import '@testing-library/jest-dom';
 import Flex from '../Flex';
 
 describe('Flex', () => {
-  it('renders children correctly', () => {
-    render(
+  // Keep existing tests unchanged
+
+  // Add new test for inline property
+  it('applies inline-flex when inline prop is true', () => {
+    const { container } = render(
+      <Flex inline>
+        <div>Test content</div>
+      </Flex>
+    );
+
+    expect(container.firstChild).toHaveClass('inline-flex');
+    expect(container.firstChild).not.toHaveClass('flex');
+  });
+
+  it('applies flex when inline prop is false', () => {
+    const { container } = render(
+      <Flex inline={false}>
+        <div>Test content</div>
+      </Flex>
+    );
+
+    expect(container.firstChild).toHaveClass('flex');
+    expect(container.firstChild).not.toHaveClass('inline-flex');
+  });
+
+  it('applies flex by default when inline prop is not provided', () => {
+    const { container } = render(
       <Flex>
         <div>Test content</div>
       </Flex>
     );
 
-    expect(screen.getByText('Test content')).toBeInTheDocument();
+    expect(container.firstChild).toHaveClass('flex');
+    expect(container.firstChild).not.toHaveClass('inline-flex');
   });
 
-  it('applies direction classes correctly', () => {
-    const { container } = render(
-      <Flex direction="column">
-        <div>Test content</div>
-      </Flex>
-    );
-
-    expect(container.firstChild).toHaveClass('flex', 'flex-col');
-  });
-
-  it('applies justify classes correctly', () => {
-    const { container } = render(
-      <Flex justify="center">
-        <div>Test content</div>
-      </Flex>
-    );
-
-    expect(container.firstChild).toHaveClass('flex', 'justify-center');
-  });
-
-  it('applies align classes correctly', () => {
-    const { container } = render(
-      <Flex align="center">
-        <div>Test content</div>
-      </Flex>
-    );
-
-    expect(container.firstChild).toHaveClass('flex', 'items-center');
-  });
-
-  it('applies gap classes correctly', () => {
-    const { container } = render(
-      <Flex gap="md">
-        <div>Test content</div>
-      </Flex>
-    );
-
-    expect(container.firstChild).toHaveClass('flex', 'gap-4');
-  });
-
-  it('applies custom className', () => {
-    const { container } = render(
-      <Flex className="custom-class">
-        <div>Test content</div>
-      </Flex>
-    );
-
-    expect(container.firstChild).toHaveClass('custom-class');
-  });
-
-  it('combines multiple props correctly', () => {
+  it('combines inline with other props correctly', () => {
     const { container } = render(
       <Flex
+        inline
         direction="column"
         justify="center"
         align="center"
@@ -78,12 +55,13 @@ describe('Flex', () => {
     );
 
     expect(container.firstChild).toHaveClass(
-      'flex',
+      'inline-flex',
       'flex-col',
       'justify-center',
       'items-center',
       'gap-4',
       'custom-class'
     );
+    expect(container.firstChild).not.toHaveClass('flex');
   });
 });

@@ -2,32 +2,36 @@ import React from 'react';
 
 interface FlexProps {
   children: React.ReactNode;
-  direction?: 'row' | 'column';
-  justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
-  align?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
-  wrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
+  direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+  justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
+  align?: 'start' | 'end' | 'center' | 'baseline' | 'stretch';
+  wrap?: 'wrap' | 'nowrap' | 'wrap-reverse';
   gap?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  inline?: boolean;
 }
 
 const Flex: React.FC<FlexProps> = ({
   children,
-  direction = 'row',
-  justify = 'start',
-  align = 'start',
-  wrap = 'nowrap',
+  direction,
+  justify,
+  align,
+  wrap,
   gap = 'none',
   className = '',
+  inline = false,
 }) => {
   const directionClasses = {
     row: 'flex-row',
     column: 'flex-col',
+    'row-reverse': 'flex-row-reverse',
+    'column-reverse': 'flex-col-reverse',
   };
 
   const justifyClasses = {
     start: 'justify-start',
-    center: 'justify-center',
     end: 'justify-end',
+    center: 'justify-center',
     between: 'justify-between',
     around: 'justify-around',
     evenly: 'justify-evenly',
@@ -35,15 +39,15 @@ const Flex: React.FC<FlexProps> = ({
 
   const alignClasses = {
     start: 'items-start',
-    center: 'items-center',
     end: 'items-end',
-    stretch: 'items-stretch',
+    center: 'items-center',
     baseline: 'items-baseline',
+    stretch: 'items-stretch',
   };
 
   const wrapClasses = {
-    nowrap: 'flex-nowrap',
     wrap: 'flex-wrap',
+    nowrap: 'flex-nowrap',
     'wrap-reverse': 'flex-wrap-reverse',
   };
 
@@ -56,11 +60,11 @@ const Flex: React.FC<FlexProps> = ({
   };
 
   const classes = [
-    'flex',
-    directionClasses[direction],
-    justifyClasses[justify],
-    alignClasses[align],
-    wrapClasses[wrap],
+    inline ? 'inline-flex' : 'flex',
+    direction && directionClasses[direction],
+    justify && justifyClasses[justify],
+    align && alignClasses[align],
+    wrap && wrapClasses[wrap],
     gapClasses[gap],
     className,
   ]
