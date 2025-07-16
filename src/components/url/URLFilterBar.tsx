@@ -1,6 +1,7 @@
 import React from 'react';
 import { SearchBar, Checkbox, SelectInput } from '../common';
 import type { URLTableFilters, URLStatus } from '../../types';
+import { Box, Flex } from '../layout';
 
 interface URLFilterBarProps {
   filters: URLTableFilters;
@@ -14,18 +15,22 @@ const URLFilterBar: React.FC<URLFilterBarProps> = ({
   onSearch,
 }) => {
   return (
-    <div className="bg-white p-4 border-b">
-      <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 md:space-x-4">
-        <div className="md:w-1/3">
+    <Box background="white" padding="md" className="border-b">
+      <Flex
+        direction="column"
+        justify="between"
+        className="md:flex-row md:space-y-0 md:space-x-4 space-y-4"
+      >
+        <Box className="md:w-1/3">
           <SearchBar
             onSearch={onSearch}
             placeholder="Search URLs..."
             className="w-full"
           />
-        </div>
+        </Box>
 
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="w-full md:w-auto">
+        <Flex wrap="wrap" gap="md" align="center">
+          <Box className="w-full md:w-auto">
             <SelectInput
               id="status-filter"
               label="Filter by Status"
@@ -47,9 +52,9 @@ const URLFilterBar: React.FC<URLFilterBarProps> = ({
                 })
               }
             />
-          </div>
+          </Box>
 
-          <div className="w-full md:w-auto">
+          <Box className="w-full md:w-auto">
             <SelectInput
               id="login-filter"
               label="Filter by Login Form"
@@ -70,9 +75,9 @@ const URLFilterBar: React.FC<URLFilterBarProps> = ({
                 });
               }}
             />
-          </div>
+          </Box>
 
-          <div className="w-full md:w-auto">
+          <Box className="w-full md:w-auto">
             <SelectInput
               id="broken-filter"
               label="Filter by Broken Links"
@@ -94,26 +99,21 @@ const URLFilterBar: React.FC<URLFilterBarProps> = ({
                 });
               }}
             />
-          </div>
+          </Box>
 
-          <div className="flex items-center space-x-2">
+          <Flex align="center" gap="sm">
             <Checkbox
               id="latest-filter"
+              label="Latest analysis only"
               checked={!!filters.latestOnly}
               onChange={checked =>
                 onFilterChange({ latestOnly: checked || undefined })
               }
             />
-            <label
-              htmlFor="latest-filter"
-              className="text-sm text-gray-700 cursor-pointer"
-            >
-              Latest analysis only
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
+          </Flex>
+        </Flex>
+      </Flex>
+    </Box>
   );
 };
 

@@ -4,14 +4,73 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import URLFilterBar from '../URLFilterBar';
 import type { URLTableFilters } from '../../../types';
 
-interface SearchBarProps {
-  onSearch: (searchTerm: string) => void;
-  placeholder: string;
-  className?: string;
-}
+// Mock layout components
+vi.mock('../../layout', () => ({
+  Box: ({
+    children,
+    className,
+    background,
+    padding,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+    background?: string;
+    padding?: string;
+  }) => (
+    <div
+      data-testid="mock-box"
+      data-background={background}
+      data-padding={padding}
+      className={className}
+    >
+      {children}
+    </div>
+  ),
+  Flex: ({
+    children,
+    className,
+    direction,
+    justify,
+    align,
+    gap,
+    wrap,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+    direction?: string;
+    justify?: string;
+    align?: string;
+    gap?: string;
+    wrap?: string;
+  }) => (
+    <div
+      data-testid="mock-flex"
+      data-direction={direction}
+      data-justify={justify}
+      data-align={align}
+      data-gap={gap}
+      data-wrap={wrap}
+      className={className}
+    >
+      {children}
+    </div>
+  ),
+  Container: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="mock-container">{children}</div>
+  ),
+}));
 
-vi.mock('../common/SearchBar', () => ({
-  default: ({ onSearch, placeholder, className }: SearchBarProps) => (
+// Mock SearchBar component
+vi.mock('../../common', () => ({
+  SearchBar: ({
+    onSearch,
+    placeholder,
+    className,
+  }: {
+    onSearch: (searchTerm: string) => void;
+    placeholder: string;
+    className?: string;
+  }) => (
     <form
       onSubmit={e => {
         e.preventDefault();
@@ -32,32 +91,61 @@ vi.mock('../common/SearchBar', () => ({
       <button type="submit">Search</button>
     </form>
   ),
-}));
 
-vi.mock('../common/Checkbox', () => ({
-  default: ({
+  // Mock SelectInput component
+  SelectInput: ({
     id,
-    checked,
+    label,
+    value,
+    options,
     onChange,
   }: {
     id: string;
-    checked?: boolean;
-    onChange: (value: boolean | undefined) => void;
+    label: string;
+    value: string;
+    options: Array<{ value: string; label: string }>;
+    onChange: (e: { target: { value: string } }) => void;
   }) => (
-    <input
-      data-testid={id}
-      id={id}
-      type="checkbox"
-      checked={checked}
-      aria-label={id === 'latest-filter' ? 'Latest analysis only' : undefined}
-      onChange={() => {
-        if (checked) {
-          onChange(undefined);
-        } else {
-          onChange(true);
-        }
-      }}
-    />
+    <div>
+      <label htmlFor={id}>{label}</label>
+      <select
+        id={id}
+        value={value}
+        onChange={e => onChange({ target: { value: e.target.value } })}
+        data-testid={id}
+      >
+        {options.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  ),
+
+  // Mock Checkbox component with label support
+  Checkbox: ({
+    id,
+    checked,
+    onChange,
+    label,
+  }: {
+    id: string;
+    checked?: boolean;
+    onChange: (value: boolean) => void;
+    label?: string;
+  }) => (
+    <div className="checkbox-wrapper">
+      <input
+        data-testid={id}
+        id={id}
+        type="checkbox"
+        checked={checked}
+        aria-label={label}
+        onChange={() => onChange(!checked)}
+      />
+      {label && <label htmlFor={id}>{label}</label>}
+    </div>
   ),
 }));
 
@@ -228,5 +316,33 @@ describe('URLFilterBar', () => {
       name: /Latest analysis only/i,
     }) as HTMLInputElement;
     expect(checkbox.checked).toBe(true);
+  });
+
+  it('uses layout components correctly', () => {
+    render(
+      <URLFilterBar
+        filters={defaultFilters}
+        onSearch={mockOnSearch}
+        onFilterChange={mockOnFilterChange}
+      />
+    );
+
+    // Check for Box with white background
+    const boxes = screen.getAllByTestId('mock-box');
+    expect(boxes.length).toBeGreaterThan(0);
+    expect(boxes[0]).toHaveAttribute('data-background', 'white');
+
+    // Check for Flex with proper attributes
+    const flexes = screen.getAllByTestId('mock-flex');
+    expect(flexes.length).toBeGreaterThan(0);
+
+    // Verify the main flex container has column direction
+    expect(flexes[0]).toHaveAttribute('data-direction', 'column');
+
+    // Verify there's a flex with wrap
+    const wrapFlex = flexes.find(
+      flex => flex.getAttribute('data-wrap') === 'wrap'
+    );
+    expect(wrapFlex).toBeInTheDocument();
   });
 });
