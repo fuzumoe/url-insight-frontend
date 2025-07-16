@@ -1,5 +1,6 @@
 import React from 'react';
 import Typography from './Typography';
+import { Flex } from '..';
 
 interface CheckboxProps {
   label?: string;
@@ -38,7 +39,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
     id || `checkbox-${Math.random().toString(36).substring(2, 9)}`;
 
   return (
-    <div className={`flex items-start sm:items-center ${className}`}>
+    <Flex align="center" className={className}>
       <input
         ref={checkboxRef}
         id={checkboxId}
@@ -57,19 +58,18 @@ const Checkbox: React.FC<CheckboxProps> = ({
       />
       {label && (
         <div className="ml-3 sm:ml-2">
-          <label htmlFor={checkboxId}>
-            <Typography
-              variant="body2"
-              color={disabled ? 'secondary' : 'default'}
-              className={disabled ? 'opacity-50' : ''}
-            >
-              {label}
-            </Typography>
-          </label>
+          <Typography
+            variant="body2"
+            color={disabled ? 'secondary' : 'default'}
+            className={`${disabled ? 'opacity-50' : ''} cursor-pointer`}
+            as="label"
+            {...{ htmlFor: checkboxId }}
+          >
+            {label}
+          </Typography>
         </div>
       )}
-    </div>
+    </Flex>
   );
 };
-
 export default Checkbox;
