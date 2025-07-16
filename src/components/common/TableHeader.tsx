@@ -1,15 +1,17 @@
 import React from 'react';
 
-export type TableHeadProps = {
+export type TableHeaderProps = {
   children: React.ReactNode;
   background?: 'primary' | 'secondary' | 'gray' | 'white' | 'transparent';
   className?: string;
+  rowClassName?: string; // Allow styling the tr element
 };
 
-const TableHeader: React.FC<TableHeadProps> = ({
+const TableHeader: React.FC<TableHeaderProps> = ({
   children,
   background = 'gray',
   className = '',
+  rowClassName = '',
 }) => {
   const backgroundClasses = {
     primary: 'bg-primary-50',
@@ -21,7 +23,7 @@ const TableHeader: React.FC<TableHeadProps> = ({
 
   return (
     <thead className={`${backgroundClasses[background]} ${className}`.trim()}>
-      {children}
+      <tr className={rowClassName}>{children}</tr>
     </thead>
   );
 };

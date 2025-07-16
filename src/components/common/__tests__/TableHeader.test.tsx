@@ -3,15 +3,13 @@ import { describe, it, expect } from 'vitest';
 import '@testing-library/jest-dom';
 import TableHeader from '../TableHeader';
 
-describe('TableHead', () => {
+describe('TableHeader', () => {
   it('renders children correctly', () => {
     render(
       <table>
         <TableHeader>
-          <tr>
-            <th>Header 1</th>
-            <th>Header 2</th>
-          </tr>
+          <th>Header 1</th>
+          <th>Header 2</th>
         </TableHeader>
       </table>
     );
@@ -23,9 +21,7 @@ describe('TableHead', () => {
     const { container } = render(
       <table>
         <TableHeader>
-          <tr>
-            <th>Test</th>
-          </tr>
+          <th>Test</th>
         </TableHeader>
       </table>
     );
@@ -47,9 +43,7 @@ describe('TableHead', () => {
       const { container } = render(
         <table>
           <TableHeader background={prop}>
-            <tr>
-              <th>Test</th>
-            </tr>
+            <th>Test</th>
           </TableHeader>
         </table>
       );
@@ -63,9 +57,7 @@ describe('TableHead', () => {
     const { container } = render(
       <table>
         <TableHeader className="custom-class">
-          <tr>
-            <th>Test</th>
-          </tr>
+          <th>Test</th>
         </TableHeader>
       </table>
     );
@@ -75,13 +67,24 @@ describe('TableHead', () => {
     expect(thead).toHaveClass('custom-class');
   });
 
+  it('applies rowClassName to the tr element', () => {
+    const { container } = render(
+      <table>
+        <TableHeader rowClassName="row-custom-class">
+          <th>Test</th>
+        </TableHeader>
+      </table>
+    );
+    const tr = container.querySelector('tr');
+    expect(tr).toBeInTheDocument();
+    expect(tr).toHaveClass('row-custom-class');
+  });
+
   it('combines background and custom classes correctly', () => {
     const { container } = render(
       <table>
         <TableHeader background="primary" className="custom-class">
-          <tr>
-            <th>Test</th>
-          </tr>
+          <th>Test</th>
         </TableHeader>
       </table>
     );
@@ -89,5 +92,24 @@ describe('TableHead', () => {
     expect(thead).toBeInTheDocument();
     expect(thead).toHaveClass('bg-primary-50');
     expect(thead).toHaveClass('custom-class');
+  });
+
+  it('combines all props correctly', () => {
+    const { container } = render(
+      <table>
+        <TableHeader
+          background="secondary"
+          className="custom-class"
+          rowClassName="row-class"
+        >
+          <th>Test</th>
+        </TableHeader>
+      </table>
+    );
+    const thead = container.querySelector('thead');
+    const tr = container.querySelector('tr');
+    expect(thead).toHaveClass('bg-secondary-50');
+    expect(thead).toHaveClass('custom-class');
+    expect(tr).toHaveClass('row-class');
   });
 });
