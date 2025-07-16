@@ -1,4 +1,6 @@
 import React from 'react';
+import { Typography } from '../common';
+import { Box } from '..';
 
 export interface ChartPanelProps {
   title: string;
@@ -14,14 +16,22 @@ const ChartPanel: React.FC<ChartPanelProps> = ({
   titleClassName = '',
 }) => {
   return (
-    <div className={`p-4 bg-white shadow rounded-lg ${className}`}>
-      <h2
+    <Box
+      padding="lg"
+      background="white"
+      shadow="md"
+      rounded="lg"
+      className={className}
+    >
+      <Typography
+        as="h2"
+        variant="h6"
         className={`text-lg font-medium text-gray-800 mb-4 ${titleClassName}`}
       >
         {title}
-      </h2>
+      </Typography>
       <div className="h-64">{children}</div>
-    </div>
+    </Box>
   );
 };
 
