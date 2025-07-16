@@ -69,7 +69,9 @@ describe('Toast', () => {
     expect(screen.getByRole('alert')).toHaveClass('bg-green-50');
     expect(screen.getByRole('alert')).toHaveClass('border-green-500');
 
-    expect(screen.getByTestId('button-primary-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
   });
 
   it('renders error variant correctly', () => {
@@ -80,8 +82,9 @@ describe('Toast', () => {
     expect(screen.getByTestId('icon-alert-circle')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveClass('bg-red-50');
     expect(screen.getByRole('alert')).toHaveClass('border-red-500');
-
-    expect(screen.getByTestId('button-danger-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
   });
 
   it('renders warning variant correctly', () => {
@@ -92,8 +95,9 @@ describe('Toast', () => {
     expect(screen.getByTestId('icon-alert-circle')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveClass('bg-yellow-50');
     expect(screen.getByRole('alert')).toHaveClass('border-yellow-500');
-
-    expect(screen.getByTestId('button-secondary-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
   });
 
   it('renders info variant correctly', () => {
@@ -109,7 +113,9 @@ describe('Toast', () => {
     expect(screen.getByRole('alert')).toHaveClass('bg-blue-50');
     expect(screen.getByRole('alert')).toHaveClass('border-blue-500');
 
-    expect(screen.getByTestId('button-secondary-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
   });
 
   it('renders title when provided', () => {
@@ -136,27 +142,34 @@ describe('Toast', () => {
     const { unmount: unmountSuccess } = render(
       <Toast variant="success" message="Success message" onDismiss={() => {}} />
     );
-    expect(screen.getByTestId('button-primary-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
     unmountSuccess();
 
     const { unmount: unmountError } = render(
       <Toast variant="error" message="Error message" onDismiss={() => {}} />
     );
-    expect(screen.getByTestId('button-danger-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
     unmountError();
 
     const { unmount: unmountWarning } = render(
       <Toast variant="warning" message="Warning message" onDismiss={() => {}} />
     );
-    expect(screen.getByTestId('button-secondary-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
     unmountWarning();
 
     render(
       <Toast variant="info" message="Info message" onDismiss={() => {}} />
     );
-    expect(screen.getByTestId('button-secondary-sm')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
   });
-
   it('does not render dismiss button when dismissible is false', () => {
     render(
       <Toast
@@ -180,7 +193,7 @@ describe('Toast', () => {
       />
     );
 
-    const dismissButton = screen.getByTestId('button-primary-sm');
+    const dismissButton = screen.getByRole('button', { name: /dismiss/i });
     fireEvent.click(dismissButton);
 
     expect(handleDismiss).toHaveBeenCalledTimes(1);

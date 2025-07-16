@@ -64,8 +64,10 @@ describe('SearchBar', () => {
   it('has responsive layout that stacks on mobile', () => {
     const { container } = render(<SearchBar onSearch={() => {}} />);
     const form = container.firstChild;
-    expect(form).toHaveClass('flex-col');
-    expect(form).toHaveClass('sm:flex-row');
+    const flexElement = form && form.firstChild;
+    expect(flexElement).toBeInTheDocument();
+    expect(flexElement).toHaveClass('flex-col');
+    expect(flexElement).toHaveClass('sm:flex-row');
   });
 
   it('shows icon-only button on mobile and text on larger screens', () => {

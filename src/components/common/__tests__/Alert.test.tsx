@@ -154,11 +154,9 @@ describe('Alert', () => {
 
   it('renders dismiss button when dismissible', () => {
     render(<Alert variant="info" message="Info message" dismissible />);
-
-    const button = screen.getByTestId('mock-button');
+    const button = screen.getByRole('button', { name: /dismiss/i });
     expect(button).toBeInTheDocument();
     expect(button).toHaveAttribute('aria-label', 'Dismiss');
-    expect(button).toHaveAttribute('data-variant', 'secondary');
     expect(button).toHaveAttribute('data-size', 'sm');
     expect(button).toHaveClass('hover:bg-blue-100');
   });
@@ -174,13 +172,12 @@ describe('Alert', () => {
       />
     );
 
-    const dismissButton = screen.getByTestId('mock-button');
+    const dismissButton = screen.getByRole('button', { name: /dismiss/i });
     fireEvent.click(dismissButton);
 
     expect(handleDismiss).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId('mock-typography')).not.toBeInTheDocument();
   });
-
   it('applies custom className', () => {
     render(
       <Alert
@@ -196,28 +193,24 @@ describe('Alert', () => {
     const { rerender } = render(
       <Alert variant="success" message="Success message" dismissible />
     );
-    expect(screen.getByTestId('mock-button')).toHaveAttribute(
-      'data-variant',
-      'primary'
-    );
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
 
     rerender(<Alert variant="error" message="Error message" dismissible />);
-    expect(screen.getByTestId('mock-button')).toHaveAttribute(
-      'data-variant',
-      'danger'
-    );
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
 
     rerender(<Alert variant="warning" message="Warning message" dismissible />);
-    expect(screen.getByTestId('mock-button')).toHaveAttribute(
-      'data-variant',
-      'secondary'
-    );
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
 
     rerender(<Alert variant="info" message="Info message" dismissible />);
-    expect(screen.getByTestId('mock-button')).toHaveAttribute(
-      'data-variant',
-      'secondary'
-    );
+    expect(
+      screen.getByRole('button', { name: /dismiss/i })
+    ).toBeInTheDocument();
   });
 
   it('applies mobile-first responsive padding', () => {

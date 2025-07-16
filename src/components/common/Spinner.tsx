@@ -1,6 +1,7 @@
 import React from 'react';
 import { CgSpinner } from 'react-icons/cg';
 import Typography from './Typography';
+import { Flex } from '..';
 
 interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -40,7 +41,7 @@ const Spinner: React.FC<SpinnerProps> = ({
         : 'secondary';
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <Flex align="center" justify="center" className={className}>
       <CgSpinner
         className={`animate-spin ${sizeClasses[size]} ${colorClasses[color]}`}
         aria-hidden="true"
@@ -54,7 +55,7 @@ const Spinner: React.FC<SpinnerProps> = ({
           {text}
         </Typography>
       )}
-    </div>
+    </Flex>
   );
 };
 

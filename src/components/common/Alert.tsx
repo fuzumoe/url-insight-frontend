@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiX } from 'react-icons/fi';
 import Typography from './Typography';
-import Button from './Button';
+import { Button } from '..';
 
 type AlertVariant = 'success' | 'error' | 'warning' | 'info';
 

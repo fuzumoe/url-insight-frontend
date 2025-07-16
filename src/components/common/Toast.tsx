@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { FiCheckCircle, FiAlertCircle, FiInfo, FiX } from 'react-icons/fi';
 import Typography from './Typography';
-import Button from './Button';
+import { Box, Button, Flex } from '..';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -58,40 +58,47 @@ const Toast: React.FC<ToastProps> = ({
   } as const;
 
   return (
-    <div
-      className={`flex items-start p-3 sm:p-4 mb-3 sm:mb-4 rounded-md shadow-lg border-l-4 max-w-full sm:max-w-md ${variantStyles[variant]} ${className}`}
+    <Box
+      as="div"
+      shadow="lg"
+      rounded="md"
+      className={`mb-3 sm:mb-4 border-l-4 max-w-full sm:max-w-md ${variantStyles[variant]} ${className}`}
       role="alert"
     >
-      <div className="flex-shrink-0 pt-0.5">{iconMap[variant]}</div>
+      <Flex align="start" padding="md">
+        <Box className="flex-shrink-0 pt-0.5">{iconMap[variant]}</Box>
 
-      <div className="ml-2 sm:ml-3 flex-1">
-        {title && (
+        <Box className="ml-2 sm:ml-3 flex-1">
+          {title && (
+            <Typography
+              variant="caption"
+              as="h3"
+              className="font-medium sm:text-sm"
+            >
+              {title}
+            </Typography>
+          )}
           <Typography
             variant="caption"
-            as="h3"
-            className="font-medium sm:text-sm"
+            className={title ? 'mt-0.5 sm:mt-1' : ''}
           >
-            {title}
+            {message}
           </Typography>
+        </Box>
+
+        {dismissible && (
+          <Button
+            variant={buttonVariantMap[variant]}
+            size="sm"
+            onClick={onDismiss}
+            aria-label="Dismiss"
+            className="ml-auto -mx-1 -my-1 p-0 bg-transparent hover:bg-opacity-20 focus:ring-offset-0"
+          >
+            <FiX className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Button>
         )}
-
-        <Typography variant="caption" className={title ? 'mt-0.5 sm:mt-1' : ''}>
-          {message}
-        </Typography>
-      </div>
-
-      {dismissible && (
-        <Button
-          variant={buttonVariantMap[variant]}
-          size="sm"
-          onClick={onDismiss}
-          aria-label="Dismiss"
-          className="ml-auto -mx-1 -my-1 p-0 bg-transparent hover:bg-opacity-20 focus:ring-offset-0"
-        >
-          <FiX className="h-4 w-4 sm:h-5 sm:w-5" />
-        </Button>
-      )}
-    </div>
+      </Flex>
+    </Box>
   );
 };
 

@@ -68,7 +68,6 @@ const Typography: React.FC<TypographyProps> = ({
                   ? 'h6'
                   : 'p');
 
-  // Mobile-first responsive typography
   const variantClasses = {
     h1: 'text-3xl md:text-4xl lg:text-5xl leading-tight',
     h2: 'text-2xl md:text-3xl lg:text-4xl leading-tight',
