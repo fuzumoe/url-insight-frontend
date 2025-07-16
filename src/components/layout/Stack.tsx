@@ -1,44 +1,45 @@
 import React from 'react';
 
-interface StackProps {
+export type StackProps = {
   children: React.ReactNode;
   spacing?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   align?: 'start' | 'center' | 'end' | 'stretch';
+  direction?: 'row' | 'column';
   className?: string;
-}
+};
 
 const Stack: React.FC<StackProps> = ({
   children,
   spacing = 'md',
   align = 'stretch',
+  direction = 'column',
   className = '',
 }) => {
-  const spacingClasses = {
-    none: '',
-    sm: 'space-y-2',
-    md: 'space-y-4',
-    lg: 'space-y-6',
-    xl: 'space-y-8',
+  // Mapping spacing values to gap classes
+  const spacingClasses: Record<NonNullable<StackProps['spacing']>, string> = {
+    none: 'gap-0',
+    sm: 'gap-2',
+    md: 'gap-4',
+    lg: 'gap-6',
+    xl: 'gap-8',
   };
 
-  const alignClasses = {
+  const directionClass = direction === 'row' ? 'flex-row' : 'flex-col';
+
+  const alignClasses: Record<NonNullable<StackProps['align']>, string> = {
     start: 'items-start',
     center: 'items-center',
     end: 'items-end',
     stretch: 'items-stretch',
   };
 
-  const classes = [
-    'flex',
-    'flex-col',
-    spacingClasses[spacing],
-    alignClasses[align],
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  return <div className={classes}>{children}</div>;
+  return (
+    <div
+      className={`flex ${directionClass} ${spacingClasses[spacing]} ${alignClasses[align]} ${className}`.trim()}
+    >
+      {children}
+    </div>
+  );
 };
 
 export default Stack;

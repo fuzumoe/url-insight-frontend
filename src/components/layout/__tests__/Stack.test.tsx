@@ -10,7 +10,6 @@ describe('Stack', () => {
         <div>Test content</div>
       </Stack>
     );
-
     expect(screen.getByText('Test content')).toBeInTheDocument();
   });
 
@@ -20,22 +19,24 @@ describe('Stack', () => {
         <div>Test content</div>
       </Stack>
     );
-
+    // Default: direction="column" -> 'flex-col',
+    // spacing="md" -> 'gap-4',
+    // align="stretch" -> 'items-stretch'
     expect(container.firstChild).toHaveClass(
       'flex',
       'flex-col',
-      'space-y-4',
+      'gap-4',
       'items-stretch'
     );
   });
 
   it('applies spacing classes correctly', () => {
     const spacingTests = [
-      { spacing: 'none' as const, expectedClass: '' },
-      { spacing: 'sm' as const, expectedClass: 'space-y-2' },
-      { spacing: 'md' as const, expectedClass: 'space-y-4' },
-      { spacing: 'lg' as const, expectedClass: 'space-y-6' },
-      { spacing: 'xl' as const, expectedClass: 'space-y-8' },
+      { spacing: 'none' as const, expectedClass: 'gap-0' },
+      { spacing: 'sm' as const, expectedClass: 'gap-2' },
+      { spacing: 'md' as const, expectedClass: 'gap-4' },
+      { spacing: 'lg' as const, expectedClass: 'gap-6' },
+      { spacing: 'xl' as const, expectedClass: 'gap-8' },
     ];
 
     spacingTests.forEach(({ spacing, expectedClass }) => {
@@ -46,17 +47,8 @@ describe('Stack', () => {
       );
 
       expect(container.firstChild).toHaveClass('flex', 'flex-col');
-
-      if (expectedClass) {
-        expect(container.firstChild).toHaveClass(expectedClass);
-      } else {
-        expect(container.firstChild).not.toHaveClass(
-          'space-y-2',
-          'space-y-4',
-          'space-y-6',
-          'space-y-8'
-        );
-      }
+      // Check for the expected gap class
+      expect(container.firstChild).toHaveClass(expectedClass);
     });
   });
 
@@ -85,7 +77,6 @@ describe('Stack', () => {
         <div>Test content</div>
       </Stack>
     );
-
     expect(container.firstChild).toHaveClass('custom-stack');
   });
 
@@ -95,11 +86,11 @@ describe('Stack', () => {
         <div>Test content</div>
       </Stack>
     );
-
+    // spacing="lg" -> 'gap-6'
     expect(container.firstChild).toHaveClass(
       'flex',
       'flex-col',
-      'space-y-6',
+      'gap-6',
       'items-center',
       'custom-stack'
     );
@@ -113,7 +104,6 @@ describe('Stack', () => {
         <div>Item 3</div>
       </Stack>
     );
-
     expect(screen.getByText('Item 1')).toBeInTheDocument();
     expect(screen.getByText('Item 2')).toBeInTheDocument();
     expect(screen.getByText('Item 3')).toBeInTheDocument();
@@ -125,11 +115,10 @@ describe('Stack', () => {
         <div>Test content</div>
       </Stack>
     );
-
     expect(container.firstChild).toHaveClass(
       'flex',
       'flex-col',
-      'space-y-4',
+      'gap-4',
       'items-stretch'
     );
   });
@@ -140,11 +129,10 @@ describe('Stack', () => {
         <div>Test content</div>
       </Stack>
     );
-
     const element = container.firstChild as HTMLElement;
     const classes = element.className.split(' ').filter(Boolean);
-
-    expect(classes).toEqual(['flex', 'flex-col', 'items-stretch']);
+    // Expected default classes with spacing "none" -> 'gap-0'
+    expect(classes).toEqual(['flex', 'flex-col', 'gap-0', 'items-stretch']);
     expect(classes).not.toContain('');
   });
 
@@ -161,7 +149,6 @@ describe('Stack', () => {
         </div>
       </Stack>
     );
-
     expect(screen.getByText('Title 1')).toBeInTheDocument();
     expect(screen.getByText('Content 1')).toBeInTheDocument();
     expect(screen.getByText('Title 2')).toBeInTheDocument();
@@ -175,35 +162,46 @@ describe('Stack', () => {
         <div>Second</div>
       </Stack>
     );
-
     expect(container.firstChild).toHaveClass('flex', 'flex-col');
   });
 
   it('applies all spacing options correctly', () => {
     const spacingOptions = ['none', 'sm', 'md', 'lg', 'xl'] as const;
-
     spacingOptions.forEach(spacing => {
       const { container } = render(
         <Stack spacing={spacing}>
           <div>Test</div>
         </Stack>
       );
-
       expect(container.firstChild).toHaveClass('flex', 'flex-col');
+      // Check that each expected gap class is present according to our mapping:
+      const expectedMapping: Record<typeof spacing, string> = {
+        none: 'gap-0',
+        sm: 'gap-2',
+        md: 'gap-4',
+        lg: 'gap-6',
+        xl: 'gap-8',
+      };
+      expect(container.firstChild).toHaveClass(expectedMapping[spacing]);
     });
   });
 
   it('applies all align options correctly', () => {
     const alignOptions = ['start', 'center', 'end', 'stretch'] as const;
-
     alignOptions.forEach(align => {
       const { container } = render(
         <Stack align={align}>
           <div>Test</div>
         </Stack>
       );
-
       expect(container.firstChild).toHaveClass('flex', 'flex-col');
+      const expectedMapping: Record<typeof align, string> = {
+        start: 'items-start',
+        center: 'items-center',
+        end: 'items-end',
+        stretch: 'items-stretch',
+      };
+      expect(container.firstChild).toHaveClass(expectedMapping[align]);
     });
   });
 
@@ -213,8 +211,7 @@ describe('Stack', () => {
         <div>Single child</div>
       </Stack>
     );
-
-    expect(container.firstChild).toHaveClass('flex', 'flex-col', 'space-y-6');
+    expect(container.firstChild).toHaveClass('flex', 'flex-col', 'gap-6');
     expect(screen.getByText('Single child')).toBeInTheDocument();
   });
 
@@ -227,7 +224,6 @@ describe('Stack', () => {
         <section>Section element</section>
       </Stack>
     );
-
     expect(screen.getByText('Div element')).toBeInTheDocument();
     expect(screen.getByText('Paragraph element')).toBeInTheDocument();
     expect(screen.getByText('Span element')).toBeInTheDocument();
@@ -240,14 +236,13 @@ describe('Stack', () => {
         <div>Test</div>
       </Stack>
     );
-
     const element = container.firstChild as HTMLElement;
-    const classes = element.className.split(' ');
-
+    const classes = element.className.split(' ').filter(Boolean);
+    // Expected order based on our component implementation:
     expect(classes).toEqual([
       'flex',
       'flex-col',
-      'space-y-8',
+      'gap-8',
       'items-start',
       'custom',
     ]);
@@ -263,7 +258,6 @@ describe('Stack', () => {
         <div>Regular child</div>
       </Stack>
     );
-
     expect(screen.getByText('Fragment child 1')).toBeInTheDocument();
     expect(screen.getByText('Fragment child 2')).toBeInTheDocument();
     expect(screen.getByText('Regular child')).toBeInTheDocument();
