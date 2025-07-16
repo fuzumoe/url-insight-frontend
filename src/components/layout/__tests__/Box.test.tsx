@@ -322,6 +322,7 @@ describe('Box', () => {
 
   it('handles form submission events', () => {
     const handleSubmit = vi.fn(e => {
+      expect(e.type).toBe('submit'); // Verify it's a submit event
       e.preventDefault(); // Prevent actual form submission
     });
 
@@ -332,10 +333,13 @@ describe('Box', () => {
       </Box>
     );
 
-    // Use container.querySelector instead of getByRole
+    // Add null check before using the form
     const form = container.querySelector('form');
-    fireEvent.submit(form);
+    if (!form) {
+      throw new Error('Form element not found');
+    }
 
+    fireEvent.submit(form);
     expect(handleSubmit).toHaveBeenCalledTimes(1);
   });
 
@@ -357,5 +361,36 @@ describe('Box', () => {
     expect(form.method).toBe('post');
     expect(form.enctype).toBe('multipart/form-data');
     expect(form.noValidate).toBe(true);
+  });
+
+  it('passes correct event to form submission handler', () => {
+    let capturedEvent: React.FormEvent<HTMLFormElement> | null = null;
+
+    const handleSubmit = vi.fn((e: React.FormEvent<HTMLFormElement>) => {
+      capturedEvent = e;
+      e.preventDefault();
+    });
+
+    const { container } = render(
+      <Box as="form" onSubmit={handleSubmit} data-testid="test-form">
+        <input type="text" />
+        <button type="submit">Submit</button>
+      </Box>
+    );
+
+    const form = container.querySelector('form') as HTMLFormElement | null;
+    if (!form) {
+      throw new Error('Form element not found');
+    }
+
+    fireEvent.submit(form);
+
+    expect(capturedEvent).not.toBeNull();
+    expect(
+      (capturedEvent as unknown as React.FormEvent<HTMLFormElement>)?.target
+    ).toBe(form);
+    expect(
+      (capturedEvent as unknown as React.FormEvent<HTMLFormElement>)?.type
+    ).toBe('submit');
   });
 });
