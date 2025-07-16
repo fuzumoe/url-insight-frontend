@@ -78,6 +78,28 @@ export const formatFileSize = (bytes: number, decimals: number = 2): string => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals))} ${sizes[i]}`;
 };
 
+export const formatHttpStatusCode = (statusCode: number): string => {
+  switch (statusCode) {
+    case 400:
+      return 'Bad Request';
+    case 401:
+      return 'Unauthorized';
+    case 403:
+      return 'Forbidden';
+    case 404:
+      return 'Not Found';
+    case 500:
+      return 'Internal Server Error';
+    case 502:
+      return 'Bad Gateway';
+    case 503:
+      return 'Service Unavailable';
+    case 504:
+      return 'Gateway Timeout';
+    default:
+      return `Error ${statusCode}`;
+  }
+};
 export const truncateText = (text: string, maxLength: number = 100): string => {
   if (!text) return '';
   if (text.length <= maxLength) return text;

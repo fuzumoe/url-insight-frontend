@@ -7,6 +7,7 @@ import {
   formatFileSize,
   truncateText,
   formatStatus,
+  formatHttpStatusCode,
 } from '../formatters';
 
 describe('Formatters', () => {
@@ -159,7 +160,24 @@ describe('Formatters', () => {
       expect(formatFileSize(1536, 3)).toBe('1.5 KB');
     });
   });
+  describe('formatHttpStatusCode', () => {
+    it('formats common HTTP status codes correctly', () => {
+      expect(formatHttpStatusCode(400)).toBe('Bad Request');
+      expect(formatHttpStatusCode(401)).toBe('Unauthorized');
+      expect(formatHttpStatusCode(403)).toBe('Forbidden');
+      expect(formatHttpStatusCode(404)).toBe('Not Found');
+      expect(formatHttpStatusCode(500)).toBe('Internal Server Error');
+      expect(formatHttpStatusCode(502)).toBe('Bad Gateway');
+      expect(formatHttpStatusCode(503)).toBe('Service Unavailable');
+      expect(formatHttpStatusCode(504)).toBe('Gateway Timeout');
+    });
 
+    it('formats unknown status codes with a generic message', () => {
+      expect(formatHttpStatusCode(418)).toBe('Error 418');
+      expect(formatHttpStatusCode(499)).toBe('Error 499');
+      expect(formatHttpStatusCode(599)).toBe('Error 599');
+    });
+  });
   describe('truncateText', () => {
     it('truncates text that exceeds max length', () => {
       const longText = 'This is a very long text that needs to be truncated';
