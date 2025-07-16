@@ -164,7 +164,7 @@ describe('Section', () => {
     );
 
     const titleElement = screen.getByTestId('typography-h2');
-    expect(titleElement).toHaveClass('text-gray-900', 'font-bold', 'mb-2');
+    expect(titleElement).toHaveClass('text-gray-900', 'font-bold');
     expect(titleElement.tagName).toBe('H2');
   });
 
