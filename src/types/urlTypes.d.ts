@@ -1,4 +1,3 @@
-// URL status types
 export type URLStatus = 'queued' | 'running' | 'done' | 'error' | 'stopped';
 
 export interface URLData {
@@ -11,7 +10,7 @@ export interface URLData {
   brokenLinks: number;
   hasLoginForm: boolean;
   status: URLStatus;
-  createdAt: string;
+  createdAt?: string;
   updatedAt?: string;
 }
 
@@ -22,7 +21,6 @@ export interface LinkData {
   isExternal: boolean;
 }
 
-// Filter options for URL table
 export interface URLTableFilters {
   status?: URLStatus;
   hasLoginForm?: boolean;
