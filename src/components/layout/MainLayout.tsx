@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import Header from './Header';
-import Sidebar from './Sidebar';
-import Footer from './Footer';
-import { Container, Flex, Box } from './';
+import { Container, Flex, Box, Footer, Sidebar, Header } from '..';
 
 interface MainLayoutProps {
   children: React.ReactNode;

@@ -1,8 +1,7 @@
 import React from 'react';
-import Footer from './Footer';
-import Typography from '../common/Typography';
-import { Container, Box, Flex } from './';
-import Stack from './Stack';
+import Footer from '../shell/Footer';
+import Stack from '../containers/Stack';
+import { Box, Container, Flex, Typography } from '..';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -10,7 +9,7 @@ interface AuthLayoutProps {
 
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <Box background="gray-50" className="min-h-screen flex flex-col">
       <Flex
         direction="column"
         justify="center"
@@ -48,7 +47,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
         </Container>
       </Flex>
       <Footer />
-    </div>
+    </Box>
   );
 };
 
