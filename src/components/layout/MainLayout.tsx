@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
+import { Container, Flex, Box } from './';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -15,16 +16,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <Box className="min-h-screen flex flex-col bg-gray-50">
       <Header toggleSidebar={toggleSidebar} />
-      <div className="flex flex-grow">
+      <Flex className="flex-grow">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className={`flex-grow p-4 transition-all duration-300 lg:ml-64`}>
-          <div className="container mx-auto">{children}</div>
-        </main>
-      </div>
+        <Box
+          as="main"
+          className="flex-grow p-4 transition-all duration-300 lg:ml-64"
+        >
+          <Container>{children}</Container>
+        </Box>
+      </Flex>
       <Footer />
-    </div>
+    </Box>
   );
 };
 
