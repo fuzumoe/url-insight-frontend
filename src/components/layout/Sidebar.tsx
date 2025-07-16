@@ -7,6 +7,11 @@ import {
   FaSignOutAlt,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import Stack from './Stack';
+import Button from '../common/Button';
+import { Box, Flex } from './';
+import Typography from '../common/Typography';
+import { useAuth, useToast } from '../../hooks';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,7 +19,9 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  // Navigation items
+  const { logout, loading } = useAuth();
+  const { addToast } = useToast();
+
   const navItems = [
     { icon: <FaHome />, text: 'Dashboard', path: '/dashboard' },
     { icon: <FaLink />, text: 'URLs', path: '/urls' },
@@ -22,51 +29,87 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { icon: <FaCog />, text: 'Settings', path: '/settings' },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      addToast({
+        message: 'You have been logged out successfully',
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
+      addToast({
+        message: 'Logout failed, but you have been logged out locally',
+        variant: 'warning',
+      });
+    }
+  };
+
   return (
     <>
       {/* Overlay for mobile */}
       {isOpen && (
-        <div
+        <Box
           className="fixed inset-0 bg-gray-600 bg-opacity-50 z-20 lg:hidden"
           onClick={onClose}
-        ></div>
+        />
       )}
 
       {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30 ${
+      <Box
+        as="aside"
+        background="white"
+        shadow="lg"
+        className={`fixed top-0 left-0 h-full w-64 transform transition-transform duration-300 ease-in-out z-30 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="p-4 border-b">
-          <div className="flex items-center justify-center">
-            <h2 className="text-xl font-bold text-blue-600">URL Insight</h2>
-          </div>
-        </div>
+        {/* Header */}
+        <Box padding="lg" className="border-b">
+          <Flex justify="center" align="center">
+            <Typography
+              variant="h4"
+              as="h2"
+              className="text-xl font-bold text-blue-600"
+            >
+              URL Insight
+            </Typography>
+          </Flex>
+        </Box>
 
-        <nav className="mt-5">
-          <ul>
-            {navItems.map((item, index) => (
-              <li key={index}>
-                <Link
-                  to={item.path}
-                  className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                >
-                  <span className="mr-3 text-gray-600">{item.icon}</span>
-                  <span>{item.text}</span>
-                </Link>
-              </li>
+        {/* Navigation */}
+        <Box as="nav" padding="none" className="mt-5">
+          <Stack spacing="none">
+            {navItems.map(item => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              >
+                <Box className="mr-3 text-gray-600">{item.icon}</Box>
+                <Typography variant="body1">{item.text}</Typography>
+              </Link>
             ))}
-          </ul>
-        </nav>
+          </Stack>
+        </Box>
 
-        <div className="absolute bottom-0 w-full p-4 border-t">
-          <button className="flex items-center px-6 py-3 text-gray-700 hover:text-red-600 w-full">
-            <FaSignOutAlt className="mr-3" />
-            <span>Log out</span>
-          </button>
-        </div>
-      </aside>
+        {/* Logout Button */}
+        <Box className="absolute bottom-0 w-full border-t" padding="lg">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLogout}
+            fullWidth
+            isLoading={loading}
+            className="justify-start text-gray-700 hover:text-red-600"
+          >
+            <Flex align="center" gap="sm">
+              <FaSignOutAlt />
+              <Typography variant="body2">Log out</Typography>
+            </Flex>
+          </Button>
+        </Box>
+      </Box>
     </>
   );
 };
