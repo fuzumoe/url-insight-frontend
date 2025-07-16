@@ -1,6 +1,9 @@
 import React from 'react';
 
-interface BoxProps {
+// Create a comprehensive props interface with support for both general HTML and form-specific attributes
+interface BoxProps
+  extends React.HTMLAttributes<HTMLElement>,
+    React.FormHTMLAttributes<HTMLFormElement> {
   children?: React.ReactNode;
   as?: React.ElementType;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
@@ -8,7 +11,6 @@ interface BoxProps {
   shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
-  onClick?: () => void;
 }
 
 const Box: React.FC<BoxProps> = ({
@@ -19,7 +21,7 @@ const Box: React.FC<BoxProps> = ({
   shadow = 'none',
   rounded = 'none',
   className = '',
-  onClick,
+  ...restProps
 }) => {
   const paddingClasses = {
     none: '',
@@ -65,7 +67,7 @@ const Box: React.FC<BoxProps> = ({
     .join(' ');
 
   return (
-    <Component className={classes} onClick={onClick}>
+    <Component className={classes} {...restProps}>
       {children}
     </Component>
   );

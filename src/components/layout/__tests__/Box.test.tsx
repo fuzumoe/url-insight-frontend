@@ -70,7 +70,6 @@ describe('Box', () => {
       </Box>
     );
 
-    // Should not throw error when clicked without onClick handler
     expect(() => {
       fireEvent.click(container.firstChild as HTMLElement);
     }).not.toThrow();
@@ -223,7 +222,6 @@ describe('Box', () => {
       if (expectedClasses.length > 0) {
         expect(container.firstChild).toHaveClass(...expectedClasses);
       } else {
-        // For 'none' padding, ensure no padding classes are applied
         expect((container.firstChild as HTMLElement)?.className).not.toMatch(
           /p-\d/
         );
@@ -279,7 +277,6 @@ describe('Box', () => {
       if (expectedClass) {
         expect(container.firstChild).toHaveClass(expectedClass);
       } else {
-        // For 'none' shadow, ensure no shadow classes are applied
         expect((container.firstChild as HTMLElement)?.className).not.toMatch(
           /shadow-\w+/
         );
@@ -307,11 +304,58 @@ describe('Box', () => {
       if (expectedClass) {
         expect(container.firstChild).toHaveClass(expectedClass);
       } else {
-        // For 'none' rounded, ensure no rounded classes are applied
         expect((container.firstChild as HTMLElement)?.className).not.toMatch(
           /rounded-\w+/
         );
       }
     });
+  });
+  it('renders as a form element when as="form"', () => {
+    const { container } = render(
+      <Box as="form">
+        <input type="text" />
+      </Box>
+    );
+
+    expect(container.firstChild?.nodeName).toBe('FORM');
+  });
+
+  it('handles form submission events', () => {
+    const handleSubmit = vi.fn(e => {
+      e.preventDefault(); // Prevent actual form submission
+    });
+
+    const { container } = render(
+      <Box as="form" onSubmit={handleSubmit}>
+        <input type="text" data-testid="input" />
+        <button type="submit">Submit</button>
+      </Box>
+    );
+
+    // Use container.querySelector instead of getByRole
+    const form = container.querySelector('form');
+    fireEvent.submit(form);
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes through form attributes correctly', () => {
+    const { container } = render(
+      <Box
+        as="form"
+        action="/submit"
+        method="post"
+        encType="multipart/form-data"
+        noValidate
+      >
+        <input type="text" />
+      </Box>
+    );
+
+    const form = container.firstChild as HTMLFormElement;
+    expect(form.action).toContain('/submit');
+    expect(form.method).toBe('post');
+    expect(form.enctype).toBe('multipart/form-data');
+    expect(form.noValidate).toBe(true);
   });
 });
