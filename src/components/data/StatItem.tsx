@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex } from '../layout';
+import { Flex } from '..';
 
 export type StatItemProps = {
   label: string;
