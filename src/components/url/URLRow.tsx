@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import StatusBadge from '../common/StatusBadge';
-import Button from '../common/Button';
-import Pagination from '../common/Pagination';
-import SearchBar from '../common/SearchBar';
-import Checkbox from '../common/Checkbox';
-import TableHeaderCell from '../common/TableHeaderCell';
-import TableCell from '../common/TableCell';
-import SelectInput from '../common/SelectInput';
-import Spinner from '../common/Spinner';
 import type { URLData, URLStatus, URLTableFilters } from '../../types';
+import {
+  Button,
+  Checkbox,
+  Pagination,
+  SearchBar,
+  SelectInput,
+  Spinner,
+  StatusBadge,
+  TableCell,
+  TableHeaderCell,
+} from '..';
 
 interface URLTableProps {
   urls: URLData[];
@@ -17,12 +19,12 @@ interface URLTableProps {
   itemsPerPage: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onStartAnalysis: (id: string) => void;
-  onStopAnalysis: (id: string) => void;
-  onDeleteSelected: (ids: string[]) => void;
-  onRerunSelected: (ids: string[]) => void;
+  onStartAnalysis: (id: number) => void;
+  onStopAnalysis: (id: number) => void;
+  onDeleteSelected: (ids: number[]) => void;
+  onRerunSelected: (ids: number[]) => void;
   onFilterChange: (filters: URLTableFilters) => void;
-  onSearch: (query: string) => void;
+  onSearch: (query: string | number | object) => void;
 }
 
 const URLTable: React.FC<URLTableProps> = ({
@@ -39,7 +41,7 @@ const URLTable: React.FC<URLTableProps> = ({
   onFilterChange,
   onSearch,
 }) => {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [sortField, setSortField] = useState<keyof URLData>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<URLTableFilters>({});
@@ -52,7 +54,7 @@ const URLTable: React.FC<URLTableProps> = ({
     }
   };
 
-  const toggleSelectUrl = (id: string) => {
+  const toggleSelectUrl = (id: number) => {
     if (selectedIds.includes(id)) {
       setSelectedIds(selectedIds.filter(selectedId => selectedId !== id));
     } else {

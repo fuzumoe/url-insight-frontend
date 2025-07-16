@@ -1,12 +1,11 @@
 import React from 'react';
-import { SearchBar, Checkbox, SelectInput } from '../common';
-import type { URLTableFilters, URLStatus } from '../../types';
-import { Box, Flex } from '../layout';
+import type { URLStatus, URLTableFilters } from '../../types';
+import { Box, Checkbox, Flex, SearchBar, SelectInput } from '..';
 
 interface URLFilterBarProps {
   filters: URLTableFilters;
   onFilterChange: (filters: Partial<URLTableFilters>) => void;
-  onSearch: (query: string) => void;
+  onSearch: (query: string | number | object) => void;
 }
 
 const URLFilterBar: React.FC<URLFilterBarProps> = ({

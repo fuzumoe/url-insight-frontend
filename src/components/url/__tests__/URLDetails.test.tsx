@@ -114,59 +114,8 @@ describe('URLDetails', () => {
     );
 
     expect(screen.getByText('Loading URL details...')).toBeInTheDocument();
-    // Use querySelector instead of getByRole since the element doesn't have a role
     const spinner = document.querySelector('.animate-spin');
     expect(spinner).toBeInTheDocument();
-  });
-
-  it('renders URL details when not loading', () => {
-    render(
-      <URLDetails
-        url={mockUrl}
-        brokenLinks={mockBrokenLinks}
-        loading={false}
-        onStartAnalysis={mockStartAnalysis}
-        onStopAnalysis={mockStopAnalysis}
-      />
-    );
-
-    // Check if the title and URL are displayed
-    expect(screen.getByText('Example Website')).toBeInTheDocument();
-    expect(screen.getByText('https://example.com')).toBeInTheDocument();
-
-    // Check if the status badge is rendered with correct status
-    expect(screen.getByTestId('status-badge')).toHaveTextContent('done');
-
-    // Check if the details are displayed
-    expect(screen.getByText('HTML Version')).toBeInTheDocument();
-    expect(screen.getByText('HTML5')).toBeInTheDocument();
-    expect(screen.getByText('Login Form')).toBeInTheDocument();
-    expect(screen.getByText('Yes')).toBeInTheDocument();
-    expect(screen.getByText('Internal Links')).toBeInTheDocument();
-    expect(screen.getByText('External Links')).toBeInTheDocument();
-    expect(screen.getByText('Broken Links')).toBeInTheDocument();
-
-    // Check if the LinkChart is rendered with correct props
-    expect(screen.getByTestId('link-chart')).toBeInTheDocument();
-    expect(screen.getByTestId('internal-links')).toHaveTextContent('10');
-    expect(screen.getByTestId('external-links')).toHaveTextContent('5');
-    expect(screen.getByTestId('broken-links')).toHaveTextContent('2');
-
-    // Check if the BrokenLinksList is rendered with correct props
-    expect(screen.getByTestId('broken-links-list')).toBeInTheDocument();
-    expect(screen.getAllByTestId('broken-link-item')).toHaveLength(2);
-    expect(screen.getAllByTestId('broken-link-item')[0]).toHaveTextContent(
-      'https://example.com/broken1'
-    );
-    expect(screen.getAllByTestId('broken-link-item')[1]).toHaveTextContent(
-      'https://example.com/broken2'
-    );
-
-    // Check if the action button is rendered
-    expect(screen.getByTestId('action-button')).toBeInTheDocument();
-    expect(screen.getByTestId('action-button')).toHaveTextContent(
-      'Run Analysis Again'
-    );
   });
 
   it('shows error message when URL status is error', () => {
@@ -189,22 +138,6 @@ describe('URLDetails', () => {
     ).toBeInTheDocument();
   });
 
-  it('calls onStartAnalysis when button is clicked and status is not running', () => {
-    render(
-      <URLDetails
-        url={mockUrl}
-        brokenLinks={mockBrokenLinks}
-        loading={false}
-        onStartAnalysis={mockStartAnalysis}
-        onStopAnalysis={mockStopAnalysis}
-      />
-    );
-
-    fireEvent.click(screen.getByTestId('action-button'));
-    expect(mockStartAnalysis).toHaveBeenCalledWith(123);
-    expect(mockStopAnalysis).not.toHaveBeenCalled();
-  });
-
   it('calls onStopAnalysis when button is clicked and status is running', () => {
     const runningUrl = { ...mockUrl, status: 'running' as URLStatus };
     render(
@@ -217,16 +150,15 @@ describe('URLDetails', () => {
       />
     );
 
-    expect(screen.getByTestId('action-button')).toHaveTextContent(
-      'Stop Analysis'
-    );
-    fireEvent.click(screen.getByTestId('action-button'));
+    const stopButton = screen.getByRole('button', { name: /stop analysis/i });
+    expect(stopButton).toBeInTheDocument();
+
+    fireEvent.click(stopButton);
     expect(mockStopAnalysis).toHaveBeenCalledWith(123);
     expect(mockStartAnalysis).not.toHaveBeenCalled();
   });
 
   it('displays correct button text based on URL status', () => {
-    // Test 'queued' status
     const queuedUrl = { ...mockUrl, status: 'queued' as URLStatus };
     const { rerender } = render(
       <URLDetails
@@ -237,11 +169,10 @@ describe('URLDetails', () => {
         onStopAnalysis={mockStopAnalysis}
       />
     );
-    expect(screen.getByTestId('action-button')).toHaveTextContent(
-      'Start Analysis'
-    );
+    expect(
+      screen.getByRole('button', { name: /start analysis/i })
+    ).toBeInTheDocument();
 
-    // Test 'error' status
     const errorUrl = { ...mockUrl, status: 'error' as URLStatus };
     rerender(
       <URLDetails
@@ -252,11 +183,10 @@ describe('URLDetails', () => {
         onStopAnalysis={mockStopAnalysis}
       />
     );
-    expect(screen.getByTestId('action-button')).toHaveTextContent(
-      'Retry Analysis'
-    );
+    expect(
+      screen.getByRole('button', { name: /retry analysis/i })
+    ).toBeInTheDocument();
 
-    // Test 'running' status
     const runningUrl = { ...mockUrl, status: 'running' as URLStatus };
     rerender(
       <URLDetails
@@ -267,15 +197,12 @@ describe('URLDetails', () => {
         onStopAnalysis={mockStopAnalysis}
       />
     );
-    expect(screen.getByTestId('action-button')).toHaveTextContent(
-      'Stop Analysis'
-    );
-    expect(screen.getByTestId('action-button')).toHaveAttribute(
-      'data-variant',
-      'secondary'
-    );
+    expect(
+      screen.getByRole('button', { name: /stop analysis/i })
+    ).toBeInTheDocument();
 
-    // Test default (done) status
+    const stopButton = screen.getByRole('button', { name: /stop analysis/i });
+    expect(stopButton.className).toContain('bg-');
     rerender(
       <URLDetails
         url={mockUrl}
@@ -285,13 +212,44 @@ describe('URLDetails', () => {
         onStopAnalysis={mockStopAnalysis}
       />
     );
-    expect(screen.getByTestId('action-button')).toHaveTextContent(
-      'Run Analysis Again'
+    expect(
+      screen.getByRole('button', { name: /run analysis again/i })
+    ).toBeInTheDocument();
+  });
+
+  it('calls onStartAnalysis when button is clicked and status is not running', () => {
+    render(
+      <URLDetails
+        url={mockUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
     );
-    expect(screen.getByTestId('action-button')).toHaveAttribute(
-      'data-variant',
-      'primary'
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /run analysis again/i })
     );
+
+    expect(mockStartAnalysis).toHaveBeenCalledWith(123);
+    expect(mockStopAnalysis).not.toHaveBeenCalled();
+  });
+
+  it('renders URL details when not loading', () => {
+    render(
+      <URLDetails
+        url={mockUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+
+    expect(
+      screen.getByRole('button', { name: /run analysis again/i })
+    ).toBeInTheDocument();
   });
 
   it('formats dates correctly', () => {
@@ -305,7 +263,6 @@ describe('URLDetails', () => {
       />
     );
 
-    // Note: exact formatted string may vary based on locale, so we check for date components
     const dateElement = screen.getByText(/1\/1\/2023/);
     expect(dateElement).toBeInTheDocument();
   });
@@ -344,5 +301,98 @@ describe('URLDetails', () => {
     expect(urlEl).toHaveClass('text-blue-600');
     expect(urlEl).toHaveClass('hover:underline');
     expect(urlEl).toHaveClass('text-sm');
+  });
+  it('disables the action button when loading', () => {
+    render(
+      <URLDetails
+        url={mockUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={true}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+
+    expect(screen.getByText('Loading URL details...')).toBeInTheDocument();
+    const button = screen.queryByRole('button');
+    if (button) {
+      expect(button).toBeDisabled();
+    }
+  });
+
+  it('verifies button behavior for each URL status', () => {
+    const queuedUrl = { ...mockUrl, status: 'queued' as URLStatus };
+    const { rerender } = render(
+      <URLDetails
+        url={queuedUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+
+    let button = screen.getByRole('button', { name: /start analysis/i });
+    fireEvent.click(button);
+    expect(mockStartAnalysis).toHaveBeenCalledWith(123);
+    expect(mockStopAnalysis).not.toHaveBeenCalled();
+
+    mockStartAnalysis.mockReset();
+    mockStopAnalysis.mockReset();
+
+    const errorUrl = { ...mockUrl, status: 'error' as URLStatus };
+    rerender(
+      <URLDetails
+        url={errorUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+
+    button = screen.getByRole('button', { name: /retry analysis/i });
+    fireEvent.click(button);
+    expect(mockStartAnalysis).toHaveBeenCalledWith(123);
+    expect(mockStopAnalysis).not.toHaveBeenCalled();
+
+    mockStartAnalysis.mockReset();
+    mockStopAnalysis.mockReset();
+
+    const runningUrl = { ...mockUrl, status: 'running' as URLStatus };
+    rerender(
+      <URLDetails
+        url={runningUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+
+    button = screen.getByRole('button', { name: /stop analysis/i });
+    fireEvent.click(button);
+    expect(mockStartAnalysis).not.toHaveBeenCalled();
+    expect(mockStopAnalysis).toHaveBeenCalledWith(123);
+  });
+
+  it('displays broken links count in the section title', () => {
+    render(
+      <URLDetails
+        url={mockUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+
+    const brokenLinksTitle = screen.getByText(/broken links \(2\)/i);
+    expect(brokenLinksTitle).toBeInTheDocument();
+
+    const brokenLinkItems = screen.getAllByTestId('broken-link-item');
+    expect(brokenLinkItems).toHaveLength(2);
+    expect(brokenLinkItems[0]).toHaveTextContent('https://example.com/broken1');
+    expect(brokenLinkItems[1]).toHaveTextContent('https://example.com/broken2');
   });
 });

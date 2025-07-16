@@ -1,6 +1,5 @@
 import React from 'react';
-import { Flex } from '../layout';
-import { Typography } from '../common';
+import { Flex, Typography } from '..';
 
 export interface SectionHeaderProps {
   title: string;

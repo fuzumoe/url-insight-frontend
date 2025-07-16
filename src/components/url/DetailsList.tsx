@@ -1,6 +1,5 @@
 import React from 'react';
-import { Grid, Box } from '../layout';
-import { Typography } from '../common';
+import { Grid, Box, Typography } from '..';
 
 export interface DetailsItem {
   label: string;

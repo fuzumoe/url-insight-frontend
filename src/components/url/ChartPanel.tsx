@@ -1,6 +1,5 @@
 import React from 'react';
-import { Typography } from '../common';
-import { Box } from '..';
+import { Box, Typography } from '..';
 
 export interface ChartPanelProps {
   title: string;

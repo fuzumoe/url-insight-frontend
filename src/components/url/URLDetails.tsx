@@ -1,13 +1,20 @@
 import React from 'react';
 import type { BrokenLink, URLData } from '../../types';
-import { StatusBadge, Button, Spinner, Alert } from '../common';
-import LinkChart from './LinkChart';
-import BrokenLinksList from './BrokenLinksList';
-import DetailsList, { type DetailsItem } from './DetailsList';
-import SectionHeader from './SectionHeader';
-import ChartPanel from './ChartPanel';
-import { Box, Flex } from '../layout';
-import { Typography } from '../common';
+import {
+  Box,
+  Flex,
+  ChartPanel,
+  StatusBadge,
+  Button,
+  Spinner,
+  Alert,
+  Typography,
+  LinkChart,
+  BrokenLinksList,
+  DetailsList,
+  SectionHeader,
+} from '..';
+import type { DetailsItem } from './DetailsList';
 
 interface URLDetailsProps {
   url: URLData;
@@ -62,7 +69,8 @@ const URLDetails: React.FC<URLDetailsProps> = ({
     return url.status === 'running' ? 'secondary' : 'primary';
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Not available';
     return new Date(dateString).toLocaleString();
   };
 

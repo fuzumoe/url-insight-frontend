@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import type { BrokenLink } from '../../types';
+
+import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { formatHttpStatusCode } from '../../utils';
 import {
+  Box,
+  Stack,
+  Table,
+  TableBody,
   TableCell,
   TableHeader,
-  TableBody,
+  TableHeaderCell,
   TableRow,
   Typography,
-} from '../common';
-import Table from '../common/Table';
-import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
-import { Box, Stack } from '../layout';
-import TableHeaderCell from '../common/TableHeaderCell';
-import { formatHttpStatusCode } from '../../utils';
+} from '..';
 
 interface BrokenLinksListProps {
   links: BrokenLink[];

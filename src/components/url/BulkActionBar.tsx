@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, Typography } from '../common';
-import { Box, Flex } from '../layout';
+import { Box, Flex, Button, Typography } from '..';
 
 interface BulkActionBarProps {
   selectedIds: string[];

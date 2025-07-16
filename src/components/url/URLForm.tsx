@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Button, TextInput } from '../common';
-
+import { Box, Flex, Button, TextInput } from '..';
 interface URLFormProps {
   onSubmit: (url: string) => Promise<void>;
 }
@@ -31,12 +30,17 @@ const URLForm: React.FC<URLFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <form
+    <Box
+      as="form"
       onSubmit={handleSubmit}
-      className="mb-6 p-4 bg-white rounded-lg shadow"
+      background="white"
+      shadow="md"
+      rounded="lg"
+      padding="md"
+      className="mb-6"
     >
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
+      <Flex direction="column" gap="md" className="md:flex-row">
+        <Box className="flex-1">
           <TextInput
             id="url-input"
             label="Website URL"
@@ -45,8 +49,8 @@ const URLForm: React.FC<URLFormProps> = ({ onSubmit }) => {
             placeholder="https://example.com"
             error={error || undefined}
           />
-        </div>
-        <div className="flex items-end">
+        </Box>
+        <Flex align="end">
           <Button
             type="submit"
             isLoading={isLoading}
@@ -54,9 +58,9 @@ const URLForm: React.FC<URLFormProps> = ({ onSubmit }) => {
           >
             Add URL for Analysis
           </Button>
-        </div>
-      </div>
-    </form>
+        </Flex>
+      </Flex>
+    </Box>
   );
 };
 

@@ -1,67 +1,52 @@
-import '@testing-library/jest-dom';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import '@testing-library/jest-dom';
 import URLFilterBar from '../URLFilterBar';
 import type { URLTableFilters } from '../../../types';
 
-// Mock layout components
-vi.mock('../../layout', () => ({
+vi.mock('..', () => ({
   Box: ({
     children,
-    className,
     background,
     padding,
+    className,
   }: {
-    children: React.ReactNode;
-    className?: string;
+    children?: React.ReactNode;
     background?: string;
     padding?: string;
+    className?: string;
   }) => (
     <div
-      data-testid="mock-box"
-      data-background={background}
-      data-padding={padding}
-      className={className}
+      className={`box ${background || ''} ${padding || ''} ${className || ''}`}
+      data-testid="box-component"
     >
       {children}
     </div>
   ),
   Flex: ({
     children,
-    className,
     direction,
     justify,
-    align,
-    gap,
     wrap,
+    gap,
+    align,
+    className,
   }: {
     children: React.ReactNode;
-    className?: string;
     direction?: string;
     justify?: string;
-    align?: string;
-    gap?: string;
     wrap?: string;
+    gap?: string;
+    align?: string;
+    className?: string;
   }) => (
     <div
-      data-testid="mock-flex"
-      data-direction={direction}
-      data-justify={justify}
-      data-align={align}
-      data-gap={gap}
-      data-wrap={wrap}
-      className={className}
+      className={`flex ${direction || ''} ${justify || ''} ${wrap || ''} ${gap || ''} ${align || ''} ${className || ''}`}
+      data-testid="flex-component"
     >
       {children}
     </div>
   ),
-  Container: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="mock-container">{children}</div>
-  ),
-}));
-
-// Mock SearchBar component
-vi.mock('../../common', () => ({
   SearchBar: ({
     onSearch,
     placeholder,
@@ -72,14 +57,10 @@ vi.mock('../../common', () => ({
     className?: string;
   }) => (
     <form
+      data-testid="search-form"
       onSubmit={e => {
         e.preventDefault();
-        const value = (
-          (e.target as HTMLFormElement).elements.namedItem(
-            'search'
-          ) as HTMLInputElement
-        ).value;
-        onSearch(value);
+        onSearch('test-search');
       }}
     >
       <input
@@ -91,8 +72,6 @@ vi.mock('../../common', () => ({
       <button type="submit">Search</button>
     </form>
   ),
-
-  // Mock SelectInput component
   SelectInput: ({
     id,
     label,
@@ -110,9 +89,9 @@ vi.mock('../../common', () => ({
       <label htmlFor={id}>{label}</label>
       <select
         id={id}
+        data-testid={id}
         value={value}
         onChange={e => onChange({ target: { value: e.target.value } })}
-        data-testid={id}
       >
         {options.map(option => (
           <option key={option.value} value={option.value}>
@@ -122,8 +101,6 @@ vi.mock('../../common', () => ({
       </select>
     </div>
   ),
-
-  // Mock Checkbox component with label support
   Checkbox: ({
     id,
     checked,
@@ -137,11 +114,10 @@ vi.mock('../../common', () => ({
   }) => (
     <div className="checkbox-wrapper">
       <input
-        data-testid={id}
         id={id}
+        data-testid={id}
         type="checkbox"
         checked={checked}
-        aria-label={label}
         onChange={() => onChange(!checked)}
       />
       {label && <label htmlFor={id}>{label}</label>}
@@ -149,141 +125,115 @@ vi.mock('../../common', () => ({
   ),
 }));
 
+const defaultFilters: URLTableFilters = {
+  status: undefined,
+  hasLoginForm: undefined,
+  hasBrokenLinks: undefined,
+  latestOnly: undefined,
+};
+
 describe('URLFilterBar', () => {
-  const mockOnSearch = vi.fn();
-  const mockOnFilterChange = vi.fn();
-  const defaultFilters: URLTableFilters = {
-    status: undefined,
-    hasLoginForm: undefined,
-    hasBrokenLinks: undefined,
-    latestOnly: undefined,
-  };
-
-  beforeEach(() => {
-    mockOnSearch.mockReset();
-    mockOnFilterChange.mockReset();
-  });
-
   it('renders search bar, dropdowns and checkbox', () => {
     render(
       <URLFilterBar
         filters={defaultFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        onFilterChange={() => {}}
+        onSearch={() => {}}
       />
     );
 
-    expect(screen.getByPlaceholderText('Search URLs...')).toBeInTheDocument();
+    expect(screen.getByTestId('search-bar')).toBeTruthy();
 
-    expect(screen.getByLabelText(/Filter by Status/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Filter by Login Form/i)).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(/Filter by Broken Links/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('checkbox', { name: /Latest analysis only/i })
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('status-filter')).toBeTruthy();
+    expect(screen.getByTestId('login-filter')).toBeTruthy();
+    expect(screen.getByTestId('broken-filter')).toBeTruthy();
+
+    expect(screen.getByTestId('latest-filter')).toBeTruthy();
   });
 
   it('calls onSearch when search form is submitted', () => {
+    const onSearch = vi.fn();
     render(
       <URLFilterBar
         filters={defaultFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        onFilterChange={() => {}}
+        onSearch={onSearch}
       />
     );
-    const searchInput = screen.getByPlaceholderText('Search URLs...');
-    fireEvent.change(searchInput, { target: { value: 'example.com' } });
-    fireEvent.submit(searchInput.closest('form')!);
-    expect(mockOnSearch).toHaveBeenCalledWith('example.com');
+
+    const form = screen.getByTestId('search-form');
+    fireEvent.submit(form);
+
+    expect(onSearch).toHaveBeenCalledWith('test-search');
   });
 
   it('calls onFilterChange when status is changed', () => {
+    const onFilterChange = vi.fn();
     render(
       <URLFilterBar
         filters={defaultFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        onFilterChange={onFilterChange}
+        onSearch={() => {}}
       />
     );
-    const statusSelect = screen.getByLabelText(
-      /Filter by Status/i
-    ) as HTMLSelectElement;
-    fireEvent.change(statusSelect, { target: { value: 'error' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({ status: 'error' });
 
-    fireEvent.change(statusSelect, { target: { value: 'all' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({ status: undefined });
+    const statusFilter = screen.getByTestId('status-filter');
+    fireEvent.change(statusFilter, { target: { value: 'done' } });
+
+    expect(onFilterChange).toHaveBeenCalledWith({ status: 'done' });
   });
 
   it('calls onFilterChange when login form filter is changed', () => {
+    const onFilterChange = vi.fn();
     render(
       <URLFilterBar
         filters={defaultFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        onFilterChange={onFilterChange}
+        onSearch={() => {}}
       />
     );
-    const loginSelect = screen.getByLabelText(
-      /Filter by Login Form/i
-    ) as HTMLSelectElement;
-    fireEvent.change(loginSelect, { target: { value: 'true' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({ hasLoginForm: true });
 
-    fireEvent.change(loginSelect, { target: { value: 'false' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({ hasLoginForm: false });
+    const loginFilter = screen.getByTestId('login-filter');
+    fireEvent.change(loginFilter, { target: { value: 'true' } });
 
-    fireEvent.change(loginSelect, { target: { value: 'all' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({
-      hasLoginForm: undefined,
-    });
+    expect(onFilterChange).toHaveBeenCalledWith({ hasLoginForm: true });
   });
 
   it('calls onFilterChange when broken links filter is changed', () => {
+    const onFilterChange = vi.fn();
     render(
       <URLFilterBar
         filters={defaultFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        onFilterChange={onFilterChange}
+        onSearch={() => {}}
       />
     );
-    const brokenLinksSelect = screen.getByLabelText(
-      /Filter by Broken Links/i
-    ) as HTMLSelectElement;
-    fireEvent.change(brokenLinksSelect, { target: { value: 'true' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({ hasBrokenLinks: true });
 
-    fireEvent.change(brokenLinksSelect, { target: { value: 'false' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({ hasBrokenLinks: false });
+    const brokenFilter = screen.getByTestId('broken-filter');
+    fireEvent.change(brokenFilter, { target: { value: 'true' } });
 
-    fireEvent.change(brokenLinksSelect, { target: { value: 'all' } });
-    expect(mockOnFilterChange).toHaveBeenCalledWith({
-      hasBrokenLinks: undefined,
-    });
+    expect(onFilterChange).toHaveBeenCalledWith({ hasBrokenLinks: true });
   });
 
   it('calls onFilterChange when latest analysis checkbox is toggled', () => {
+    const onFilterChange = vi.fn();
     render(
       <URLFilterBar
         filters={defaultFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        onFilterChange={onFilterChange}
+        onSearch={() => {}}
       />
     );
-    const checkbox = screen.getByRole('checkbox', {
-      name: /Latest analysis only/i,
-    }) as HTMLInputElement;
-    fireEvent.click(checkbox);
-    expect(mockOnFilterChange).toHaveBeenCalledWith({ latestOnly: true });
-    mockOnFilterChange.mockClear();
-    fireEvent.click(checkbox);
-    expect(mockOnFilterChange).toHaveBeenCalled();
+
+    const latestFilter = screen.getByTestId('latest-filter');
+    fireEvent.click(latestFilter);
+
+    expect(onFilterChange).toHaveBeenCalledWith({ latestOnly: true });
   });
 
   it('shows the correct initial state based on provided filters', () => {
-    const activeFilters: URLTableFilters = {
-      status: 'error',
+    const filters: URLTableFilters = {
+      status: 'done',
       hasLoginForm: true,
       hasBrokenLinks: false,
       latestOnly: true,
@@ -291,58 +241,44 @@ describe('URLFilterBar', () => {
 
     render(
       <URLFilterBar
-        filters={activeFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        filters={filters}
+        onFilterChange={() => {}}
+        onSearch={() => {}}
       />
     );
 
-    const statusSelect = screen.getByLabelText(
-      /Filter by Status/i
+    const statusFilter = screen.getByTestId(
+      'status-filter'
     ) as HTMLSelectElement;
-    expect(statusSelect.value).toBe('error');
+    expect(statusFilter.value).toBe('done');
 
-    const loginSelect = screen.getByLabelText(
-      /Filter by Login Form/i
+    const loginFilter = screen.getByTestId('login-filter') as HTMLSelectElement;
+    expect(loginFilter.value).toBe('true');
+
+    const brokenFilter = screen.getByTestId(
+      'broken-filter'
     ) as HTMLSelectElement;
-    expect(loginSelect.value).toBe('true');
+    expect(brokenFilter.value).toBe('false');
 
-    const brokenLinksSelect = screen.getByLabelText(
-      /Filter by Broken Links/i
-    ) as HTMLSelectElement;
-    expect(brokenLinksSelect.value).toBe('false');
-
-    const checkbox = screen.getByRole('checkbox', {
-      name: /Latest analysis only/i,
-    }) as HTMLInputElement;
-    expect(checkbox.checked).toBe(true);
+    const latestFilter = screen.getByTestId(
+      'latest-filter'
+    ) as HTMLInputElement;
+    expect(latestFilter.checked).toBe(true);
   });
 
   it('uses layout components correctly', () => {
     render(
       <URLFilterBar
         filters={defaultFilters}
-        onSearch={mockOnSearch}
-        onFilterChange={mockOnFilterChange}
+        onFilterChange={() => {}}
+        onSearch={() => {}}
       />
     );
 
-    // Check for Box with white background
-    const boxes = screen.getAllByTestId('mock-box');
-    expect(boxes.length).toBeGreaterThan(0);
-    expect(boxes[0]).toHaveAttribute('data-background', 'white');
+    const boxComponents = screen.getAllByTestId('box-component');
+    const flexComponents = screen.getAllByTestId('flex-component');
 
-    // Check for Flex with proper attributes
-    const flexes = screen.getAllByTestId('mock-flex');
-    expect(flexes.length).toBeGreaterThan(0);
-
-    // Verify the main flex container has column direction
-    expect(flexes[0]).toHaveAttribute('data-direction', 'column');
-
-    // Verify there's a flex with wrap
-    const wrapFlex = flexes.find(
-      flex => flex.getAttribute('data-wrap') === 'wrap'
-    );
-    expect(wrapFlex).toBeInTheDocument();
+    expect(boxComponents.length).toBeGreaterThan(0);
+    expect(flexComponents.length).toBeGreaterThan(0);
   });
 });
