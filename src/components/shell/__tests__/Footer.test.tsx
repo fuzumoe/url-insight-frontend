@@ -46,11 +46,8 @@ describe('Footer', () => {
     expect(footerElement).toBeInTheDocument();
   });
 
-  // Fixed test - using direct DOM selection instead of test IDs
   it('renders with correct layout components', () => {
     render(<Footer />);
-
-    // Check for container element
     const containerElement = screen
       .getByRole('contentinfo')
       .querySelector('.container');
@@ -62,7 +59,6 @@ describe('Footer', () => {
       'max-w-full'
     );
 
-    // Check for flex container
     const flexContainer = screen
       .getByRole('contentinfo')
       .querySelector('.flex.flex-col');
@@ -70,23 +66,19 @@ describe('Footer', () => {
     expect(flexContainer).toHaveClass('justify-between', 'items-center');
   });
 
-  // Fixed test - using direct DOM selection instead of test IDs
   it('applies mobile-first responsive classes', () => {
     render(<Footer />);
 
-    // Find main flex container by its classes
     const mainFlex = screen
       .getByRole('contentinfo')
       .querySelector('.flex.flex-col.justify-between');
     expect(mainFlex).toHaveClass('md:flex-row');
 
-    // Find copyright box
     const copyRightContainer = screen
       .getByText(/URL Insight\. All rights reserved/)
       .closest('div');
     expect(copyRightContainer).toHaveClass('mb-4', 'md:mb-0');
 
-    // Find links container
     const linksContainer = screen.getByText('Privacy Policy').closest('div');
     expect(linksContainer).toHaveClass('flex', 'flex-wrap');
   });
@@ -132,7 +124,6 @@ describe('Footer', () => {
   it('maintains semantic structure', () => {
     render(<Footer />);
 
-    // Check for the footer element directly instead of looking for a specific test ID
     const footerElement = screen.getByRole('contentinfo');
     expect(footerElement).toBeInTheDocument();
     expect(footerElement).toHaveClass('mt-auto');
@@ -141,7 +132,6 @@ describe('Footer', () => {
   it('combines custom className with default classes', () => {
     render(<Footer className="custom-footer" />);
 
-    // Look for the footer element with the custom class
     const footerElement = screen.getByRole('contentinfo');
     expect(footerElement).toHaveClass('mt-auto', 'custom-footer');
   });
