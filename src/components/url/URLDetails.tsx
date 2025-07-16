@@ -6,13 +6,15 @@ import BrokenLinksList from './BrokenLinksList';
 import DetailsList, { type DetailsItem } from './DetailsList';
 import SectionHeader from './SectionHeader';
 import ChartPanel from './ChartPanel';
+import { Box, Flex } from '../layout';
+import { Typography } from '../common';
 
 interface URLDetailsProps {
   url: URLData;
   brokenLinks: BrokenLink[];
   loading: boolean;
-  onStartAnalysis: (id: string) => void;
-  onStopAnalysis: (id: string) => void;
+  onStartAnalysis: (id: number) => void;
+  onStopAnalysis: (id: number) => void;
 }
 
 const URLDetails: React.FC<URLDetailsProps> = ({
@@ -24,14 +26,14 @@ const URLDetails: React.FC<URLDetailsProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="py-8 text-center">
+      <Box padding="xl" className="text-center">
         <Spinner
           showText
           text="Loading URL details..."
           size="xl"
           color="primary"
         />
-      </div>
+      </Box>
     );
   }
 
@@ -64,7 +66,6 @@ const URLDetails: React.FC<URLDetailsProps> = ({
     return new Date(dateString).toLocaleString();
   };
 
-  // Build the details items array for DetailsList
   const detailsItems: DetailsItem[] = [
     { label: 'HTML Version', value: url.htmlVersion || 'Unknown' },
     { label: 'Login Form', value: url.hasLoginForm ? 'Yes' : 'No' },
@@ -75,32 +76,45 @@ const URLDetails: React.FC<URLDetailsProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-800">
+    <Box background="white" rounded="lg" shadow="md">
+      <Flex
+        align="center"
+        justify="between"
+        className="px-6 py-4 border-b border-gray-200"
+      >
+        <Box>
+          <Typography
+            as="h1"
+            variant="h5"
+            className="text-xl font-semibold text-gray-800"
+          >
             {url.title || 'Untitled Page'}
-          </h1>
-          <a
+          </Typography>
+          <Typography
+            as="a"
             href={url.url}
             target="_blank"
             rel="noopener noreferrer"
+            variant="body2"
             className="text-blue-600 hover:underline text-sm"
           >
             {url.url}
-          </a>
-        </div>
+          </Typography>
+        </Box>
         <StatusBadge status={url.status} />
-      </div>
+      </Flex>
 
-      <div className="px-6 py-4">
-        <div className="flex flex-col md:flex-row md:justify-between mb-6">
-          <div className="md:w-1/2">
+      <Box className="px-6 py-4">
+        <Flex
+          direction="column"
+          className="md:flex-row md:justify-between mb-6"
+        >
+          <Box className="md:w-1/2">
             <SectionHeader title="Details" />
             <DetailsList items={detailsItems} />
-          </div>
+          </Box>
 
-          <div className="md:w-1/2 mt-6 md:mt-0">
+          <Box className="md:w-1/2 mt-6 md:mt-0">
             <ChartPanel title="Link Distribution">
               <LinkChart
                 internalLinks={url.internalLinks}
@@ -108,10 +122,10 @@ const URLDetails: React.FC<URLDetailsProps> = ({
                 brokenLinks={url.brokenLinks}
               />
             </ChartPanel>
-          </div>
-        </div>
+          </Box>
+        </Flex>
 
-        <div className="mt-6">
+        <Box className="mt-6">
           <SectionHeader
             title={`Broken Links ${brokenLinks.length ? `(${brokenLinks.length})` : ''}`}
             actions={
@@ -124,7 +138,7 @@ const URLDetails: React.FC<URLDetailsProps> = ({
             }
           />
           <BrokenLinksList links={brokenLinks} />
-        </div>
+        </Box>
 
         {url.status === 'error' && (
           <Alert
@@ -133,8 +147,8 @@ const URLDetails: React.FC<URLDetailsProps> = ({
             message="There was an error analyzing this URL. Please check that the URL is accessible and try again."
           />
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

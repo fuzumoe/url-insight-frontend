@@ -4,6 +4,22 @@ import '@testing-library/jest-dom';
 import type { BrokenLink, URLData, URLStatus } from '../../../types';
 import URLDetails from '../URLDetails';
 
+vi.mock('../ChartPanel', () => ({
+  default: ({
+    title,
+    children,
+    className,
+  }: {
+    title: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <div data-testid="chart-panel" className={className}>
+      <h2 data-testid="chart-panel-title">{title}</h2>
+      <div data-testid="chart-panel-content">{children}</div>
+    </div>
+  ),
+}));
 vi.mock('../LinkChart', () => ({
   default: ({
     internalLinks,
@@ -62,7 +78,7 @@ vi.mock('../../common/Button', () => ({
 
 describe('URLDetails', () => {
   const mockUrl: URLData = {
-    id: '123',
+    id: 123,
     url: 'https://example.com',
     title: 'Example Website',
     status: 'done',
@@ -185,7 +201,7 @@ describe('URLDetails', () => {
     );
 
     fireEvent.click(screen.getByTestId('action-button'));
-    expect(mockStartAnalysis).toHaveBeenCalledWith('123');
+    expect(mockStartAnalysis).toHaveBeenCalledWith(123);
     expect(mockStopAnalysis).not.toHaveBeenCalled();
   });
 
@@ -205,7 +221,7 @@ describe('URLDetails', () => {
       'Stop Analysis'
     );
     fireEvent.click(screen.getByTestId('action-button'));
-    expect(mockStopAnalysis).toHaveBeenCalledWith('123');
+    expect(mockStopAnalysis).toHaveBeenCalledWith(123);
     expect(mockStartAnalysis).not.toHaveBeenCalled();
   });
 
@@ -292,5 +308,41 @@ describe('URLDetails', () => {
     // Note: exact formatted string may vary based on locale, so we check for date components
     const dateElement = screen.getByText(/1\/1\/2023/);
     expect(dateElement).toBeInTheDocument();
+  });
+  it('renders the title as an h1 using Typography', () => {
+    render(
+      <URLDetails
+        url={mockUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+    const titleEl = screen.getByText('Example Website');
+    expect(titleEl).toBeInTheDocument();
+    expect(titleEl.tagName).toBe('H1');
+    expect(titleEl).toHaveClass('text-xl');
+    expect(titleEl).toHaveClass('font-semibold');
+    expect(titleEl).toHaveClass('text-gray-800');
+  });
+
+  it('renders the URL as an anchor using Typography', () => {
+    render(
+      <URLDetails
+        url={mockUrl}
+        brokenLinks={mockBrokenLinks}
+        loading={false}
+        onStartAnalysis={mockStartAnalysis}
+        onStopAnalysis={mockStopAnalysis}
+      />
+    );
+    const urlEl = screen.getByText('https://example.com');
+    expect(urlEl).toBeInTheDocument();
+    expect(urlEl.tagName).toBe('A');
+    expect(urlEl).toHaveAttribute('href', 'https://example.com');
+    expect(urlEl).toHaveClass('text-blue-600');
+    expect(urlEl).toHaveClass('hover:underline');
+    expect(urlEl).toHaveClass('text-sm');
   });
 });
