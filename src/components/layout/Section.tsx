@@ -1,5 +1,6 @@
 import React from 'react';
 import Typography from '../common/Typography';
+import Stack from './Stack';
 
 interface SectionProps {
   children: React.ReactNode;
@@ -31,12 +32,12 @@ const Section: React.FC<SectionProps> = ({
   return (
     <section className={classes}>
       {(title || subtitle) && (
-        <div className="mb-4 sm:mb-6">
+        <Stack spacing="sm" className="mb-4 sm:mb-6">
           {title && (
             <Typography
               variant="h2"
               as="h2"
-              className="text-gray-900 font-bold mb-2"
+              className="text-gray-900 font-bold"
             >
               {title}
             </Typography>
@@ -46,7 +47,7 @@ const Section: React.FC<SectionProps> = ({
               {subtitle}
             </Typography>
           )}
-        </div>
+        </Stack>
       )}
       {children}
     </section>
