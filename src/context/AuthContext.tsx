@@ -7,7 +7,7 @@ import React, {
 import type { User } from '../types/authTypes';
 import { authService } from '../services';
 import { getToken, removeToken } from '../utils';
-import Spinner from '../components/common/Spinner';
+import { Spinner } from '../components';
 
 interface AuthContextType {
   user: User | null;
