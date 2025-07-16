@@ -1,4 +1,6 @@
 import React from 'react';
+import { Grid, Box } from '../layout';
+import { Typography } from '../common';
 
 export interface DetailsItem {
   label: string;
@@ -19,20 +21,24 @@ const DetailsList: React.FC<DetailsListProps> = ({
   ddClassName = '',
 }) => {
   return (
-    <dl
-      className={`grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 ${className}`}
-    >
+    <Grid cols={2} gap="md" className={className}>
       {items.map((item, index) => (
-        <React.Fragment key={index}>
-          <dt className={`text-sm font-medium text-gray-500 ${dtClassName}`}>
+        <Box key={index} className="flex flex-col">
+          <Typography
+            variant="body2"
+            className={`text-sm font-medium text-gray-500 ${dtClassName}`}
+          >
             {item.label}
-          </dt>
-          <dd className={`text-sm text-gray-900 ${ddClassName}`}>
+          </Typography>
+          <Typography
+            variant="body2"
+            className={`text-sm text-gray-900 ${ddClassName}`}
+          >
             {item.value}
-          </dd>
-        </React.Fragment>
+          </Typography>
+        </Box>
       ))}
-    </dl>
+    </Grid>
   );
 };
 
