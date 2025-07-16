@@ -132,4 +132,28 @@ describe('Typography', () => {
     render(<Typography data-testid="typography-test">Test</Typography>);
     expect(screen.getByTestId('typography-test')).toBeInTheDocument();
   });
+  test('renders as anchor when as="a" and supports anchor props', () => {
+    render(
+      <Typography
+        as="a"
+        href="https://example.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="custom-link"
+      >
+        Link Text
+      </Typography>
+    );
+    const element = screen.getByText('Link Text');
+    expect(element.tagName).toBe('A');
+    expect(element).toHaveAttribute('href', 'https://example.com');
+    expect(element).toHaveAttribute('target', '_blank');
+    expect(element).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(element).toHaveClass('custom-link');
+  });
+
+  test('forwards additional props to the component', () => {
+    render(<Typography data-testid="typography-test">Test</Typography>);
+    expect(screen.getByTestId('typography-test')).toBeInTheDocument();
+  });
 });

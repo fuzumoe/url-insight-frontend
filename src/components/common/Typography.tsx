@@ -34,6 +34,9 @@ export interface TypographyProps {
   children: React.ReactNode;
   as?: React.ElementType;
   gutterBottom?: boolean;
+  href?: string;
+  target?: string;
+  rel?: string;
 }
 
 const Typography: React.FC<TypographyProps> = ({
