@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextInput, Typography } from '../common';
 import {
   isValidEmail,
   isValidUsername,
@@ -15,6 +14,8 @@ import {
 } from 'react-icons/fa';
 import { useToast } from '../../hooks';
 import { Link } from 'react-router-dom';
+import { Button, TextInput } from '../form';
+import { Typography } from '../common';
 
 interface RegisterFormProps {
   onSuccess?: () => void;

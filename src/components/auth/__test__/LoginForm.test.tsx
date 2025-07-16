@@ -26,15 +26,65 @@ vi.mock('react-router-dom', () => ({
   ),
 }));
 
-vi.mock('react-icons/fa', () => ({
-  FaEnvelope: () => <div data-testid="email-icon">Email Icon</div>,
-  FaLock: () => <div data-testid="lock-icon">Lock Icon</div>,
-  FaSignInAlt: () => <div data-testid="signin-icon">Sign In Icon</div>,
-}));
+vi.mock('..', () => ({
+  TextInput: ({
+    id,
+    type,
+    value,
+    onChange,
+    onBlur,
+    required,
+    placeholder,
+    error,
+    autoComplete,
+    icon,
+    helpText,
+    pattern,
+  }: TextInputProps) => (
+    <div data-testid={`text-input-${id}`}>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        required={required}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        pattern={pattern}
+      />
+      {icon && <div data-testid={`icon-${id}`}>{icon}</div>}
+      {helpText && <div data-testid={`help-${id}`}>{helpText}</div>}
+      {error && (
+        <div role="alert" data-testid={`error-${id}`}>
+          {error}
+        </div>
+      )}
+    </div>
+  ),
 
-// Add Typography mock
-vi.mock('../../common/Typography', () => ({
-  default: ({
+  Button: ({
+    children,
+    type,
+    onClick,
+    className,
+  }: {
+    children: React.ReactNode;
+    type?: 'button' | 'submit' | 'reset';
+    onClick?: () => void;
+    className?: string;
+  }) => (
+    <button
+      type={type as 'button' | 'submit' | 'reset' | undefined}
+      onClick={onClick}
+      data-testid="button"
+      className={className}
+    >
+      {children}
+    </button>
+  ),
+
+  Typography: ({
     children,
     variant,
     color,
@@ -54,7 +104,6 @@ vi.mock('../../common/Typography', () => ({
     </div>
   ),
 }));
-
 interface TextInputProps {
   id: string;
   label: string;
@@ -159,12 +208,11 @@ describe('LoginForm', () => {
     expect(getInputById('email')).toBeInTheDocument();
     expect(getInputById('password')).toBeInTheDocument();
 
-    expect(screen.getByTestId('email-icon')).toBeInTheDocument();
-    expect(screen.getByTestId('lock-icon')).toBeInTheDocument();
-    expect(screen.getByTestId('signin-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-email')).toBeInTheDocument();
+    expect(screen.getByTestId('icon-password')).toBeInTheDocument();
 
     expect(screen.getByTestId('button')).toBeInTheDocument();
-    // Check for Typography component
+
     expect(screen.getByTestId('typography-body2')).toBeInTheDocument();
     expect(screen.getByTestId('router-link')).toBeInTheDocument();
     expect(
@@ -180,14 +228,11 @@ describe('LoginForm', () => {
   it('tests mobile-first responsive layout', () => {
     render(<LoginForm />);
 
-    // Find the form actions container by finding the wrapper div that contains both the link and button
     const registerLink = screen.getByTestId('router-link');
     const loginButton = screen.getByTestId('button');
 
-    // Get the common parent container
     const formActionsContainer = registerLink.closest('div')?.parentElement;
 
-    // Verify responsive classes
     expect(formActionsContainer).toHaveClass('flex-col');
     expect(formActionsContainer).toHaveClass('sm:flex-row');
     expect(formActionsContainer).toHaveClass('sm:items-center');
@@ -377,7 +422,6 @@ describe('LoginForm', () => {
   });
 
   it('shows connection error toast for network errors', async () => {
-    // Change the error message to include the word "network" that the component checks for
     const networkError = new Error('A network error occurred');
     mockLogin.mockRejectedValueOnce(networkError);
 

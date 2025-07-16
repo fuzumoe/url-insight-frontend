@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth, useToast } from '../../hooks';
-import { Button, TextInput, Typography } from '../common';
 import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { Button, TextInput, Typography } from '..';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');

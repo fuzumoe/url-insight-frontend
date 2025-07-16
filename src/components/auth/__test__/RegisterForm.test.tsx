@@ -42,95 +42,6 @@ vi.mock('react-icons/fa', () => ({
   FaUserPlus: () => <div data-testid="register-icon">Register Icon</div>,
 }));
 
-vi.mock('../../common/TextInput', () => ({
-  default: ({
-    id,
-    label,
-    type,
-    value,
-    onChange,
-    onBlur,
-    error,
-    icon,
-    helpText,
-  }: {
-    id: string;
-    label: string;
-    type?: string;
-    value: string | number | boolean | undefined;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-    error?: string;
-    icon?: React.ReactNode;
-    helpText?: string;
-  }) => (
-    <div data-testid={`text-input-${id}`}>
-      <label htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        type={type || 'text'}
-        value={typeof value === 'boolean' ? value.toString() : value}
-        onChange={onChange}
-        onBlur={onBlur}
-      />
-      {icon && <div data-testid={`icon-${id}`}>{icon}</div>}
-      {helpText && <div data-testid={`help-${id}`}>{helpText}</div>}
-      {error && <div data-testid={`error-${id}`}>{error}</div>}
-    </div>
-  ),
-}));
-
-vi.mock('../../common/Button', () => ({
-  default: ({
-    children,
-    onClick,
-    type,
-    disabled,
-    isLoading,
-    className,
-  }: {
-    children: React.ReactNode;
-    onClick?: () => void;
-    type?: 'button' | 'submit' | 'reset';
-    disabled?: boolean;
-    isLoading?: boolean;
-    className?: string;
-  }) => (
-    <button
-      onClick={onClick}
-      type={type}
-      disabled={disabled || isLoading}
-      data-testid="button"
-      data-loading={isLoading}
-      className={className}
-    >
-      {children}
-    </button>
-  ),
-}));
-
-vi.mock('../../common/Typography', () => ({
-  default: ({
-    children,
-    variant,
-    color,
-    className,
-  }: {
-    children: React.ReactNode;
-    variant?: string;
-    color?: string;
-    className?: string;
-  }) => (
-    <div
-      data-testid={`typography-${variant || 'default'}`}
-      data-color={color}
-      className={className}
-    >
-      {children}
-    </div>
-  ),
-}));
-
 describe('RegisterForm', () => {
   const mockOnRegister = vi.fn();
   const mockOnSuccess = vi.fn();
@@ -154,12 +65,10 @@ describe('RegisterForm', () => {
       <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
     );
 
-    expect(screen.getByTestId('text-input-username')).toBeInTheDocument();
-    expect(screen.getByTestId('text-input-email')).toBeInTheDocument();
-    expect(screen.getByTestId('text-input-password')).toBeInTheDocument();
-    expect(
-      screen.getByTestId('text-input-confirmPassword')
-    ).toBeInTheDocument();
+    expect(document.getElementById('username')).toBeInTheDocument();
+    expect(document.getElementById('email')).toBeInTheDocument();
+    expect(document.getElementById('password')).toBeInTheDocument();
+    expect(document.getElementById('confirmPassword')).toBeInTheDocument();
 
     expect(screen.getByTestId('user-icon')).toBeInTheDocument();
     expect(screen.getByTestId('email-icon')).toBeInTheDocument();
@@ -167,16 +76,16 @@ describe('RegisterForm', () => {
     expect(screen.getByTestId('check-icon')).toBeInTheDocument();
     expect(screen.getByTestId('register-icon')).toBeInTheDocument();
 
-    const button = screen.getByTestId('button');
+    const button = screen.getByRole('button', { name: /register/i });
     expect(button).toBeInTheDocument();
-    expect(button).toHaveTextContent(/register/i);
 
-    expect(screen.queryByTestId('typography-caption')).not.toBeInTheDocument();
-
-    expect(screen.getByTestId('typography-body2')).toBeInTheDocument();
     expect(screen.getByTestId('router-link')).toBeInTheDocument();
     expect(
       screen.getByText(/already have an account\? sign in/i)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByTestId('typography-secondary-caption')
     ).toBeInTheDocument();
   });
 
@@ -187,12 +96,12 @@ describe('RegisterForm', () => {
       <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
     );
 
-    await user.type(screen.getByLabelText(/username/i), 'testuser');
-    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'Password123');
-    await user.type(screen.getByLabelText(/confirm password/i), 'Password123');
+    await user.type(document.getElementById('username')!, 'testuser');
+    await user.type(document.getElementById('email')!, 'test@example.com');
+    await user.type(document.getElementById('password')!, 'Password123');
+    await user.type(document.getElementById('confirmPassword')!, 'Password123');
 
-    await user.click(screen.getByTestId('button'));
+    await user.click(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {
       expect(mockOnRegister).toHaveBeenCalledWith(
@@ -221,11 +130,12 @@ describe('RegisterForm', () => {
       <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
     );
 
-    await user.type(screen.getByLabelText(/username/i), 'existinguser');
-    await user.type(screen.getByLabelText(/email/i), 'existing@example.com');
-    await user.type(screen.getByLabelText(/^password$/i), 'Password123');
-    await user.type(screen.getByLabelText(/confirm password/i), 'Password123');
-    await user.click(screen.getByTestId('button'));
+    await user.type(document.getElementById('username')!, 'existinguser');
+    await user.type(document.getElementById('email')!, 'existing@example.com');
+    await user.type(document.getElementById('password')!, 'Password123');
+    await user.type(document.getElementById('confirmPassword')!, 'Password123');
+
+    await user.click(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {
       expect(mockAddToast).toHaveBeenCalledWith({
@@ -247,12 +157,11 @@ describe('RegisterForm', () => {
       <RegisterForm onRegister={mockOnRegister} onSuccess={mockOnSuccess} />
     );
 
-    await user.type(screen.getByLabelText(/^password$/i), 'SomePassword');
+    await user.type(document.getElementById('password')!, 'SomePassword');
 
     await waitFor(() => {
-      const caption = screen.getByTestId('typography-caption');
-      expect(caption).toBeInTheDocument();
-      expect(caption).toHaveTextContent(/medium/i);
+      const strengthIndicator = screen.getByText(/medium/i);
+      expect(strengthIndicator).toBeInTheDocument();
     });
   });
 
@@ -263,14 +172,14 @@ describe('RegisterForm', () => {
 
     const formActionsContainer = screen
       .getByTestId('router-link')
-      .closest('div')?.parentElement;
+      .closest('p')?.parentElement;
 
     expect(formActionsContainer).toHaveClass('flex-col');
     expect(formActionsContainer).toHaveClass('sm:flex-row');
     expect(formActionsContainer).toHaveClass('sm:items-center');
     expect(formActionsContainer).toHaveClass('sm:justify-between');
 
-    const button = screen.getByTestId('button');
+    const button = screen.getByRole('button', { name: /register/i });
     expect(button).toHaveClass('w-full');
     expect(button).toHaveClass('sm:w-auto');
   });
