@@ -1,4 +1,6 @@
 import React from 'react';
+import { Flex } from '../layout';
+import { Typography } from '../common';
 
 export interface SectionHeaderProps {
   title: string;
@@ -16,12 +18,16 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   actionsClassName = '',
 }) => {
   return (
-    <div className={`flex justify-between items-center mb-4 ${className}`}>
-      <h2 className={`text-lg font-medium text-gray-800 ${titleClassName}`}>
+    <Flex justify="between" align="center" className={`mb-4 ${className}`}>
+      <Typography
+        as="h2"
+        variant="h6"
+        className={`text-lg font-medium text-gray-800 ${titleClassName}`}
+      >
         {title}
-      </h2>
+      </Typography>
       {actions && <div className={actionsClassName}>{actions}</div>}
-    </div>
+    </Flex>
   );
 };
 
