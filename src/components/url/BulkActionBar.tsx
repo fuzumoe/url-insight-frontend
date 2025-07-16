@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from '../common';
+import { Button, Typography } from '../common';
+import { Box, Flex } from '../layout';
 
 interface BulkActionBarProps {
   selectedIds: string[];
@@ -15,13 +16,17 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
   if (selectedIds.length === 0) return null;
 
   return (
-    <div className="bg-gray-50 px-4 py-2 border-t border-b">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-700">
+    <Box
+      background="gray-50"
+      padding="none"
+      className="px-4 py-2 border-t border-b"
+    >
+      <Flex justify="between" align="center">
+        <Typography variant="body2" className="text-sm text-gray-700">
           {selectedIds.length} item{selectedIds.length !== 1 ? 's' : ''}{' '}
           selected
-        </span>
-        <div className="flex space-x-2">
+        </Typography>
+        <Flex gap="sm">
           <Button
             variant="primary"
             size="sm"
@@ -36,9 +41,9 @@ const BulkActionBar: React.FC<BulkActionBarProps> = ({
           >
             Delete
           </Button>
-        </div>
-      </div>
-    </div>
+        </Flex>
+      </Flex>
+    </Box>
   );
 };
 

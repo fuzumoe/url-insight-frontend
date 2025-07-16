@@ -104,7 +104,6 @@ describe('BulkActionBar', () => {
     expect(mockOnDelete).toHaveBeenCalledWith(selectedIds);
   });
 
-  // Fix 2: Update the last test to not rely on data-testid
   it('uses the correct button variants and sizes', () => {
     render(
       <BulkActionBar
@@ -114,8 +113,6 @@ describe('BulkActionBar', () => {
       />
     );
 
-    // Since the mock might not be applied correctly, test the buttons by their text
-    // and verify they trigger the right callbacks
     const rerunButton = screen.getByText('Rerun Analysis');
     const deleteButton = screen.getByText('Delete');
 
@@ -124,5 +121,18 @@ describe('BulkActionBar', () => {
 
     fireEvent.click(deleteButton);
     expect(mockOnDelete).toHaveBeenCalled();
+  });
+  it('renders selected count using Typography with correct class', () => {
+    render(
+      <BulkActionBar
+        selectedIds={['item1', 'item2']}
+        onRerun={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+    const count = screen.getByText('2 items selected');
+    expect(count).toBeInTheDocument();
+    expect(count).toHaveClass('text-sm');
+    expect(count).toHaveClass('text-gray-700');
   });
 });

@@ -140,4 +140,12 @@ describe('BrokenLinksList', () => {
     expect(screen.getByText('Gateway Timeout')).toBeInTheDocument();
     expect(screen.getByText('Error 999')).toBeInTheDocument();
   });
+  it('displays empty state when no links are provided', () => {
+    render(<BrokenLinksList links={[]} />);
+    const emptyState = screen.getByText('No broken links found');
+    expect(emptyState).toBeInTheDocument();
+    expect(emptyState.tagName).toBe('P'); // Typography defaults to span
+    expect(emptyState).toHaveClass('text-gray-500');
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
 });

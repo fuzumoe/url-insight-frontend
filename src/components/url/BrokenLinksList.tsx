@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import type { BrokenLink } from '../../types';
-import { TableHeaderCell, TableCell } from '../common';
+import {
+  TableCell,
+  TableHeader,
+  TableBody,
+  TableRow,
+  Typography,
+} from '../common';
+import Table from '../common/Table';
 import { FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { Box, Stack } from '../layout';
+import TableHeaderCell from '../common/TableHeaderCell';
+import { formatHttpStatusCode } from '../../utils';
 
 interface BrokenLinksListProps {
   links: BrokenLink[];
@@ -13,9 +23,16 @@ const BrokenLinksList: React.FC<BrokenLinksListProps> = ({ links }) => {
 
   if (links.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-md p-6 text-center">
-        <p className="text-gray-500">No broken links found</p>
-      </div>
+      <Box
+        background="gray-50"
+        rounded="md"
+        padding="md"
+        className="text-center"
+      >
+        <Typography variant="body1" className="text-gray-500">
+          No broken links found
+        </Typography>
+      </Box>
     );
   }
 
@@ -41,94 +58,91 @@ const BrokenLinksList: React.FC<BrokenLinksListProps> = ({ links }) => {
   };
 
   const getStatusCodeColor = (statusCode: number) => {
-    if (statusCode >= 500) return 'bg-red-100 text-red-800'; // Server errors
-    if (statusCode >= 400) return 'bg-orange-100 text-orange-800'; // Client errors
-    return 'bg-gray-100 text-gray-800'; // Fallback
-  };
-
-  const getStatusCodeDescription = (statusCode: number) => {
-    switch (statusCode) {
-      case 400:
-        return 'Bad Request';
-      case 401:
-        return 'Unauthorized';
-      case 403:
-        return 'Forbidden';
-      case 404:
-        return 'Not Found';
-      case 500:
-        return 'Internal Server Error';
-      case 502:
-        return 'Bad Gateway';
-      case 503:
-        return 'Service Unavailable';
-      case 504:
-        return 'Gateway Timeout';
-      default:
-        return `Error ${statusCode}`;
-    }
+    if (statusCode >= 500) return 'bg-red-100 text-red-800';
+    if (statusCode >= 400) return 'bg-orange-100 text-orange-800';
+    return 'bg-gray-100 text-gray-800';
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <TableHeaderCell onClick={() => handleSort('url')}>
-              URL
+    <Box className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableHeaderCell
+            onClick={() => handleSort('url')}
+            className="py-2 px-2 sm:py-3 sm:px-4"
+          >
+            <Stack direction="row" align="center" spacing="sm">
+              <Typography variant="body1">URL</Typography>
               {sortBy === 'url' && (
-                <span className="ml-1">
+                <Typography variant="body1">
                   {sortDirection === 'asc' ? (
                     <FiArrowUp size={14} />
                   ) : (
                     <FiArrowDown size={14} />
                   )}
-                </span>
+                </Typography>
               )}
-            </TableHeaderCell>
-            <TableHeaderCell onClick={() => handleSort('statusCode')}>
-              Status Code
+            </Stack>
+          </TableHeaderCell>
+          <TableHeaderCell
+            onClick={() => handleSort('statusCode')}
+            className="py-2 px-2 sm:py-3 sm:px-4"
+          >
+            <Stack direction="row" align="center" spacing="sm">
+              <Typography variant="body1">Status Code</Typography>
               {sortBy === 'statusCode' && (
-                <span className="ml-1">
+                <Typography variant="body1">
                   {sortDirection === 'asc' ? (
                     <FiArrowUp size={14} />
                   ) : (
                     <FiArrowDown size={14} />
                   )}
-                </span>
+                </Typography>
               )}
-            </TableHeaderCell>
-            <TableHeaderCell>Description</TableHeaderCell>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+            </Stack>
+          </TableHeaderCell>
+          <TableHeaderCell className="py-2 px-2 sm:py-3 sm:px-4">
+            <Typography variant="body1">Description</Typography>
+          </TableHeaderCell>
+        </TableHeader>
+
+        <TableBody striped>
           {sortedLinks.map(link => (
-            <tr key={link.id}>
-              <TableCell className="max-w-sm truncate">
-                <a
+            <TableRow
+              key={link.id}
+              hover
+              variant={link.statusCode >= 500 ? 'error' : 'default'}
+            >
+              <TableCell className="py-2 sm:py-3 px-2 sm:px-4 max-w-xs sm:max-w-sm truncate">
+                <Typography
+                  variant="body1"
+                  as="a"
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 hover:underline"
                 >
                   {link.url}
-                </a>
+                </Typography>
               </TableCell>
-              <TableCell>
-                <span
-                  className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusCodeColor(link.statusCode)}`}
+              <TableCell className="py-2 sm:py-3 px-2 sm:px-4">
+                <Typography
+                  variant="body1"
+                  className={`px-2 py-1 sm:px-2.5 sm:py-1.5 inline-flex leading-5 font-semibold rounded-full ${getStatusCodeColor(link.statusCode)}`}
                 >
                   {link.statusCode}
-                </span>
+                </Typography>
               </TableCell>
-              <TableCell className="text-sm text-gray-500">
-                {getStatusCodeDescription(link.statusCode)}
+              <TableCell className="py-2 sm:py-3 px-2 sm:px-4">
+                <Typography variant="body1" className="text-gray-600">
+                  {formatHttpStatusCode(link.statusCode)}
+                </Typography>
               </TableCell>
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </Box>
   );
 };
 
