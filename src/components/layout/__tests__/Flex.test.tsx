@@ -4,16 +4,12 @@ import '@testing-library/jest-dom';
 import Flex from '../Flex';
 
 describe('Flex', () => {
-  // Keep existing tests unchanged
-
-  // Add new test for inline property
   it('applies inline-flex when inline prop is true', () => {
     const { container } = render(
       <Flex inline>
         <div>Test content</div>
       </Flex>
     );
-
     expect(container.firstChild).toHaveClass('inline-flex');
     expect(container.firstChild).not.toHaveClass('flex');
   });
@@ -24,7 +20,6 @@ describe('Flex', () => {
         <div>Test content</div>
       </Flex>
     );
-
     expect(container.firstChild).toHaveClass('flex');
     expect(container.firstChild).not.toHaveClass('inline-flex');
   });
@@ -35,7 +30,6 @@ describe('Flex', () => {
         <div>Test content</div>
       </Flex>
     );
-
     expect(container.firstChild).toHaveClass('flex');
     expect(container.firstChild).not.toHaveClass('inline-flex');
   });
@@ -53,15 +47,24 @@ describe('Flex', () => {
         <div>Test content</div>
       </Flex>
     );
-
-    expect(container.firstChild).toHaveClass(
-      'inline-flex',
-      'flex-col',
-      'justify-center',
-      'items-center',
-      'gap-4',
-      'custom-class'
-    );
+    expect(container.firstChild).toHaveClass('inline-flex');
+    expect(container.firstChild).toHaveClass('flex-col');
+    expect(container.firstChild).toHaveClass('justify-center');
+    expect(container.firstChild).toHaveClass('items-center');
+    expect(container.firstChild).toHaveClass('gap-4');
+    expect(container.firstChild).toHaveClass('custom-class');
     expect(container.firstChild).not.toHaveClass('flex');
+  });
+
+  it('applies correct padding classes when padding prop is provided', () => {
+    const { container } = render(
+      <Flex padding="lg">
+        <div>Test content</div>
+      </Flex>
+    );
+    expect((container.firstChild as HTMLElement)?.className).toContain('p-4');
+    expect((container.firstChild as HTMLElement)?.className).toContain(
+      'sm:p-6'
+    );
   });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface FlexProps {
+export interface FlexProps {
   children: React.ReactNode;
   direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
   justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
@@ -9,6 +9,7 @@ interface FlexProps {
   gap?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   inline?: boolean;
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl'; // Added padding property
 }
 
 const Flex: React.FC<FlexProps> = ({
@@ -20,7 +21,16 @@ const Flex: React.FC<FlexProps> = ({
   gap = 'none',
   className = '',
   inline = false,
+  padding = 'none', // default padding
 }) => {
+  const paddingClasses = {
+    none: '',
+    sm: 'p-2 sm:p-3',
+    md: 'p-3 sm:p-4',
+    lg: 'p-4 sm:p-6',
+    xl: 'p-6 sm:p-8',
+  };
+
   const directionClasses = {
     row: 'flex-row',
     column: 'flex-col',
@@ -66,6 +76,7 @@ const Flex: React.FC<FlexProps> = ({
     align && alignClasses[align],
     wrap && wrapClasses[wrap],
     gapClasses[gap],
+    paddingClasses[padding],
     className,
   ]
     .filter(Boolean)
